@@ -21,22 +21,23 @@
 <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='img/og.png') }}">
 <meta name="theme-color" content="#063372">
 <link rel="preload" href="{{ url_for('static', filename='fonts/nunito-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=10">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=12">
 <script>
-  document.documentElement.classList.add("js");
+  document.documentElement.classList.add("js", "has-js");
   // Si les animations ne se chargent pas, on affiche tout au bout de 2,5 s
   setTimeout(function () { if (!window.__mdfAnim) document.documentElement.classList.remove("js"); }, 2500);
 </script>
 </head>
 <body class="lang-{{ lang }}">
 <a class="skip" href="#contenu">{{ t.skip }}</a>
-<header class="site-header">
+<header class="site-header public">
   <div class="wrap">
     <a class="brand" href="{{ url_for('home') }}" aria-label="{{ t.home_aria }}">
       <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="" width="52" height="52">
       <span class="brand-name"><b>{{ t.brand_main }}</b><span lang="{{ t.brand_sub_lang }}">{{ t.brand_sub }}</span></span>
     </a>
-    <nav class="nav" aria-label="{{ t.nav_aria }}">
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav"><span aria-hidden="true">☰</span> {{ t.nav_menu }}</button>
+    <nav class="nav" id="site-nav" aria-label="{{ t.nav_aria }}">
       {% set ep = request.endpoint %}
       <a href="{{ url_for('method') }}" {% if ep == 'method' %}aria-current="page"{% endif %}>{{ t.nav_method }}</a>
       <a href="{{ url_for('path') }}" {% if ep == 'path' %}aria-current="page"{% endif %}>{{ t.nav_path }}</a>
@@ -44,12 +45,12 @@
       <a href="{{ url_for('atelier') }}" {% if ep == 'atelier' %}aria-current="page"{% endif %}>{{ t.nav_atelier }}</a>
       {% if reviews_live() %}<a href="{{ url_for('reviews_page') }}" {% if ep == 'reviews_page' %}aria-current="page"{% endif %}>{{ t.nav_reviews }}</a>{% endif %}
       {% if pricing_live() %}<a href="{{ url_for('prices') }}" {% if ep == 'prices' %}aria-current="page"{% endif %}>{{ t.nav_prices }}</a>{% endif %}
-      <a href="{{ url_for('teach_page') }}" {% if ep == 'teach_page' %}aria-current="page"{% endif %}>{{ t.nav_teach }}</a>
+      <a href="{{ url_for('teach_page') }}" {% if ep == 'teach_page' %}aria-current="page"{% endif %}>{{ t.nav_teach_menu }}</a>
       <a class="lang-switch" href="{{ alt[other_lang] }}" lang="{{ t.switch_lang }}" hreflang="{{ t.switch_lang }}" aria-label="{{ t.switch_aria }}">{{ t.switch_label }}</a>
       {% set cu = current_user() %}
       {% if cu %}<a href="{{ url_for('account_home') }}" {% if ep and ep.startswith('account_') %}aria-current="page"{% endif %}>{{ cu.name if cu.name|length <= 8 else cu.name.split()[0] }}</a>
       {% else %}<a href="{{ url_for('account_login') }}" {% if ep and ep.startswith('account_') %}aria-current="page"{% endif %}>{{ t.nav_login }}</a>{% endif %}
-      <a class="btn btn-navy btn-small" href="{{ url_for('contact') }}">{{ t.nav_cta }}</a>
+      <a class="btn btn-navy btn-small" href="{{ url_for('contact') }}">{{ t.nav_cta_menu }}</a>
     </nav>
   </div>
 </header>
@@ -90,6 +91,6 @@
   </div>
 </footer>
 <script src="{{ url_for('static', filename='vendor/motion.js') }}" defer></script>
-<script src="{{ url_for('static', filename='site.js') }}?v=1" defer></script>
+<script src="{{ url_for('static', filename='site.js') }}?v=2" defer></script>
 </body>
 </html>

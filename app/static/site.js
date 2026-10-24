@@ -1,3 +1,14 @@
+// Menu sur petit écran : le bouton ☰ ouvre / ferme la navigation (indépendant des animations)
+(function () {
+  var header = document.querySelector(".site-header.public");
+  var btn = header && header.querySelector(".menu-btn");
+  if (!btn) return;
+  function set(open) { header.classList.toggle("open", open); btn.setAttribute("aria-expanded", open ? "true" : "false"); }
+  btn.addEventListener("click", function () { set(!header.classList.contains("open")); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && header.classList.contains("open")) { set(false); btn.focus(); } });
+  header.querySelectorAll(".nav a").forEach(function (a) { a.addEventListener("click", function () { set(false); }); });
+})();
+
 // Animations avec Motion (vanilla, static/vendor/motion.js, MIT). Rien ne bouge si l'utilisateur a demandé moins de mouvement.
 (function () {
   window.__mdfAnim = true;

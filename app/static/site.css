@@ -330,3 +330,21 @@ td:first-child { font-weight: 900; font-size: 20px; }
 .role-card:has(input:focus-visible) { outline: 3px solid var(--red); outline-offset: 2px; }
 .note-card { background: var(--soft); color: var(--ink); margin: 0; }
 @media (max-width: 420px) { .role-pick { grid-template-columns: 1fr; } }
+
+/* En-tête public : toujours une seule ligne, identique en chinois et en français */
+.site-header.public .wrap { flex-wrap: nowrap; justify-content: flex-start; position: relative; }
+.site-header.public .brand { flex: none; }
+.site-header.public .nav { flex-wrap: nowrap; white-space: nowrap; gap: 18px; margin-left: auto; }
+.menu-btn { display: none; margin-left: auto; align-items: center; gap: 8px; font: inherit; font-weight: 800; font-size: 15px; color: var(--navy); background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 9px 16px; cursor: pointer; }
+.menu-btn span { font-size: 18px; line-height: 1; }
+@media (max-width: 1200px) {  /* seuil mesuré : menu fr le plus long (avec Avis + Tarifs) = 1155 px */
+  .has-js .site-header.public .menu-btn { display: inline-flex; }
+  .has-js .site-header.public .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 24px 20px; border-bottom: 1px solid var(--line); box-shadow: 0 18px 30px rgba(6, 51, 114, .08); white-space: normal; }
+  .has-js .site-header.public.open .nav { display: flex; }
+  .site-header.public .nav a { padding: 12px 2px; border-bottom: 1px solid var(--line); }
+  .site-header.public .nav .lang-switch { align-self: flex-start; margin: 12px 0 0; border: 2px solid var(--line); padding: 6px 14px; }
+  .site-header.public .nav .btn { margin-top: 14px; border-bottom: 0; text-align: center; padding: 13px; }
+  html:not(.has-js) .site-header.public .wrap { flex-wrap: wrap; }
+  html:not(.has-js) .site-header.public .nav { flex-wrap: wrap; white-space: normal; margin-left: 0; }
+}
+@media (max-width: 640px) { .has-js .site-header.public .nav { padding: 8px 16px 18px; } }
