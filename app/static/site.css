@@ -383,7 +383,7 @@ td:first-child { font-weight: 900; font-size: 20px; }
 @media (max-width: 900px) {
   .with-filters { grid-template-columns: 1fr; gap: 20px; }
   .with-filters > .filters { grid-column: 1; grid-row: 1; position: static; }
-  .with-filters > .results { grid-row: 2; }
+  .with-filters > .results { grid-column: 1; grid-row: 2; }
   .filters-box summary { cursor: pointer; padding: 16px 20px; }
   .filters-box summary::after { content: "▾"; margin-left: auto; font-size: 14px; }
   .filters-box[open] summary::after { content: "▴"; }
