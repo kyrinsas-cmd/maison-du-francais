@@ -31,8 +31,31 @@
       </article>
       {% endfor %}
     </div>
-    <p class="note">{{ '具体时间以准考证为准。费用以报名网站公布为准。' if zh else "Les horaires exacts figurent sur la convocation ; les tarifs, sur le site d'inscription." }}</p>
+    <p class="note">{{ '具体时间以准考证为准。' if zh else "Les horaires exacts figurent sur la convocation." }}</p>
     {% endif %}
+
+    <h2 class="fle-h2">{{ '考试费用' if zh else "Tarifs d'inscription" }}</h2>
+    <div class="table-box fle-table">
+      <table>
+        <thead><tr><th scope="col">{{ '级别' if zh else 'Niveau' }}</th><th scope="col">{{ '考试费（人民币）' if zh else 'Tarif (yuans)' }}</th></tr></thead>
+        <tbody>{% for z, f, price in fees %}<tr><td>{{ z if zh else f }}</td><td><b>{{ price }} 元</b></td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+    <ul class="fle-list" style="margin-top:16px">
+      {% if zh %}
+      <li>报名时网上缴费，可使用支付宝、招商银行一网通或中国银行中银智慧付。缴费成功后，邮箱会收到报名成功确认书；需要发票请联系考点。</li>
+      <li><b>报名成功后不能更改考试日期、级别、考点，也不能取消报名；不参加考试不退费。</b></li>
+      <li>每次考试只能报考一个考点、一个级别。</li>
+      <li>成绩约在考期最后一个级别考试后1个月可在报名网站查询；正式文凭约在考试后2–3个月到考点或当地法语联盟领取，终生有效。</li>
+      {% else %}
+      <li>Paiement en ligne à l'inscription : Alipay, 一网通 (China Merchants Bank) ou 中银智慧付 (Bank of China). Une confirmation arrive par e-mail ; pour une facture, s'adresser au centre.</li>
+      <li><b>Une fois inscrit, on ne peut changer ni la date, ni le niveau, ni le centre, ni annuler ; absence à l'examen = pas de remboursement.</b></li>
+      <li>Un seul centre et un seul niveau par session.</li>
+      <li>Résultats sur le site d'inscription environ 1 mois après le dernier niveau de la session ; diplôme officiel à retirer au centre ou à l'Alliance française locale 2 à 3 mois après l'examen, valable à vie.</li>
+      {% endif %}
+    </ul>
+    <p class="note">{{ '来源：教育部教育考试院常见问题（2023年4月19日发布，适用于2018年5、6月考试起），以报名网站当期公布为准。' if zh else "Source : FAQ de la NEEA (publiée le 19 avril 2023, tarifs appliqués depuis les sessions de mai-juin 2018). Le site d'inscription fait foi pour la session en cours." }}
+      <a href="{{ fees_url }}" target="_blank" rel="noopener">{{ '考试费用' if zh else 'Tarifs' }} ↗</a> · <a href="{{ rules_url }}" target="_blank" rel="noopener">{{ '变更与退费' if zh else 'Modifications et remboursement' }} ↗</a></p>
 
     <h2 class="fle-h2">{{ '全国考点（%d个）'|format(centres|length) if zh else "Les %d centres d'examen"|format(centres|length) }}</h2>
     <div class="centre-grid">
@@ -51,7 +74,8 @@
     <h2 class="fle-h2">{{ '资料来源' if zh else 'Sources' }}</h2>
     <ul class="fle-sources">
       <li><a href="{{ neea_centres }}" target="_blank" rel="noopener">{{ '教育部教育考试院：DELF-DALF 考试机构' if zh else "NEEA (教育部教育考试院) : centres d'examen DELF-DALF" }}</a></li>
-      <li><a href="{{ neea }}" target="_blank" rel="noopener">{{ '教育部教育考试院：法语考试报名网站' if zh else "NEEA : site d'inscription aux examens de français" }}</a></li>
+      <li><a href="{{ neea }}" target="_blank" rel="noopener">{{ '教育部教育考试院：法语考试报名网站' if zh else "NEEA : site d'inscription aux examens de français" }}</a>（{{ '报考流程、考生须知' if zh else 'déroulement, consignes' }}）</li>
+      <li><a href="{{ fees_url }}" target="_blank" rel="noopener">{{ '教育部教育考试院常见问题：考试费用与支付方式（2023-04-19）' if zh else 'NEEA, FAQ : tarifs et paiement (19/04/2023)' }}</a> · <a href="{{ rules_url }}" target="_blank" rel="noopener">{{ '变更与退考' if zh else 'modifications et désistement' }}</a></li>
       <li>{{ '其他国家和地区的考点：' if zh else 'Centres dans les autres pays (dont la France) :' }} <a href="https://www.france-education-international.fr/centres-d-examen/liste" target="_blank" rel="noopener" lang="fr">France Éducation international</a></li>
     </ul>
     <p class="note">{{ '资料核对日期：%s。报名前请以考试院最新通知为准。'|format(checked.strftime('%Y年%m月%d日')) if zh else 'Informations vérifiées le %s. Avant de vous inscrire, consultez le dernier avis de la NEEA.'|format(checked.strftime('%d/%m/%Y')) }}</p>

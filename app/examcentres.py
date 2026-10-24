@@ -13,6 +13,12 @@ from db import connect
 NEEA = "https://delf-dalf.neea.edu.cn"
 NEEA_CENTRES = "https://www.neea.edu.cn/html1/folder/16103/1132-1.htm"
 CHECKED = date(2026, 10, 25)
+# Tarifs officiels : FAQ NEEA « 考试费用是多少？支付方式是什么？ » (publiée le 2023-04-19 ; tableau en image),
+# applicables « 从2018年5月和6月考试起 ». Revérifier à chaque session : https://www.neea.edu.cn/html1/report/2304/335-1.htm
+FEES = [("DELF Prim", "DELF Prim", 1500), ("DELF A1、A2（含 DELF Junior A1、A2）", "DELF A1, A2 (y compris DELF Junior A1, A2)", 1500),
+        ("DELF B1、B2（含 DELF Junior B1、B2）", "DELF B1, B2 (y compris DELF Junior B1, B2)", 2000), ("DALF C1、C2", "DALF C1, C2", 2500)]
+FEES_URL = "https://www.neea.edu.cn/html1/report/2304/335-1.htm"
+RULES_URL = "https://www.neea.edu.cn/html1/report/2304/333-1.htm"
 
 
 @web.route("/centres-examen")
@@ -22,7 +28,7 @@ def exam_centres():
         sessions = c.execute("SELECT * FROM exam_sessions WHERE published ORDER BY first_day DESC NULLS LAST, id DESC").fetchall()
     today = date.today()
     return render_template("centres.html", centres=centres, sessions=[dict(s, past=bool(s["first_day"] and s["first_day"] < today)) for s in sessions],
-                           neea=NEEA, neea_centres=NEEA_CENTRES, checked=CHECKED)
+                           neea=NEEA, neea_centres=NEEA_CENTRES, checked=CHECKED, fees=FEES, fees_url=FEES_URL, rules_url=RULES_URL)
 
 
 # ---------- admin ----------
