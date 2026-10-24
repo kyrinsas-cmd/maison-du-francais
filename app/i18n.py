@@ -45,6 +45,11 @@ T = {
         "teachers_lead": "Chaque profil et chaque vidéo de présentation sont vérifiés par l'équipe avant publication.",
         "teachers_empty": "Les premiers professeurs seront présentés ici très bientôt.",
         "teachers_cta": "Vous êtes professeur de FLE ?",
+        "tp_profile": "Voir le profil", "tp_levels": "Niveaux", "tp_ages": "Âge des élèves", "tp_diplomas": "Diplômes",
+        "tp_courses": "Cours", "tp_video": "Vidéo de présentation", "tp_about": "Présentation",
+        "tp_cta": "Demander un cours d'essai", "tp_cta_note": "Les cours d'essai se réservent sur WeChat (QR code en bas de page).",
+        "tp_back": "Tous les professeurs", "tp_title": "{name}, professeur de FLE",
+        "tp_desc": "{name} enseigne le français en direct, en classe de 5 élèves au plus.",
 
         "parents_eyebrow": "Pour les parents", "parents_h2": "Une classe sûre, que vous pouvez observer.",
         "par1_h": "Parents auditeurs", "par1_p": "Vous pouvez suivre le cours, caméra et micro coupés.",
@@ -118,6 +123,11 @@ T = {
         "teachers_lead": "每位老师的资料和介绍视频都经过我们审核后才会发布。",
         "teachers_empty": "首批老师即将在这里亮相。",
         "teachers_cta": "您是FLE老师？",
+        "tp_profile": "查看老师介绍", "tp_levels": "教授级别", "tp_ages": "学生年龄", "tp_diplomas": "资质",
+        "tp_courses": "所授课程", "tp_video": "介绍视频", "tp_about": "老师简介",
+        "tp_cta": "预约试听", "tp_cta_note": "试听课通过微信预约（二维码见页面底部）。",
+        "tp_back": "全部老师", "tp_title": "{name} · 法语老师（FLE）",
+        "tp_desc": "{name}老师直播教授法语，每班最多5名学生。",
 
         "parents_eyebrow": "家长关心的", "parents_h2": "安全的课堂，家长可以旁听。",
         "par1_h": "家长旁听", "par1_p": "您可以旁听课堂，摄像头和麦克风默认关闭。",

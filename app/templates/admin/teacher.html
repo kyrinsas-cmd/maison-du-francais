@@ -1,0 +1,84 @@
+{% extends "admin/layout.html" %}
+{% block title %}{{ display_name(t) }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.teachers_list') }}">← Fiches professeurs</a></p>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-bottom:20px">
+  <h1 style="margin:0">{{ display_name(t) }}</h1>
+  {% if t.published %}<span class="status status-accepted">Publiée</span> <a href="/professeurs/{{ t.slug }}" target="_blank" rel="noopener">Voir en chinois</a> <a href="/fr/professeurs/{{ t.slug }}" target="_blank" rel="noopener">en français</a>
+  {% else %}<span class="status status-rejected">Brouillon</span>{% endif %}
+</div>
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+{% if t.application_id %}<p class="note">Issue de la <a href="{{ url_for('admin.application', aid=t.application_id) }}">candidature n° {{ t.application_id }}</a>.</p>{% endif %}
+
+<form class="form teacher-form" method="post" enctype="multipart/form-data">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+
+  <fieldset>
+    <legend>Identité</legend>
+    <div class="row2">
+      <label>Prénom<input type="text" name="first_name" required maxlength="60" value="{{ t.first_name }}"></label>
+      <label>Initiale du nom<input type="text" name="last_initial" maxlength="3" value="{{ t.last_initial or '' }}"></label>
+    </div>
+    <label>Diplômes<input type="text" name="diplomas" maxlength="300" placeholder="Master FLE, habilitation DELF…" value="{{ t.diplomas or '' }}"></label>
+    <div class="row2">
+      <label>Âge des élèves : de<input type="number" name="ages_min" min="1" max="99" value="{{ t.ages_min or '' }}"></label>
+      <label>à<input type="number" name="ages_max" min="1" max="99" value="{{ t.ages_max or '' }}"></label>
+    </div>
+    <div class="checks"><span>Niveaux enseignés</span>
+      {% for lv in levels %}<label class="check"><input type="checkbox" name="level_{{ lv }}" value="1" {% if lv in t.levels %}checked{% endif %}>{{ lv }}</label>{% endfor %}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Présentation</legend>
+    <label>En chinois (langue principale du site)<textarea name="bio_zh" maxlength="4000" lang="zh-Hans">{{ t.bio_zh or '' }}</textarea></label>
+    <label>En français<textarea name="bio_fr" maxlength="4000" lang="fr">{{ t.bio_fr or '' }}</textarea></label>
+    <div class="row2">
+      <label>Cours enseignés, en chinois (un par ligne)<textarea name="courses_zh" maxlength="2000" lang="zh-Hans">{{ t.courses_zh or '' }}</textarea></label>
+      <label>Cours enseignés, en français (un par ligne)<textarea name="courses_fr" maxlength="2000" lang="fr">{{ t.courses_fr or '' }}</textarea></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Photo</legend>
+    {% if t.photo_file %}<img class="admin-photo" src="/uploads/teachers/{{ t.photo_file }}" alt="Photo actuelle">
+    <label class="check"><input type="checkbox" name="remove_photo" value="1">Supprimer la photo</label>{% endif %}
+    <label>{{ 'Remplacer la photo' if t.photo_file else 'Ajouter une photo' }} (JPEG, PNG ou WebP, 15 Mo au plus)<input type="file" name="photo" accept="image/jpeg,image/png,image/webp"></label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Vidéo de présentation</legend>
+    <p class="note" style="margin:0">Tournée par le professeur. Elle n'apparaît sur le site qu'au statut « Validée ». MP4 (H.264) conseillé pour être lue partout, 150 Mo au plus.</p>
+    {% if t.video_file %}<video class="admin-video" src="/uploads/teachers/{{ t.video_file }}" controls preload="metadata"></video>
+    <label class="check"><input type="checkbox" name="remove_video" value="1">Supprimer la vidéo</label>{% endif %}
+    <label>{{ 'Remplacer la vidéo' if t.video_file else 'Ajouter une vidéo' }}<input type="file" name="video" accept="video/mp4,video/webm"></label>
+    {% if t.video_file %}
+    <label>Statut de la vidéo
+      <select name="video_status">{% for k, label in vstatus.items() if k != 'none' %}<option value="{{ k }}" {% if t.video_status == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    <label>Retour au professeur (si « À modifier »)<textarea name="video_feedback" maxlength="2000">{{ t.video_feedback or '' }}</textarea></label>
+    {% endif %}
+  </fieldset>
+
+  <fieldset>
+    <legend>Accord du professeur et publication</legend>
+    <div class="row2">
+      <label>Date de l'accord écrit<input type="date" name="consent_at" value="{{ t.consent_at.isoformat() if t.consent_at else '' }}"></label>
+      <label>Où est conservé l'accord<input type="text" name="consent_ref" maxlength="300" placeholder="E-mail du 24/10/2026, contrat signé…" value="{{ t.consent_ref or '' }}"></label>
+    </div>
+    <label>Ordre d'affichage (plus petit = en premier)<input type="number" name="sort" value="{{ t.sort }}"></label>
+    <label class="check"><input type="checkbox" name="published" value="1" {% if t.published %}checked{% endif %}>Publier la fiche sur le site</label>
+    {% if problems %}<p class="note" style="margin:0">Pour publier, il manque : {{ problems|join(', ') }}.</p>{% endif %}
+  </fieldset>
+
+  <button class="btn btn-navy" type="submit">Enregistrer</button>
+</form>
+
+<form class="form danger" method="post" style="margin-top:24px;max-width:520px;border:1px solid var(--line)" onsubmit="return confirm('Supprimer définitivement cette fiche, sa photo et sa vidéo ?');">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <input type="hidden" name="action" value="delete">
+  <p>Suppression définitive de la fiche, de la photo et de la vidéo (par exemple si le professeur retire son accord).</p>
+  <button class="btn btn-line danger-btn" type="submit">Supprimer la fiche</button>
+</form>
+{% endblock %}

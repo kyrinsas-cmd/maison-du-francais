@@ -212,3 +212,34 @@ td:first-child { font-weight: 900; font-size: 20px; }
 .danger p { margin: 0; font-size: 14px; color: var(--ink); }
 .danger-btn { border-color: var(--red-text); color: var(--red-text); }
 @media (max-width: 640px) { .admin-detail dl { grid-template-columns: 1fr; gap: 4px; } .admin-detail dd { margin-bottom: 10px; } }
+.teacher-form { border: 1px solid var(--line); gap: 24px; }
+.teacher-form fieldset { border: 0; border-top: 1px solid var(--line); margin: 0; padding: 16px 0 0; display: flex; flex-direction: column; gap: 14px; }
+.teacher-form legend { font-weight: 900; font-size: 18px; padding: 0 8px 0 0; }
+.form input[type=number], .form input[type=date], .form input[type=file] { font: inherit; font-weight: 400; padding: 12px 14px; border: 1px solid #C9D2E3; border-radius: 12px; background: #fff; color: var(--navy); }
+.row2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-weight: 700; font-size: 15px; }
+.admin-photo { width: 160px; height: 200px; object-fit: cover; border-radius: 16px; }
+.admin-video { width: 100%; max-width: 480px; border-radius: 16px; background: #000; }
+
+/* Professeurs (public) */
+.teachers { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.teacher-card { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; background: #fff; }
+.teacher-card img { display: block; width: 100%; aspect-ratio: 4 / 5; height: auto; object-fit: cover; background: var(--tile); }
+.teacher-card > div { padding: 22px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.teacher-card h3 a { text-decoration: none; }
+.teacher-card p { margin: 0; font-size: 15px; color: var(--ink); }
+.teacher-card .meta { color: var(--muted); font-weight: 700; }
+.teacher-card .btn { margin-top: auto; align-self: flex-start; }
+.teacher-page { padding-top: 40px; }
+.teacher-head { display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start; margin-top: 16px; }
+.teacher-head img { flex: 0 1 340px; width: 340px; max-width: 100%; aspect-ratio: 4 / 5; height: auto; object-fit: cover; border-radius: var(--radius); }
+.teacher-head > div { flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.teacher-facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 20px; margin: 0; font-size: 17px; }
+.teacher-facts dt { font-weight: 800; }
+.teacher-facts dd { margin: 0; color: var(--ink); }
+.teacher-body { display: flex; flex-wrap: wrap; gap: 48px; margin-top: 56px; }
+.teacher-body > div { flex: 1 1 400px; min-width: 0; color: var(--ink); font-size: 17px; line-height: 1.7; }
+.teacher-body h2 { font-size: 24px; color: var(--navy); margin: 0 0 12px; }
+.teacher-body ul { padding-left: 20px; }
+.teacher-body .pre { white-space: pre-line; margin: 0 0 32px; }
+.teacher-body video { width: 100%; border-radius: var(--radius); background: #000; }

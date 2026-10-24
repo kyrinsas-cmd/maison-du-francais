@@ -77,10 +77,27 @@
       <h2>{{ t.teachers_h2 }}</h2>
       <p class="lead">{{ t.teachers_lead }}</p>
     </div>
+    {% set teachers = published_teachers() %}
+    {% if teachers %}
+    <div class="grid teachers" data-reveal>
+      {% for tp in teachers %}
+      <article class="teacher-card">
+        <a href="{{ url_for('teacher_page', slug=tp.slug) }}" tabindex="-1" aria-hidden="true"><img src="{{ tp.photo }}" alt="" loading="lazy" width="400" height="500"></a>
+        <div>
+          <h3><a href="{{ url_for('teacher_page', slug=tp.slug) }}">{{ tp.name }}</a></h3>
+          <p>{{ tp.diplomas }}</p>
+          {% if tp.levels or tp.ages %}<p class="meta">{{ tp.levels }}{% if tp.levels and tp.ages %} · {% endif %}{{ tp.ages or '' }}</p>{% endif %}
+          <a class="btn btn-line btn-small" href="{{ url_for('teacher_page', slug=tp.slug) }}">{{ t.tp_profile }}</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
     <div class="empty" data-reveal>
       <p>{{ t.teachers_empty }}</p>
       <a class="btn btn-navy btn-small" href="#enseigner">{{ t.teachers_cta }}</a>
     </div>
+    {% endif %}
   </div>
 </section>
 

@@ -1,0 +1,31 @@
+{% extends "admin/layout.html" %}
+{% block title %}Professeurs{% endblock %}
+{% block content %}
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px">
+  <h1 style="margin:0">Fiches professeurs</h1>
+  <a class="btn btn-navy btn-small" href="{{ url_for('admin.teacher_new') }}">Nouvelle fiche</a>
+</div>
+{% if request.args.supprime %}<p class="flash">Fiche supprimée (photo et vidéo effacées).</p>{% endif %}
+<p class="note">Une fiche n'est publiée qu'avec l'accord écrit du professeur, une photo, ses diplômes et sa présentation dans les deux langues. La vidéo n'apparaît qu'une fois validée.</p>
+{% if rows %}
+<div class="table-box admin-table">
+<table>
+  <thead><tr><th scope="col">Professeur</th><th scope="col">Niveaux</th><th scope="col">Photo</th><th scope="col">Vidéo</th><th scope="col">Accord</th><th scope="col">Site</th></tr></thead>
+  <tbody>
+  {% for t in rows %}
+  <tr>
+    <td><a href="{{ url_for('admin.teacher', tid=t.id) }}">{{ display_name(t) }}</a></td>
+    <td>{{ t.levels|join(' · ') or '—' }}</td>
+    <td>{{ 'oui' if t.photo_file else '—' }}</td>
+    <td><span class="status status-{{ {'approved':'accepted','pending':'contacted','changes':'new'}.get(t.video_status, 'rejected') }}">{{ vstatus[t.video_status] }}</span></td>
+    <td>{{ t.consent_at.strftime('%d/%m/%Y') if t.consent_at else '—' }}</td>
+    <td>{% if t.published %}<a href="/professeurs/{{ t.slug }}" target="_blank" rel="noopener">Publiée</a>{% else %}Brouillon{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">Aucune fiche pour l'instant. Créez-en une depuis une candidature retenue, ou avec « Nouvelle fiche ».</p>
+{% endif %}
+{% endblock %}

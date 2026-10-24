@@ -1,0 +1,14 @@
+{% extends "admin/layout.html" %}
+{% block title %}Nouvelle fiche{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.teachers_list') }}">← Fiches professeurs</a></p>
+<h1>Nouvelle fiche professeur</h1>
+<form class="form" method="post" style="max-width:520px;border:1px solid var(--line)">
+  {% if error %}<p class="errors" role="alert">{{ error }}</p>{% endif %}
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  {% if pre and pre.application_id %}<input type="hidden" name="application_id" value="{{ pre.application_id }}"><p class="note" style="margin:0">Créée à partir de la candidature n° {{ pre.application_id }} (le diplôme sera repris).</p>{% endif %}
+  <label>Prénom<input type="text" name="first_name" required maxlength="60" value="{{ pre.first_name if pre }}"></label>
+  <label>Initiale du nom (affichée « Marie D. »)<input type="text" name="last_initial" maxlength="3" value="{{ pre.last_initial if pre }}"></label>
+  <button class="btn btn-navy" type="submit">Créer la fiche (brouillon)</button>
+</form>
+{% endblock %}
