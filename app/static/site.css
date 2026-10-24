@@ -400,3 +400,5 @@ td:first-child { font-weight: 900; font-size: 20px; }
 .seats-dots i { width: 12px; height: 12px; border-radius: 50%; background: var(--navy); }
 .seats-dots i.free { background: #fff; border: 2px solid var(--red); }
 @media (max-width: 640px) { .class-card { grid-template-columns: 64px minmax(0, 1fr); } .class-side { grid-column: 1 / -1; align-items: flex-start; text-align: left; } }
+.first-section { padding-top: 56px; }
+.page-h1 { font-size: clamp(28px, 3.6vw, 40px); margin-bottom: 24px; }

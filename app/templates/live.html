@@ -3,29 +3,10 @@
 {% block title %}{{ t.live_title }} · {{ t.brand_main }}{% endblock %}
 {% block description %}{{ t.live_desc }}{% endblock %}
 {% block content %}
-<section class="hero">
-  <div class="wrap">
-    <div class="hero-text">
-      <span class="pill">{{ t.nav_live }}</span>
-      <h1>{{ t.live_h1 }}</h1>
-      <p class="lead">{{ t.live_lead }}</p>
-      <div class="actions"><a class="btn btn-red" href="{{ url_for('contact') }}">{{ t.live_cta }}</a></div>
-    </div>
-    <div class="hero-visual" aria-hidden="true">
-      <div class="classroom">
-        <div class="classroom-top"><span class="live">{{ t.class_live }}</span><span>{{ t.class_time }}</span></div>
-        <div class="teacher-tile" lang="fr">Bonjour !</div>
-        <div class="pupils"><div>Léo</div><div class="talk">Mia</div><div>Tom</div><div>Lina</div><div>Hugo</div></div>
-        <small>{{ t.class_caption }}</small>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="classes">
+<section id="classes" class="first-section">
   <div class="wrap with-filters">
     <div class="results">
-      <h2 style="margin-bottom:20px">{{ t.lc_h2 }}</h2>
+      <h1 class="page-h1">{{ t.lc_h2 }}</h1>
       {% if classes %}
       <div class="class-list">
         {% for c in classes %}
