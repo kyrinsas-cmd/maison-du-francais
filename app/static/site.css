@@ -400,5 +400,13 @@ td:first-child { font-weight: 900; font-size: 20px; }
 .seats-dots i { width: 12px; height: 12px; border-radius: 50%; background: var(--navy); }
 .seats-dots i.free { background: #fff; border: 2px solid var(--red); }
 @media (max-width: 640px) { .class-card { grid-template-columns: 64px minmax(0, 1fr); } .class-side { grid-column: 1 / -1; align-items: flex-start; text-align: left; } }
-.first-section { padding-top: 56px; }
-.page-h1 { font-size: clamp(28px, 3.6vw, 40px); margin-bottom: 24px; }
+/* Pages à filtres : présentation identique (直播课, 老师, 教材库) */
+section.list-page { padding: 56px 0 96px; }
+.list-head { margin-bottom: 32px; }
+.list-head h1 { font-size: clamp(30px, 4vw, 44px); line-height: 1.15; }
+.list-head .lead { max-width: 760px; }
+.with-filters .results > .empty, .with-filters .results > .demo-banner:first-child { margin-top: 0; }
+
+/* Données de démonstration */
+.demo-tag { display: inline-block; vertical-align: middle; font-size: 12px; font-weight: 800; color: #6B4E00; background: #FFF4D6; border: 1px solid #F0C86B; border-radius: 999px; padding: 2px 9px; letter-spacing: 0; }
+.demo-banner { margin: 0 0 18px; background: #FFF4D6; color: #6B4E00; border-radius: 12px; padding: 10px 14px; font-size: 14px; }

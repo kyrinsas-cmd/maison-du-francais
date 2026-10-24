@@ -207,3 +207,8 @@ CREATE TABLE IF NOT EXISTS live_classes (
     published    boolean NOT NULL DEFAULT false,
     sort         int NOT NULL DEFAULT 0
 );
+
+-- 2026-10-24 : données de démonstration (demandées par l'utilisateur pour voir le rendu ; à supprimer : python demo.py remove)
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS is_demo boolean NOT NULL DEFAULT false;
+ALTER TABLE live_classes ADD COLUMN IF NOT EXISTS is_demo boolean NOT NULL DEFAULT false;
+ALTER TABLE resources ADD COLUMN IF NOT EXISTS is_demo boolean NOT NULL DEFAULT false;

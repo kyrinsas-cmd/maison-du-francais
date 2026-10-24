@@ -54,7 +54,7 @@ def public_view(t, lang):
         "photo": f"/uploads/teachers/{t['photo_file']}" if t["photo_file"] else None,
         "video": f"/uploads/teachers/{t['video_file']}" if t["video_file"] and t["video_status"] == "approved" else None,
         "video_type": "video/webm" if (t["video_file"] or "").endswith(".webm") else "video/mp4",
-        "levels_list": list(t["levels"] or []), "ages_min": t["ages_min"], "ages_max": t["ages_max"],
+        "levels_list": list(t["levels"] or []), "ages_min": t["ages_min"], "ages_max": t["ages_max"], "is_demo": t.get("is_demo"),
     }
 
 

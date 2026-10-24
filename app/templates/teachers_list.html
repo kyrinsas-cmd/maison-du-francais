@@ -1,18 +1,16 @@
 {% extends "base.html" %}
 {% from "_teacher_card.html" import teacher_card with context %}
 {% from "_filters.html" import sidebar with context %}
+{% from "_page_head.html" import page_head %}
 {% block title %}{{ t.teachers_title }} · {{ t.brand_main }}{% endblock %}
 {% block description %}{{ t.teachers_desc }}{% endblock %}
 {% block content %}
-<section id="professeurs">
+<section id="professeurs" class="list-page">
   <div class="wrap">
-    <div class="head">
-      <span class="eyebrow">{{ t.teachers_eyebrow }}</span>
-      <h1>{{ t.teachers_h2 }}</h1>
-      <p class="lead">{{ t.teachers_lead }}</p>
-    </div>
+    {{ page_head(t.nav_teachers, t.teachers_h2, t.teachers_lead) }}
     <div class="with-filters">
       <div class="results">
+        {% if teachers|selectattr('is_demo')|list %}<p class="demo-banner" role="note">{{ t.demo_banner }}</p>{% endif %}
         {% if teachers %}
         <div class="grid teachers">{% for tp in teachers %}{{ teacher_card(tp, t) }}{% endfor %}</div>
         {% elif active %}

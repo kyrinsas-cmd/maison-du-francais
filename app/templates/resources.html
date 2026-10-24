@@ -1,17 +1,15 @@
 {% extends "base.html" %}
 {% from "_filters.html" import sidebar with context %}
+{% from "_page_head.html" import page_head %}
 {% block title %}{{ t.lib_title }} · {{ t.brand_main }}{% endblock %}
 {% block description %}{{ t.lib_desc }}{% endblock %}
 {% block content %}
-<section>
+<section class="list-page">
   <div class="wrap">
-    <div class="head">
-      <span class="eyebrow">{{ t.nav_library }}</span>
-      <h1>{{ t.lib_h1 }}</h1>
-      <p class="lead">{{ t.lib_lead }}</p>
-    </div>
+    {{ page_head(t.nav_library, t.lib_h1, t.lib_lead) }}
     <div class="with-filters">
     <div class="results">
+    {% if items|selectattr('is_demo')|list %}<p class="demo-banner" role="note">{{ t.demo_banner }}</p>{% endif %}
     {% if items %}
     <div class="lib-grid">
       {% for r in items %}
@@ -21,7 +19,7 @@
           <span class="status sev-normal">{{ r.level or t.lib_all_levels }}</span>
           <span class="status sev-normal">{{ t['lib_skill_' ~ r.skill] }}</span>
         </div>
-        <h2 class="h3">{{ r.title }}</h2>
+        <h2 class="h3">{{ r.title }}{% if r.is_demo %} <span class="demo-tag">{{ t.demo_tag }}</span>{% endif %}</h2>
         {% if r.desc %}<p class="pre">{{ r.desc }}</p>{% endif %}
         <p class="note" style="margin:0">{% if r.theme %}{{ r.theme }} · {% endif %}{% if r.ages_min or r.ages_max %}{{ t.lib_ages.format(a=(r.ages_min ~ '–' ~ r.ages_max) if r.ages_min and r.ages_max else (r.ages_min or r.ages_max)) }} · {% endif %}{{ r.size }}</p>
         {% if r.allowed %}

@@ -2,7 +2,7 @@
 <article class="teacher-card">
   <a href="{{ url_for('teacher_page', slug=tp.slug) }}" tabindex="-1" aria-hidden="true"><img src="{{ tp.photo }}" alt="" loading="lazy" width="400" height="500"></a>
   <div>
-    <h3><a href="{{ url_for('teacher_page', slug=tp.slug) }}">{{ tp.name }}</a></h3>
+    <h3><a href="{{ url_for('teacher_page', slug=tp.slug) }}">{{ tp.name }}</a>{% if tp.is_demo %} <span class="demo-tag">{{ t.demo_tag }}</span>{% endif %}</h3>
     <p>{{ tp.diplomas }}</p>
     {% set rs = teacher_summary(tp.slug) %}{% if rs.n %}<p class="rating-line"><span class="stars" aria-hidden="true">{{ stars(rs.avg) }}</span> <b>{{ rs.avg }}</b> <span>({{ t.rv_count.format(n=rs.n) }})</span></p>{% endif %}
     {% if tp.levels or tp.ages %}<p class="meta">{{ tp.levels }}{% if tp.levels and tp.ages %} · {% endif %}{{ tp.ages or '' }}</p>{% endif %}

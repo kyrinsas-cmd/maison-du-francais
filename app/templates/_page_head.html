@@ -1,0 +1,8 @@
+{# En-tête commun des pages à filtres (直播课, 老师, 教材库) : surtitre, titre, introduction #}
+{% macro page_head(eyebrow, title, lead) %}
+<div class="head list-head">
+  <span class="eyebrow">{{ eyebrow }}</span>
+  <h1>{{ title }}</h1>
+  {% if lead %}<p class="lead">{{ lead }}</p>{% endif %}
+</div>
+{% endmacro %}

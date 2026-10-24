@@ -1,19 +1,22 @@
 {% extends "base.html" %}
 {% from "_filters.html" import sidebar with context %}
+{% from "_page_head.html" import page_head %}
 {% block title %}{{ t.live_title }} · {{ t.brand_main }}{% endblock %}
 {% block description %}{{ t.live_desc }}{% endblock %}
 {% block content %}
-<section id="classes" class="first-section">
-  <div class="wrap with-filters">
+<section id="classes" class="list-page">
+  <div class="wrap">
+    {{ page_head(t.nav_live, t.lc_h2, t.live_lead) }}
+    <div class="with-filters">
     <div class="results">
-      <h1 class="page-h1">{{ t.lc_h2 }}</h1>
+      {% if classes|selectattr('is_demo')|list %}<p class="demo-banner" role="note">{{ t.demo_banner }}</p>{% endif %}
       {% if classes %}
       <div class="class-list">
         {% for c in classes %}
         <article class="class-card">
           <span class="class-level">{{ c.level }}</span>
           <div>
-            <h3>{{ c.level }}{% if c.ages %} · {{ c.ages }}{% endif %} · {{ c.days_label }}</h3>
+            <h3>{{ c.level }}{% if c.ages %} · {{ c.ages }}{% endif %} · {{ c.days_label }}{% if c.is_demo %} <span class="demo-tag">{{ t.demo_tag }}</span>{% endif %}</h3>
             <p>{{ t.lc_bj }} {{ c.bj }} · {{ t.lc_paris }} {{ c.paris }}{% if c.start_date %} · {{ t.lc_start.format(d=(c.start_date.strftime('%Y年%m月%d日') if lang == 'zh' else c.start_date.strftime('%d/%m/%Y'))) }}{% endif %}</p>
             {% if c.teacher %}<p>{{ t.lc_teacher }} : {% if c.t_pub %}<a href="{{ url_for('teacher_page', slug=c.slug) }}">{{ c.teacher }}</a>{% else %}{{ c.teacher }}{% endif %}</p>{% endif %}
             {% if c.note %}<p class="note">{{ c.note }}</p>{% endif %}
@@ -30,6 +33,7 @@
       {% else %}<p class="empty">{{ t.lc_none if active else t.lc_none_all }}</p>{% endif %}
     </div>
     {{ sidebar(groups, t, n=classes|length, total=total, active=active) }}
+    </div>
   </div>
 </section>
 

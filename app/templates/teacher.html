@@ -10,7 +10,8 @@
       <img src="{{ tp.photo }}" alt="{{ tp.name }}" width="400" height="500">
       <div>
         <span class="eyebrow">{{ t.teachers_eyebrow }}</span>
-        <h1>{{ tp.name }}</h1>
+        <h1>{{ tp.name }}{% if tp.is_demo %} <span class="demo-tag">{{ t.demo_tag }}</span>{% endif %}</h1>
+        {% if tp.is_demo %}<p class="demo-banner" role="note">{{ t.demo_banner }}</p>{% endif %}
         <dl class="teacher-facts">
           <dt>{{ t.tp_diplomas }}</dt><dd>{{ tp.diplomas }}</dd>
           {% if tp.levels %}<dt>{{ t.tp_levels }}</dt><dd>{{ tp.levels }}</dd>{% endif %}
