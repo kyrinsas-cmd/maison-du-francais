@@ -1,0 +1,39 @@
+{% extends "admin/layout.html" %}
+{% block title %}Réclamations{% endblock %}
+{% block content %}
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
+  <h1 style="margin:0">Réclamations</h1>
+  <a class="btn btn-navy btn-small" href="{{ url_for('admin.complaint_new') }}">Enregistrer une réclamation</a>
+</div>
+{% if request.args.supprimee %}<p class="flash">Réclamation supprimée.</p>{% endif %}
+<p class="note">Visibles par l'équipe seulement. Donnez le numéro de suivi à la famille : elle voit le statut et votre « message à la famille » sur la page Suivi, rien d'autre.</p>
+<nav class="tabs-admin" aria-label="Filtrer par statut">
+  <a href="{{ url_for('admin.complaints_admin', categorie=cat) }}" {% if status == 'ouvertes' %}aria-current="page"{% endif %}>Ouvertes <span>{{ open_n }}</span></a>
+  {% for k, label in statuses.items() %}<a href="{{ url_for('admin.complaints_admin', statut=k, categorie=cat) }}" {% if status == k %}aria-current="page"{% endif %}>{{ label }} <span>{{ counts.get(k, 0) }}</span></a>{% endfor %}
+  <a href="{{ url_for('admin.complaints_admin', statut='toutes', categorie=cat) }}" {% if status == 'toutes' %}aria-current="page"{% endif %}>Toutes</a>
+</nav>
+<form class="search-admin" method="get">
+  <input type="hidden" name="statut" value="{{ status }}">
+  <label class="visually-hidden" for="cat">Catégorie</label>
+  <select id="cat" name="categorie" style="font:inherit;padding:10px 14px;border:1px solid #C9D2E3;border-radius:12px"><option value="">Toutes les catégories</option>{% for k, label in categories.items() %}<option value="{{ k }}" {% if cat == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+  <button class="btn btn-line btn-small" type="submit">Filtrer</button>
+</form>
+{% if rows %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Reçue le</th><th scope="col">Numéro</th><th scope="col">Gravité</th><th scope="col">Catégorie</th><th scope="col">Professeur</th><th scope="col">Responsable</th><th scope="col">Statut</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr {% if r.severity == 'grave' and r.status in ('new','in_progress','waiting') %}class="low"{% endif %}>
+    <td>{{ r.created_at.astimezone(paris).strftime('%d/%m/%Y') }}</td>
+    <td><a href="{{ url_for('admin.complaint', cid=r.id) }}">{{ r.code }}</a></td>
+    <td><span class="status sev-{{ r.severity }}">{{ severities[r.severity] }}</span></td>
+    <td>{{ categories[r.category] }}</td>
+    <td>{{ display_name(r) if r.first_name else '—' }}</td>
+    <td>{{ r.assignee or '—' }}</td>
+    <td><span class="status status-{{ {'new':'new','in_progress':'contacted','waiting':'contacted','resolved':'accepted','closed':'rejected'}[r.status] }}">{{ statuses[r.status] }}</span></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}<p class="empty">Aucune réclamation{{ ' ouverte' if status == 'ouvertes' }}.</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "admin/layout.html" %}
+{% block title %}{{ c.code if c else 'Nouvelle réclamation' }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.complaints_admin') }}">← Réclamations</a></p>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-bottom:20px">
+  <h1 style="margin:0">{{ 'Réclamation ' ~ c.code if c else 'Enregistrer une réclamation' }}</h1>
+  {% if c %}<span class="status sev-{{ c.severity }}">{{ severities[c.severity] }}</span><span class="status">{{ statuses[c.status] }}</span>{% endif %}
+</div>
+{% if created %}<div class="flash link-box" role="status"><p style="margin:0"><b>Réclamation enregistrée.</b> Donnez ce numéro de suivi à la famille, avec le lien <b>maisondufrancais.fr/suivi</b> :</p><input type="text" readonly value="{{ c.code }}" onclick="this.select()" aria-label="Numéro de suivi"></div>{% endif %}
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+{% if c and c.severity == 'grave' and c.status in ('new','in_progress','waiting') %}<p class="errors" role="note"><b>Réclamation grave.</b> S'il s'agit de la sécurité d'un enfant : suspendre si besoin le professeur concerné (désactiver son compte, dépublier sa fiche), garder les enregistrements du cours, et faire appel au conseil juridique.</p>{% endif %}
+
+<div class="admin-detail">
+<form class="form teacher-form" method="post" style="flex:2 1 520px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <fieldset>
+    <legend>Réclamation</legend>
+    <div class="row2">
+      <label>Catégorie
+        <select name="category" required><option value="">—</option>{% for k, label in categories.items() %}<option value="{{ k }}" {% if v.category == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      </label>
+      <label>Gravité (« Sécurité des enfants » = grave d'office)
+        <select name="severity">{% for k, label in severities.items() %}<option value="{{ k }}" {% if (v.severity or 'normal') == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      </label>
+    </div>
+    <label>Professeur concerné (facultatif)
+      <select name="teacher_id"><option value="">—</option>{% for t in teachers %}<option value="{{ t.id }}" {% if v.teacher_id == t.id %}selected{% endif %}>{{ display_name(t) }}</option>{% endfor %}</select>
+    </label>
+    <div class="row2">
+      <label>Auteur (sans nom complet)<input type="text" name="complainant_label" maxlength="80" required placeholder="Léo 的妈妈" value="{{ v.complainant_label or '' }}"></label>
+      <label>Rôle
+        <select name="complainant_role"><option value="parent" {% if v.complainant_role != 'eleve' %}selected{% endif %}>Parent</option><option value="eleve" {% if v.complainant_role == 'eleve' %}selected{% endif %}>Élève</option></select>
+      </label>
+    </div>
+    <div class="row2">
+      <label>Reçue par
+        <select name="channel" required><option value="">—</option>{% for k, label in channels.items() %}<option value="{{ k }}" {% if v.channel == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      </label>
+      <label>Repère de la conversation (interne)<input type="text" name="channel_ref" maxlength="200" placeholder="Groupe WeCom A1, message du 22/10…" value="{{ v.channel_ref or '' }}"></label>
+    </div>
+    <label>Description<textarea name="description" maxlength="6000" required>{{ v.description or '' }}</textarea></label>
+  </fieldset>
+  {% if c %}
+  <fieldset>
+    <legend>Traitement</legend>
+    <div class="row2">
+      <label>Statut
+        <select name="status">{% for k, label in statuses.items() %}<option value="{{ k }}" {% if v.status == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      </label>
+      <label>Responsable<input type="text" name="assignee" maxlength="80" value="{{ v.assignee or '' }}"></label>
+    </div>
+    <label>Résultat (interne, obligatoire pour « Résolue » ou « Close »)<textarea name="resolution" maxlength="6000">{{ v.resolution or '' }}</textarea></label>
+    <label>Message à la famille (affiché sur la page Suivi, en chinois de préférence)<textarea name="public_message" maxlength="2000" lang="zh-Hans">{{ v.public_message or '' }}</textarea></label>
+    <label>Ajouter une note à l'historique (interne)<textarea name="note" maxlength="3000"></textarea></label>
+  </fieldset>
+  {% endif %}
+  <button class="btn btn-navy" type="submit" style="align-self:flex-start">{{ 'Enregistrer' if c else 'Enregistrer et créer le numéro de suivi' }}</button>
+</form>
+
+{% if c %}
+<div class="admin-side">
+  <div class="card" style="border:1px solid var(--line)">
+    <h2 class="h3">Historique</h2>
+    <ul class="timeline">{% for e in events %}<li><time>{{ e.at.astimezone(paris).strftime('%d/%m/%Y %H:%M') }}</time><span class="pre">{{ e.text }}</span></li>{% endfor %}</ul>
+  </div>
+  <form class="form danger" method="post" style="border:1px solid var(--line)" onsubmit="return confirm('Supprimer définitivement cette réclamation et son historique ?');">
+    <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="delete">
+    <p>Suppression définitive (fin de la durée de conservation, demande de la famille).</p>
+    <button class="btn btn-line danger-btn" type="submit">Supprimer</button>
+  </form>
+</div>
+{% endif %}
+</div>
+{% endblock %}

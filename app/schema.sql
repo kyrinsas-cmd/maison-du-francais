@@ -107,3 +107,33 @@ CREATE TABLE IF NOT EXISTS reviews (
     published_at    timestamptz
 );
 CREATE INDEX IF NOT EXISTS reviews_teacher ON reviews (teacher_id, status, published_at DESC);
+
+-- 2026-10-24 : réclamations (cahier des charges §18) — visibles par l'équipe seulement.
+-- Enregistrées par l'équipe à partir des messages reçus (WeChat, e-mail…) ; la famille suit le statut avec un numéro (/suivi).
+-- Données minimales : pseudonyme de l'auteur, pas de téléphone ni d'adresse.
+CREATE TABLE IF NOT EXISTS complaints (
+    id                bigserial PRIMARY KEY,
+    code              text UNIQUE NOT NULL,          -- numéro de suivi donné à la famille (ex. R-7KQ4-M2XD)
+    created_at        timestamptz NOT NULL DEFAULT now(),
+    updated_at        timestamptz NOT NULL DEFAULT now(),
+    category          text NOT NULL,
+    severity          text NOT NULL DEFAULT 'normal', -- normal | high | grave
+    teacher_id        bigint REFERENCES teachers(id) ON DELETE SET NULL,
+    complainant_label text NOT NULL,                  -- « Léo 的妈妈 »
+    complainant_role  text NOT NULL DEFAULT 'parent', -- parent | eleve
+    channel           text NOT NULL,                  -- wechat | email | phone | other
+    channel_ref       text,                           -- repère pour retrouver la conversation (jamais affiché à la famille)
+    description       text NOT NULL,
+    assignee          text,
+    status            text NOT NULL DEFAULT 'new',    -- new | in_progress | waiting | resolved | closed
+    resolution        text,                           -- résultat (interne)
+    public_message    text,                           -- message visible par la famille sur /suivi
+    closed_at         timestamptz
+);
+CREATE INDEX IF NOT EXISTS complaints_status ON complaints (status, severity, created_at DESC);
+CREATE TABLE IF NOT EXISTS complaint_events (
+    id           bigserial PRIMARY KEY,
+    complaint_id bigint NOT NULL REFERENCES complaints(id) ON DELETE CASCADE,
+    at           timestamptz NOT NULL DEFAULT now(),
+    text         text NOT NULL
+);

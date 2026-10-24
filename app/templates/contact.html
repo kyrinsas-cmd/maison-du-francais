@@ -29,6 +29,11 @@
         <p>{{ t.contact_partner }}</p>
       </div>
       <div class="card">
+        <h2 class="h3">{{ t.tr_how_h }}</h2>
+        <p>{{ t.tr_how }}</p>
+        <a class="btn btn-line btn-small" href="{{ url_for('tracking') }}" style="align-self:flex-start">{{ t.tr_h1 }}</a>
+      </div>
+      <div class="card">
         <h2 class="h3">{{ t.contact_teach }}</h2>
         <p>{{ t.teach_lead }}</p>
         <a class="btn btn-line btn-small" href="{{ url_for('teach_page') }}" style="align-self:flex-start">{{ t.nav_teach }}</a>

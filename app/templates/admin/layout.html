@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>{% block title %}Admin{% endblock %} · Maison du français</title>
 <link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=7">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=8">
 </head>
 <body class="admin">
 <header class="site-header">
@@ -20,6 +20,7 @@
       <a href="{{ url_for('admin.applications') }}">Candidatures</a>
       <a href="{{ url_for('admin.teachers_list') }}">Professeurs</a>
       <a href="{{ url_for('admin.reviews_admin') }}">Avis</a>
+      <a href="{{ url_for('admin.complaints_admin') }}">Réclamations</a>
       <a href="{{ url_for('admin.pricing_admin') }}">Tarifs</a>
       <a href="/" target="_blank" rel="noopener">Voir le site</a>
       <form method="post" action="{{ url_for('admin.logout') }}" style="margin:0">
@@ -30,6 +31,9 @@
     {% endif %}
   </div>
 </header>
+{% if session.admin %}{% set gn = grave_open() %}{% if gn %}
+<div class="alert-grave" role="alert"><div class="wrap"><b>{{ gn }} réclamation{{ 's' if gn > 1 }} grave{{ 's' if gn > 1 }} ouverte{{ 's' if gn > 1 }}</b> (sécurité des enfants ou gravité « grave ») — <a href="{{ url_for('admin.complaints_admin') }}">à traiter en priorité</a></div></div>
+{% endif %}{% endif %}
 <main class="wrap admin-main">
 {% block content %}{% endblock %}
 </main>

@@ -238,6 +238,7 @@ import pricing  # noqa: E402  (idem)
 import teachers  # noqa: E402  (ajoute ses routes à app et au blueprint admin avant son enregistrement)
 import accounts  # noqa: E402  (espace professeur + routes admin des comptes)
 import reviews  # noqa: E402  (notes et avis)
+import complaints  # noqa: E402,F401  (réclamations + suivi)
 
 admin.init_app(app)
 accounts.init_app(app)

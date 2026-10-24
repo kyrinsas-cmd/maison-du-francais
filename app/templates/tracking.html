@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ t.tr_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.tr_desc }}{% endblock %}
+{% block content %}
+<div class="prose">
+  <h1>{{ t.tr_h1 }}</h1>
+  <p>{{ t.tr_lead }}</p>
+  <form class="form" method="post" style="padding:0;max-width:440px">
+    {% if error %}<p class="errors" role="alert">{{ t.tr_notfound if error == 'notfound' else t.tr_rate }}</p>{% endif %}
+    <input type="hidden" name="csrf" value="{{ csrf() }}">
+    <label>{{ t.tr_code }}<input type="text" name="code" required maxlength="20" autocomplete="off" autocapitalize="characters" placeholder="R-XXXX-XXXX" value="{{ code }}"></label>
+    <button class="btn btn-navy" type="submit">{{ t.tr_submit }}</button>
+  </form>
+  {% if result %}
+  <div class="card tracking-result" role="status">
+    <p><b>{{ result.code }}</b></p>
+    <p>{{ t.tr_status }} : <span class="status status-{{ {'new':'contacted','in_progress':'contacted','waiting':'new','resolved':'accepted','closed':'rejected'}[result.status] }}">{{ t['tr_st_' ~ result.status] }}</span></p>
+    <p class="note" style="margin:0">{{ t.tr_updated }} {{ result.updated_at.strftime('%Y-%m-%d') }}</p>
+    {% if result.public_message %}<h2 class="h3" style="margin-top:12px">{{ t.tr_message }}</h2><p class="pre">{{ result.public_message }}</p>{% endif %}
+  </div>
+  {% endif %}
+  <h2>{{ t.tr_how_h }}</h2>
+  <p>{{ t.tr_how }} <a href="{{ url_for('contact') }}">{{ t.nav_contact }}</a></p>
+</div>
+{% endblock %}
