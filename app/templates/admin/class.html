@@ -1,0 +1,51 @@
+{% extends "admin/layout.html" %}
+{% block title %}{{ 'Classe ' ~ row.level if row else 'Nouvelle classe' }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.classes_admin') }}">← Classes</a></p>
+<h1>{{ 'Classe ' ~ row.level if row else 'Nouvelle classe' }}</h1>
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<form class="form teacher-form" method="post" style="max-width:760px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <fieldset>
+    <legend>Classe</legend>
+    <div class="row2">
+      <label>Niveau<select name="level" required><option value="">—</option>{% for l in levels %}<option {% if v.level == l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+      <label>Professeur<select name="teacher_id"><option value="">— à confirmer —</option>{% for t in teachers %}<option value="{{ t.id }}" {% if v.teacher_id == t.id %}selected{% endif %}>{{ display_name(t) }}</option>{% endfor %}</select></label>
+    </div>
+    <div class="row2">
+      <label>Âges : de<input type="number" name="ages_min" min="1" max="99" value="{{ v.ages_min or '' }}"></label>
+      <label>à<input type="number" name="ages_max" min="1" max="99" value="{{ v.ages_max or '' }}"></label>
+    </div>
+    <div class="checks"><span>Jours</span>
+      {% for i, d in [(1,'Lun'),(2,'Mar'),(3,'Mer'),(4,'Jeu'),(5,'Ven'),(6,'Sam'),(7,'Dim')] %}<label class="check"><input type="checkbox" name="days" value="{{ i }}" {% if i in (v.days or []) %}checked{% endif %}>{{ d }}</label>{% endfor %}
+    </div>
+    <div class="row2">
+      <label>Heure de début, <b>heure de Pékin</b><input type="time" name="start_bj" required value="{{ v.start_bj.strftime('%H:%M') if v.start_bj else '' }}"></label>
+      <label>Première séance<input type="date" name="start_date" value="{{ v.start_date.isoformat() if v.start_date else '' }}"></label>
+    </div>
+    {% if paris %}<p class="note" style="margin:0">Soit {{ paris }} à Paris (à la date de la première séance).</p>{% endif %}
+  </fieldset>
+  <fieldset>
+    <legend>Places et statut</legend>
+    <div class="row2">
+      <label>Places dans la classe (5 au plus)<input type="number" name="capacity" min="1" max="5" value="{{ v.capacity or 5 }}"></label>
+      <label>Places occupées<input type="number" name="seats_taken" min="0" max="5" value="{{ v.seats_taken or 0 }}"></label>
+    </div>
+    <label>Statut<select name="status">{% for k, label in statuses.items() %}<option value="{{ k }}" {% if v.status == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+    <div class="row2">
+      <label>Remarque en chinois (facultatif)<input type="text" name="note_zh" maxlength="500" lang="zh-Hans" value="{{ v.note_zh or '' }}"></label>
+      <label>Remarque en français<input type="text" name="note_fr" maxlength="500" lang="fr" value="{{ v.note_fr or '' }}"></label>
+    </div>
+    <label>Ordre d'affichage<input type="number" name="sort" value="{{ v.sort or 0 }}"></label>
+    <label class="check"><input type="checkbox" name="published" value="1" {% if v.published %}checked{% endif %}>Afficher sur la page 直播课</label>
+  </fieldset>
+  <button class="btn btn-navy" type="submit" style="align-self:flex-start">Enregistrer</button>
+</form>
+{% if row %}
+<form class="form danger" method="post" style="margin-top:24px;max-width:520px;border:1px solid var(--line)" onsubmit="return confirm('Supprimer cette classe ?');">
+  <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="delete">
+  <button class="btn btn-line danger-btn" type="submit">Supprimer la classe</button>
+</form>
+{% endif %}
+{% endblock %}

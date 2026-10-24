@@ -38,3 +38,16 @@
     }
   }, { amount: 0.2 });
 })();
+
+// Filtres : repliés par défaut sur petit écran, toujours ouverts sur grand écran
+(function () {
+  var boxes = document.querySelectorAll(".filters-box");
+  if (!boxes.length) return;
+  var mq = window.matchMedia("(max-width: 900px)");
+  function sync() { boxes.forEach(function (b) { if (mq.matches) { if (!b.dataset.touched) b.open = !!b.querySelector(".filters-dot"); } else { b.open = true; } }); }
+  boxes.forEach(function (b) {
+    b.querySelector("summary").addEventListener("click", function (e) { if (!mq.matches) e.preventDefault(); else b.dataset.touched = "1"; });
+  });
+  sync();
+  (mq.addEventListener ? mq.addEventListener("change", sync) : mq.addListener(sync));
+})();

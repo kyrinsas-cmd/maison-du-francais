@@ -83,21 +83,31 @@ def size_label(n):
 
 @web.route("/ressources")
 def resources_page():
-    lv = request.args.get("niveau") if request.args.get("niveau") in T.LEVELS else None
-    sk = request.args.get("competence") if request.args.get("competence") in SKILLS else None
-    where, args = ["published"], []
-    if lv:
-        where.append("(level=%s OR level IS NULL)"); args.append(lv)
-    if sk:
-        where.append("skill=%s"); args.append(sk)
+    import liveclasses as L
+    from i18n import texts
+    t = texts(g.lang)
+    lvs, sks, kinds = L.arg_list("niveau", T.LEVELS), L.arg_list("competence", SKILLS), L.arg_list("type", KINDS)
     with connect() as c:
+        total = c.execute("SELECT count(*) AS n FROM resources WHERE published").fetchone()["n"]
+        where, args = ["published"], []
+        if lvs:
+            where.append("(level = ANY(%s) OR level IS NULL)"); args.append(lvs)
+        if sks:
+            where.append("skill = ANY(%s)"); args.append(sks)
+        if kinds:
+            where.append("file_kind = ANY(%s)"); args.append(kinds)
         rows = c.execute(f"SELECT * FROM resources WHERE {' AND '.join(where)} ORDER BY sort, created_at DESC", args).fetchall()
+    groups = L.filter_groups(t, [
+        ("niveau", t.lib_level, "checkbox", [(lv, lv) for lv in T.LEVELS]),
+        ("competence", t.lib_skill, "checkbox", [(s, t[f"lib_skill_{s}"]) for s in SKILLS]),
+        ("type", t.f_type, "checkbox", [(k, t[f"lib_kind_{k}"]) for k in KINDS]),
+    ])
     items = []
     for r in rows:
         title = (r["title_fr"] if g.lang == "fr" and r["title_fr"] else r["title_zh"])
         desc = (r["desc_fr"] if g.lang == "fr" and r["desc_fr"] else r["desc_zh"])
         items.append(dict(r, title=title, desc=desc, allowed=can_see(r["visibility"]), size=size_label(r["file_size"])))
-    return render_template("resources.html", items=items, lv=lv, sk=sk, levels=T.LEVELS, skills=SKILLS, logged=U.current() is not None)
+    return render_template("resources.html", items=items, groups=groups, total=total, active=bool(lvs or sks or kinds), logged=U.current() is not None)
 
 
 @web.route("/ressources/<int:rid>/fichier")

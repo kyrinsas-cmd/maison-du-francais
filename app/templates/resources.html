@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_filters.html" import sidebar with context %}
 {% block title %}{{ t.lib_title }} · {{ t.brand_main }}{% endblock %}
 {% block description %}{{ t.lib_desc }}{% endblock %}
 {% block content %}
@@ -9,15 +10,8 @@
       <h1>{{ t.lib_h1 }}</h1>
       <p class="lead">{{ t.lib_lead }}</p>
     </div>
-    <form class="lib-filters" method="get">
-      <label>{{ t.lib_level }}
-        <select name="niveau"><option value="">{{ t.lib_all }}</option>{% for l in levels %}<option {% if lv == l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
-      </label>
-      <label>{{ t.lib_skill }}
-        <select name="competence"><option value="">{{ t.lib_all }}</option>{% for s in skills %}<option value="{{ s }}" {% if sk == s %}selected{% endif %}>{{ t['lib_skill_' ~ s] }}</option>{% endfor %}</select>
-      </label>
-      <button class="btn btn-line btn-small" type="submit">{{ t.lib_filter }}</button>
-    </form>
+    <div class="with-filters">
+    <div class="results">
     {% if items %}
     <div class="lib-grid">
       {% for r in items %}
@@ -40,7 +34,10 @@
       </article>
       {% endfor %}
     </div>
-    {% else %}<p class="empty">{{ t.lib_none_filter if lv or sk else t.lib_none }}</p>{% endif %}
+    {% else %}<p class="empty">{{ t.lib_none_filter if active else t.lib_none }}</p>{% endif %}
+    </div>
+    {{ sidebar(groups, t, n=items|length, total=total, active=active) }}
+    </div>
   </div>
 </section>
 {% endblock %}

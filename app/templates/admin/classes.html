@@ -1,0 +1,29 @@
+{% extends "admin/layout.html" %}
+{% block title %}Classes{% endblock %}
+{% block content %}
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
+  <h1 style="margin:0">Classes en direct (直播课)</h1>
+  <a class="btn btn-navy btn-small" href="{{ url_for('admin.class_new') }}">Ajouter une classe</a>
+</div>
+{% if request.args.supprimee %}<p class="flash">Classe supprimée.</p>{% endif %}
+<p class="note">Catalogue affiché sur la page 直播课 avec ses filtres. La réservation se fait par WeChat : mettez à jour les places occupées à chaque inscription. Heure saisie en heure de Pékin ; l'heure de Paris est calculée.</p>
+{% if rows %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Niveau</th><th scope="col">Âges</th><th scope="col">Jours</th><th scope="col">Pékin / Paris</th><th scope="col">Professeur</th><th scope="col">Places</th><th scope="col">Statut</th><th scope="col">Site</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr>
+    <td><a href="{{ url_for('admin.class_edit', cid=r.id) }}"><b>{{ r.level }}</b></a></td>
+    <td>{{ (r.ages_min ~ '–' ~ r.ages_max ~ ' ans') if r.ages_min and r.ages_max else '—' }}</td>
+    <td>{% for d in r.days %}{{ days[d] }} {% endfor %}</td>
+    <td>{{ r.start_bj.strftime('%H:%M') }} / {{ paris_time(r.start_bj, r.start_date) }}</td>
+    <td>{{ display_name(r) if r.first_name else '—' }}</td>
+    <td>{{ r.seats_taken }} / {{ r.capacity }}</td>
+    <td>{{ statuses[r.status] }}</td>
+    <td>{{ 'Publiée' if r.published else 'Brouillon' }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}<p class="empty">Aucune classe. Ajoutez la première avec « Ajouter une classe ».</p>{% endif %}
+{% endblock %}

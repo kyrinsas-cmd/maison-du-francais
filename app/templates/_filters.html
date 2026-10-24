@@ -1,0 +1,22 @@
+{# Barre de filtres à droite (直播课, 老师, 教材库). groups : [{name, label, type checkbox|radio, options [(valeur, libellé)], values}] #}
+{% macro sidebar(groups, t, n=None, total=None, active=False) %}
+<aside class="filters" aria-label="{{ t.f_title }}">
+  <details class="filters-box" open>
+    <summary><span>{{ t.f_title }}</span>{% if active %}<span class="filters-dot" aria-hidden="true"></span>{% endif %}</summary>
+    <form method="get" class="filters-form">
+      {% for gr in groups %}
+      <fieldset>
+        <legend>{{ gr.label }}</legend>
+        {% if gr.type == 'radio' %}<label class="check"><input type="radio" name="{{ gr.name }}" value="" {% if not gr['values'] or not gr['values'][0] %}checked{% endif %}>{{ t.f_any }}</label>{% endif %}
+        {% for val, lab in gr.options %}
+        <label class="check"><input type="{{ gr.type }}" name="{{ gr.name }}" value="{{ val }}" {% if val in gr['values'] %}checked{% endif %}>{{ lab }}</label>
+        {% endfor %}
+      </fieldset>
+      {% endfor %}
+      <button class="btn btn-navy btn-small" type="submit">{{ t.f_apply }}</button>
+      {% if active %}<a class="filters-reset" href="{{ request.path }}">{{ t.f_reset }}</a>{% endif %}
+    </form>
+  </details>
+  {% if n is not none and total %}<p class="filters-count" role="status">{{ t.f_results.format(n=n, total=total) }}</p>{% endif %}
+</aside>
+{% endmacro %}

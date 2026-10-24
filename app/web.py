@@ -125,11 +125,6 @@ def path():
     return render_template("path.html", levels=LEVELS)
 
 
-@route("/cours-en-direct")
-def live():
-    return render_template("live.html")
-
-
 @route("/atelier-paris")
 def atelier():
     return render_template("atelier.html")
@@ -252,6 +247,7 @@ import reviews  # noqa: E402  (notes et avis)
 import complaints  # noqa: E402,F401  (réclamations + suivi)
 import users  # noqa: E402,F401  (comptes : inscription, connexion, rôles)
 import resources  # noqa: E402  (教材库)
+import liveclasses  # noqa: E402,F401  (直播课 : catalogue des classes)
 
 admin.init_app(app)
 accounts.init_app(app)

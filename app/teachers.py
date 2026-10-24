@@ -54,6 +54,7 @@ def public_view(t, lang):
         "photo": f"/uploads/teachers/{t['photo_file']}" if t["photo_file"] else None,
         "video": f"/uploads/teachers/{t['video_file']}" if t["video_file"] and t["video_status"] == "approved" else None,
         "video_type": "video/webm" if (t["video_file"] or "").endswith(".webm") else "video/mp4",
+        "levels_list": list(t["levels"] or []), "ages_min": t["ages_min"], "ages_max": t["ages_max"],
     }
 
 
@@ -88,7 +89,23 @@ def teachers_ctx():
 
 @web.route("/professeurs")
 def teachers_page():
-    return render_template("teachers_list.html", teachers=published(g.lang))
+    import liveclasses as L
+    from i18n import texts
+    t = texts(g.lang)
+    levels = L.arg_list("niveau", LEVELS)
+    age = request.args.get("age") if request.args.get("age") in L.AGE_GROUPS else None
+    video = request.args.get("video") == "1"
+    allt = published(g.lang)
+    shown = [tp for tp in allt
+             if (not levels or set(levels) & set(tp["levels_list"]))
+             and (not age or L.overlaps(tp["ages_min"], tp["ages_max"], *L.AGE_GROUPS[age]))
+             and (not video or tp["video"])]
+    groups = L.filter_groups(t, [
+        ("niveau", t.lib_level, "checkbox", [(lv, lv) for lv in LEVELS]),
+        ("age", t.f_age, "radio", L.age_options(t)),
+        ("video", t.f_video_h, "checkbox", [("1", t.f_video)]),
+    ])
+    return render_template("teachers_list.html", teachers=shown, total=len(allt), groups=groups, active=bool(levels or age or video))
 
 
 @web.route("/professeurs/<slug>")

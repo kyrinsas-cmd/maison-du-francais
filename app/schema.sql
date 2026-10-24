@@ -185,3 +185,25 @@ CREATE TABLE IF NOT EXISTS resource_hits (            -- statistiques (§7) : qu
     role        text NOT NULL                    -- visiteur | eleve | parent | professeur | moderateur | admin
 );
 CREATE INDEX IF NOT EXISTS resource_hits_res ON resource_hits (resource_id, at);
+
+-- 2026-10-24 : catalogue des classes en direct (直播课, §5 « choix de la classe », §8) — affichage seulement,
+-- la réservation se fait par WeChat. Horaire saisi en heure de Pékin (UTC+8, sans changement d'heure).
+CREATE TABLE IF NOT EXISTS live_classes (
+    id           bigserial PRIMARY KEY,
+    created_at   timestamptz NOT NULL DEFAULT now(),
+    updated_at   timestamptz NOT NULL DEFAULT now(),
+    level        text NOT NULL,                 -- A1 A2 B1 B2
+    ages_min     int,
+    ages_max     int,
+    teacher_id   bigint REFERENCES teachers(id) ON DELETE SET NULL,
+    days         int[] NOT NULL DEFAULT '{}',   -- 1 = lundi … 7 = dimanche
+    start_bj     time NOT NULL,                 -- heure de début, Pékin
+    start_date   date,                          -- première séance
+    capacity     int NOT NULL DEFAULT 5 CHECK (capacity BETWEEN 1 AND 5),
+    seats_taken  int NOT NULL DEFAULT 0,
+    status       text NOT NULL DEFAULT 'open',  -- open | soon | full | closed
+    note_zh      text,
+    note_fr      text,
+    published    boolean NOT NULL DEFAULT false,
+    sort         int NOT NULL DEFAULT 0
+);

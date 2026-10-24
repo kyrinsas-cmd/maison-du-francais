@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_filters.html" import sidebar with context %}
 {% block title %}{{ t.live_title }} · {{ t.brand_main }}{% endblock %}
 {% block description %}{{ t.live_desc }}{% endblock %}
 {% block content %}
@@ -21,7 +22,37 @@
   </div>
 </section>
 
-<section>
+<section id="classes">
+  <div class="wrap with-filters">
+    <div class="results">
+      <h2 style="margin-bottom:20px">{{ t.lc_h2 }}</h2>
+      {% if classes %}
+      <div class="class-list">
+        {% for c in classes %}
+        <article class="class-card">
+          <span class="class-level">{{ c.level }}</span>
+          <div>
+            <h3>{{ c.level }}{% if c.ages %} · {{ c.ages }}{% endif %} · {{ c.days_label }}</h3>
+            <p>{{ t.lc_bj }} {{ c.bj }} · {{ t.lc_paris }} {{ c.paris }}{% if c.start_date %} · {{ t.lc_start.format(d=(c.start_date.strftime('%Y年%m月%d日') if lang == 'zh' else c.start_date.strftime('%d/%m/%Y'))) }}{% endif %}</p>
+            {% if c.teacher %}<p>{{ t.lc_teacher }} : {% if c.t_pub %}<a href="{{ url_for('teacher_page', slug=c.slug) }}">{{ c.teacher }}</a>{% else %}{{ c.teacher }}{% endif %}</p>{% endif %}
+            {% if c.note %}<p class="note">{{ c.note }}</p>{% endif %}
+          </div>
+          <div class="class-side">
+            {% if c.status == 'soon' %}<span class="status status-contacted">{{ t.lc_soon }}</span>{% endif %}
+            <span class="seats-dots" aria-hidden="true">{% for i in range(c.capacity) %}<i class="{{ 'free' if i >= c.capacity - c.left }}"></i>{% endfor %}</span>
+            <span class="seats">{{ t.lc_full if c.full else t.lc_seats_left.format(n=c.left, c=c.capacity) }}</span>
+            <a class="btn {{ 'btn-line' if c.full else 'btn-red' }} btn-small" href="{{ url_for('contact') }}">{{ t.lc_book }}</a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}<p class="empty">{{ t.lc_none if active else t.lc_none_all }}</p>{% endif %}
+    </div>
+    {{ sidebar(groups, t, n=classes|length, total=total, active=active) }}
+  </div>
+</section>
+
+<section class="soft">
   <div class="wrap">
     <div class="head" data-reveal><h2>{{ t.live_steps_h }}</h2></div>
     <ol class="grid live-steps" data-reveal>
@@ -30,7 +61,7 @@
   </div>
 </section>
 
-<section class="soft">
+<section>
   <div class="wrap">
     <div class="head" data-reveal><h2>{{ t.live_class_h }}</h2></div>
     <div class="grid" data-reveal>
