@@ -245,8 +245,7 @@ import teachers  # noqa: E402  (ajoute ses routes à app et au blueprint admin a
 import accounts  # noqa: E402  (espace professeur + routes admin des comptes)
 import reviews  # noqa: E402  (notes et avis)
 import complaints  # noqa: E402,F401  (réclamations + suivi)
-import staff  # noqa: E402  (comptes de l'équipe)
+import users  # noqa: E402,F401  (comptes : inscription, connexion, rôles)
 
 admin.init_app(app)
 accounts.init_app(app)
-staff.init_app(app)

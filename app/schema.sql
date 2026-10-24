@@ -59,26 +59,7 @@ CREATE TABLE IF NOT EXISTS settings (
     updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 2026-10-24 : espace professeur (comptes e-mail + mot de passe, créés sur invitation depuis l'admin)
-CREATE TABLE IF NOT EXISTS teacher_accounts (
-    id            bigserial PRIMARY KEY,
-    teacher_id    bigint UNIQUE NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
-    email         text NOT NULL,
-    password_hash text,                          -- NULL tant que l'invitation n'est pas acceptée
-    active        boolean NOT NULL DEFAULT true,
-    created_at    timestamptz NOT NULL DEFAULT now(),
-    activated_at  timestamptz,
-    last_login_at timestamptz
-);
-CREATE UNIQUE INDEX IF NOT EXISTS teacher_accounts_email ON teacher_accounts (lower(email));
-CREATE TABLE IF NOT EXISTS account_tokens (
-    token_hash text PRIMARY KEY,                 -- sha256 du jeton ; le jeton lui-même n'est jamais stocké
-    account_id bigint NOT NULL REFERENCES teacher_accounts(id) ON DELETE CASCADE,
-    purpose    text NOT NULL,                    -- invite | reset
-    created_at timestamptz NOT NULL DEFAULT now(),
-    expires_at timestamptz NOT NULL,
-    used_at    timestamptz
-);
+-- 2026-10-24 : espace professeur
 -- Modifications proposées par le professeur, en attente de validation par l'équipe
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS pending jsonb;
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS pending_at timestamptz;
@@ -138,24 +119,32 @@ CREATE TABLE IF NOT EXISTS complaint_events (
     text         text NOT NULL
 );
 
--- 2026-10-24 : comptes nominatifs de l'équipe (remplacent le mot de passe unique de l'admin)
--- Inscription libre mais sans aucun accès : seul un administrateur donne le rôle « admin ».
-CREATE TABLE IF NOT EXISTS staff_users (
+
+-- 2026-10-24 : un seul système de comptes (remplace teacher_accounts / account_tokens / staff_users / staff_tokens, vides à ce moment-là)
+DROP TABLE IF EXISTS account_tokens, teacher_accounts, staff_tokens, staff_users CASCADE;
+-- Rôles : eleve (15 ans et plus) | parent | professeur (espace prof dès qu'il est relié à une fiche) | moderateur | admin.
+-- eleve, parent, professeur : choisis à l'inscription ; moderateur et admin : donnés seulement par un administrateur.
+-- Données minimales : ni téléphone, ni adresse, ni profil d'enfant.
+CREATE TABLE IF NOT EXISTS users (
     id                bigserial PRIMARY KEY,
     email             text NOT NULL,
     name              text NOT NULL,
-    password_hash     text NOT NULL,
-    role              text NOT NULL DEFAULT 'none',   -- none | admin
+    password_hash     text,                         -- NULL tant qu'une invitation n'est pas acceptée
+    role              text NOT NULL CHECK (role IN ('eleve','parent','professeur','moderateur','admin')),
     active            boolean NOT NULL DEFAULT true,
     email_verified_at timestamptz,
+    lang              text NOT NULL DEFAULT 'zh',   -- langue des e-mails
+    over15            boolean NOT NULL DEFAULT false,
+    privacy_at        timestamptz,
+    teacher_id        bigint UNIQUE REFERENCES teachers(id) ON DELETE SET NULL,
     created_at        timestamptz NOT NULL DEFAULT now(),
     last_login_at     timestamptz
 );
-CREATE UNIQUE INDEX IF NOT EXISTS staff_users_email ON staff_users (lower(email));
-CREATE TABLE IF NOT EXISTS staff_tokens (
-    token_hash text PRIMARY KEY,                 -- sha256 ; le jeton n'est jamais stocké
-    user_id    bigint NOT NULL REFERENCES staff_users(id) ON DELETE CASCADE,
-    purpose    text NOT NULL,                    -- verify | reset
+CREATE UNIQUE INDEX IF NOT EXISTS users_email ON users (lower(email));
+CREATE TABLE IF NOT EXISTS user_tokens (
+    token_hash text PRIMARY KEY,                    -- sha256 ; le jeton n'est jamais stocké
+    user_id    bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    purpose    text NOT NULL,                       -- verify | reset | invite
     created_at timestamptz NOT NULL DEFAULT now(),
     expires_at timestamptz NOT NULL,
     used_at    timestamptz

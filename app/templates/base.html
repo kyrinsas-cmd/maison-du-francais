@@ -21,7 +21,7 @@
 <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='img/og.png') }}">
 <meta name="theme-color" content="#063372">
 <link rel="preload" href="{{ url_for('static', filename='fonts/nunito-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=8">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=9">
 <script>
   document.documentElement.classList.add("js");
   // Si les animations ne se chargent pas, on affiche tout au bout de 2,5 s
@@ -46,6 +46,9 @@
       {% if pricing_live() %}<a href="{{ url_for('prices') }}" {% if ep == 'prices' %}aria-current="page"{% endif %}>{{ t.nav_prices }}</a>{% endif %}
       <a href="{{ url_for('teach_page') }}" {% if ep == 'teach_page' %}aria-current="page"{% endif %}>{{ t.nav_teach }}</a>
       <a class="lang-switch" href="{{ alt[other_lang] }}" lang="{{ t.switch_lang }}" hreflang="{{ t.switch_lang }}" aria-label="{{ t.switch_aria }}">{{ t.switch_label }}</a>
+      {% set cu = current_user() %}
+      {% if cu %}<a href="{{ url_for('account_home') }}" {% if ep and ep.startswith('account_') %}aria-current="page"{% endif %}>{{ cu.name if cu.name|length <= 8 else cu.name.split()[0] }}</a>
+      {% else %}<a href="{{ url_for('account_login') }}" {% if ep and ep.startswith('account_') %}aria-current="page"{% endif %}>{{ t.nav_login }}</a>{% endif %}
       <a class="btn btn-navy btn-small" href="{{ url_for('contact') }}">{{ t.nav_cta }}</a>
     </nav>
   </div>
@@ -75,8 +78,7 @@
         <a href="{{ url_for('contact') }}">{{ t.nav_contact }}</a>
         <a href="{{ url_for('tracking') }}">{{ t.foot_tracking }}</a>
         <a href="{{ url_for('teach_page') }}">{{ t.foot_teach }}</a>
-        <a href="{{ url_for('espace.login') }}" lang="fr">{{ t.foot_espace }}</a>
-        <a href="{{ url_for('compte.login') }}" lang="fr">Espace équipe</a>
+        <a href="{{ url_for('account_login') }}">{{ t.nav_login }}</a>
       </div>
     </div>
     <div class="legal-bar">

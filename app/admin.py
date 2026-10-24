@@ -1,7 +1,8 @@
 """Admin (/admin, en français, hors du système de langues).
 
-Accès réservé aux comptes de l'équipe qui ont le rôle « admin » (staff.py, /compte). Le rôle est relu à chaque requête.
-Le rôle se donne depuis la page Équipe (/admin/equipe) ou en ligne de commande : sudo ./ops/make-admin.sh <e-mail>.
+Accès : comptes de rôle « admin » ou « moderateur » (users.py), relus à chaque requête.
+Modérateur : tout sauf ADMIN_ONLY (tarifs, utilisateurs) et la suppression des fiches professeurs.
+Rôles donnés dans /admin/utilisateurs, ou en ligne de commande : sudo ./ops/make-admin.sh <e-mail>.
 """
 from datetime import timedelta
 from zoneinfo import ZoneInfo
@@ -12,6 +13,7 @@ from db import connect
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 PARIS = ZoneInfo("Europe/Paris")
+ADMIN_ONLY = {"admin.pricing_admin", "admin.users_admin"}
 
 
 @bp.app_context_processor
@@ -28,20 +30,24 @@ def _check_csrf():
         abort(400)
 
 
-def _logged_in():
-    import staff
-    return staff.is_admin()
+def require_admin():
+    import users
+    if not users.is_admin():
+        abort(403)
 
 
 @bp.before_request
 def guard():
-    import staff
+    import users
     if request.endpoint in ("admin.login", "admin.logout"):
         return None
-    if not staff.current():
-        return redirect(url_for("compte.login", next=request.full_path if request.method == "GET" else None))
-    if not staff.is_admin():
-        return redirect(url_for("compte.home"))  # connecté mais sans rôle : page « en attente »
+    u = users.current()
+    if not u:
+        return redirect(url_for("account_login", lang="fr", next=request.full_path if request.method == "GET" else None))
+    if u["role"] not in users.STAFF:
+        return redirect(users.landing(u, "fr"))
+    if request.endpoint in ADMIN_ONLY and u["role"] != "admin":
+        abort(403)
     return None
 
 
@@ -54,51 +60,74 @@ def no_cache(resp):
 
 @bp.route("/login")
 def login():
-    """Ancienne adresse de connexion : redirige vers la connexion de l'équipe."""
-    return redirect(url_for("compte.login", next=request.args.get("next")))
+    """Ancienne adresse de connexion : la connexion est commune à tous les comptes."""
+    return redirect(url_for("account_login", lang="fr", next=request.args.get("next")))
 
 
 @bp.route("/logout", methods=["POST"])
 def logout():
-    return redirect(url_for("compte.logout"), code=307)
+    return redirect(url_for("account_logout", lang="fr"), code=307)
 
 
-# ---------- équipe ----------
+# ---------- utilisateurs (admin seulement) ----------
 
-@bp.route("/equipe", methods=["GET", "POST"])
-def team():
-    import staff
-    me = staff.current()
+@bp.route("/utilisateurs", methods=["GET", "POST"])
+def users_admin():
+    import teachers as T
+    import users as U
+    me = U.current()
     msg = error = None
     if request.method == "POST":
         _check_csrf()
         uid = request.form.get("user_id", type=int)
         action = request.form.get("action")
         with connect() as c:
-            u = c.execute("SELECT * FROM staff_users WHERE id=%s", (uid,)).fetchone()
-            admins = c.execute("SELECT count(*) AS n FROM staff_users WHERE role='admin' AND active").fetchone()["n"]
+            u = c.execute("SELECT * FROM users WHERE id=%s", (uid,)).fetchone()
             if not u:
                 abort(404)
-            if u["id"] == me["id"] and action in ("revoke", "disable", "delete"):
-                error = "Vous ne pouvez pas retirer votre propre accès (demandez à un autre administrateur)."
-            elif action in ("revoke", "disable", "delete") and u["role"] == "admin" and admins <= 1:
+            admins = c.execute("SELECT count(*) AS n FROM users WHERE role='admin' AND active").fetchone()["n"]
+            new_role = request.form.get("role")
+            losing_admin = u["role"] == "admin" and (action in ("disable", "delete") or (action == "role" and new_role != "admin"))
+            if u["id"] == me["id"] and action in ("role", "disable", "delete"):
+                error = "Vous ne pouvez pas modifier votre propre compte ici (demandez à un autre administrateur)."
+            elif losing_admin and admins <= 1:
                 error = "Impossible : ce serait le dernier administrateur."
-            elif action == "grant":
-                if not u["email_verified_at"]:
+            elif action == "role":
+                if new_role not in U.ROLES:
+                    abort(400)
+                if new_role in U.STAFF and not u["email_verified_at"]:
                     error = "Ce compte n'a pas encore confirmé son adresse e-mail."
                 else:
-                    c.execute("UPDATE staff_users SET role='admin' WHERE id=%s", (uid,)); msg = f"{u['name']} est maintenant administrateur."
-            elif action == "revoke":
-                c.execute("UPDATE staff_users SET role='none' WHERE id=%s", (uid,)); msg = f"Rôle administrateur retiré à {u['name']}."
+                    c.execute("UPDATE users SET role=%s, teacher_id=CASE WHEN %s='professeur' THEN teacher_id END WHERE id=%s", (new_role, new_role, uid))
+                    msg = f"{u['name']} : rôle « {U.role_label(new_role, 'fr')} »."
+            elif action == "validate_teacher" and u["role"] == "professeur" and not u["teacher_id"]:
+                if not u["email_verified_at"]:
+                    error = "Ce professeur n'a pas encore confirmé son adresse e-mail."
+                else:
+                    first = u["name"].split()[0][:60]
+                    last = u["name"].split()[-1][:1].upper() if len(u["name"].split()) > 1 else None
+                    tid = c.execute("INSERT INTO teachers (first_name, last_initial, slug) VALUES (%s,%s,%s) RETURNING id",
+                                    (first, last, "tmp-" + str(uid))).fetchone()["id"]
+                    c.execute("UPDATE teachers SET slug=%s WHERE id=%s", (f"{T._slugify(first)}-{tid}", tid))
+                    c.execute("UPDATE users SET teacher_id=%s WHERE id=%s", (tid, uid))
+                    U.send_mail("teacher_ok", u["email"], "fr", name=u["name"], login=U.link("account_login", "fr"))
+                    return redirect(url_for("admin.teacher", tid=tid, ok=1))
             elif action in ("disable", "enable"):
-                c.execute("UPDATE staff_users SET active=%s WHERE id=%s", (action == "enable", uid)); msg = "Compte mis à jour."
+                c.execute("UPDATE users SET active=%s WHERE id=%s", (action == "enable", uid)); msg = "Compte mis à jour."
             elif action == "delete":
-                c.execute("DELETE FROM staff_users WHERE id=%s", (uid,)); msg = "Compte supprimé."
+                c.execute("DELETE FROM users WHERE id=%s", (uid,)); msg = "Compte supprimé."
             else:
                 abort(400)
+    role = request.args.get("role")
     with connect() as c:
-        users = c.execute("SELECT * FROM staff_users ORDER BY role='admin' DESC, created_at").fetchall()
-    return render_template("admin/team.html", users=users, me=me, msg=msg, error=error)
+        counts = {r["role"]: r["n"] for r in c.execute("SELECT role, count(*) AS n FROM users GROUP BY role").fetchall()}
+        pending = c.execute("SELECT count(*) AS n FROM users WHERE role='professeur' AND teacher_id IS NULL AND email_verified_at IS NOT NULL").fetchone()["n"]
+        rows = c.execute("""SELECT u.*, t.first_name AS t_first, t.last_initial AS t_last FROM users u LEFT JOIN teachers t ON t.id=u.teacher_id
+                            """ + ("WHERE u.role=%s " if role in U.ROLES else "") +
+                         "ORDER BY (u.role='professeur' AND u.teacher_id IS NULL) DESC, u.created_at DESC LIMIT 500",
+                         (role,) if role in U.ROLES else ()).fetchall()
+    return render_template("admin/users.html", rows=rows, me=me, msg=msg, error=error, counts=counts, role=role,
+                           roles=U.ROLES, role_label=lambda r: U.role_label(r, "fr"), pending=pending)
 
 
 @bp.route("/")

@@ -233,6 +233,8 @@ def teacher(tid):
         _check_csrf()
         f = request.form
         if f.get("action") == "delete":
+            from admin import require_admin
+            require_admin()  # modérateurs : pas de suppression de fiche
             with connect() as c:
                 c.execute("DELETE FROM teachers WHERE id=%s", (tid,))
             for name in (t["photo_file"], t["video_file"], (t["pending"] or {}).get("photo_file"), (t["pending"] or {}).get("video_file")):

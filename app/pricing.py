@@ -38,8 +38,8 @@ def pricing_ctx():
 @web.route("/tarifs")
 def prices():
     p = get()
-    import staff
-    preview = staff.is_admin() and request.args.get("apercu") == "1"
+    import users
+    preview = users.is_staff() and request.args.get("apercu") == "1"
     if not (p["published"] and p["price_session"]) and not (preview and p["price_session"]):
         abort(404)
     price = p["price_session"]

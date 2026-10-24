@@ -1,14 +1,16 @@
-{% extends "compte/layout.html" %}
-{% block title %}Connexion{% endblock %}
+{% extends "base.html" %}
+{% block title %}{{ t.ac_login_title }} · {{ t.brand_main }}{% endblock %}
 {% block content %}
-<h1>Connexion</h1>
-<form class="form" method="post">
-  {% if error %}<p class="errors" role="alert">{{ error }}</p>{% endif %}
-  <input type="hidden" name="csrf" value="{{ csrf() }}">
-  <label>E-mail<input type="email" name="email" required autocomplete="username" value="{{ email }}" autofocus></label>
-  <label>Mot de passe<input type="password" name="password" required autocomplete="current-password"></label>
-  <button class="btn btn-navy" type="submit">Se connecter</button>
-  <p class="note" style="margin:0"><a href="{{ url_for('compte.forgot') }}">Mot de passe oublié ?</a> · <a href="{{ url_for('compte.signup') }}">Créer un compte</a></p>
-</form>
-<p class="note">Vous êtes professeur ? Votre espace est ici : <a href="{{ url_for('espace.login') }}">Espace professeur</a>.</p>
+<section class="account-page"><div class="account-box">
+  <h1>{{ t.ac_login_title }}</h1>
+  <form class="form" method="post">
+    {% if error %}<p class="errors" role="alert">{{ error }}</p>{% endif %}
+    <input type="hidden" name="csrf" value="{{ csrf() }}">
+    <label>{{ t.ac_email }}<input type="email" name="email" required autocomplete="username" value="{{ email }}" autofocus></label>
+    <label>{{ t.ac_password }}<input type="password" name="password" required autocomplete="current-password"></label>
+    <button class="btn btn-navy" type="submit">{{ t.ac_login_btn }}</button>
+    <p class="note" style="margin:0"><a href="{{ url_for('account_forgot') }}">{{ t.ac_forgot_link }}</a></p>
+  </form>
+  <div class="card account-alt"><p style="margin:0">{{ t.ac_no_account }}</p><a class="btn btn-red btn-small" href="{{ url_for('account_signup') }}">{{ t.ac_signup_link }}</a></div>
+</div></section>
 {% endblock %}

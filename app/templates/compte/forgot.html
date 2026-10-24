@@ -1,15 +1,16 @@
-{% extends "compte/layout.html" %}
-{% block title %}Mot de passe oublié{% endblock %}
+{% extends "base.html" %}
+{% block title %}{{ t.ac_forgot_title }} · {{ t.brand_main }}{% endblock %}
 {% block content %}
-<h1>Mot de passe oublié</h1>
-{% if sent %}
-<p class="flash">Si un compte confirmé existe avec cette adresse, un lien pour choisir un nouveau mot de passe vient d'y être envoyé (valable 1 heure).</p>
-{% else %}
-<form class="form" method="post">
-  <input type="hidden" name="csrf" value="{{ csrf() }}">
-  <label>E-mail de votre compte<input type="email" name="email" required autocomplete="username" autofocus></label>
-  <button class="btn btn-navy" type="submit">Recevoir un lien</button>
-</form>
-{% endif %}
-<p><a href="{{ url_for('compte.login') }}">← Connexion</a></p>
+<section class="account-page"><div class="account-box">
+  <h1>{{ t.ac_forgot_title }}</h1>
+  {% if sent %}<p class="flash">{{ t.ac_forgot_sent }}</p>
+  {% else %}
+  <form class="form" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf() }}">
+    <label>{{ t.ac_email }}<input type="email" name="email" required autocomplete="username" autofocus></label>
+    <button class="btn btn-navy" type="submit">{{ t.ac_forgot_btn }}</button>
+  </form>
+  {% endif %}
+  <p><a href="{{ url_for('account_login') }}">← {{ t.ac_login_title }}</a></p>
+</div></section>
 {% endblock %}

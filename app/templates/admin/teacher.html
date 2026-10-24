@@ -47,12 +47,12 @@
 <section class="form account-box" aria-labelledby="acc-h">
   <h2 id="acc-h" class="h3">Compte de l'espace professeur</h2>
   {% if not account %}
-  <p class="note" style="margin:0">Le professeur n'a pas encore de compte. Créez-le pour lui permettre de compléter son profil et d'envoyer sa vidéo lui-même.</p>
+  <p class="note" style="margin:0">Aucun compte n'est relié à cette fiche. Indiquez l'e-mail du professeur : s'il s'est déjà inscrit comme professeur, son compte est relié ; sinon, il reçoit une invitation pour choisir son mot de passe.</p>
   <form method="post" action="{{ url_for('admin.teacher_account', tid=t.id) }}" class="search-admin" style="margin:0">
     <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="create">
     <label class="visually-hidden" for="acc-email">E-mail du professeur</label>
     <input id="acc-email" type="email" name="email" required placeholder="E-mail du professeur" value="{{ default_email }}">
-    <button class="btn btn-navy btn-small" type="submit">Créer le compte et le lien d'invitation</button>
+    <button class="btn btn-navy btn-small" type="submit">Relier ou inviter</button>
   </form>
   {% else %}
   <dl class="account-dl">
@@ -61,8 +61,8 @@
     {% if account.last_login_at %}<dt>Dernière connexion</dt><dd>{{ account.last_login_at.astimezone(paris).strftime('%d/%m/%Y à %H:%M') }}</dd>{% endif %}
   </dl>
   <div class="actions">
-    {% for action, label, cls in [('link', ("Nouveau lien de réinitialisation" if account.password_hash else "Nouveau lien d'invitation"), 'btn-line'), (('disable', 'Désactiver le compte', 'btn-line') if account.active else ('enable', 'Réactiver le compte', 'btn-line')), ('delete', 'Supprimer le compte', 'btn-line danger-btn')] %}
-    <form method="post" action="{{ url_for('admin.teacher_account', tid=t.id) }}" {% if action == 'delete' %}onsubmit="return confirm('Supprimer ce compte ? La fiche reste en place.');"{% endif %}>
+    {% for action, label, cls in [('link', ("Nouveau lien de réinitialisation" if account.password_hash else "Nouveau lien d'invitation"), 'btn-line'), (('disable', 'Désactiver le compte', 'btn-line') if account.active else ('enable', 'Réactiver le compte', 'btn-line')), ('unlink', 'Délier de la fiche', 'btn-line danger-btn')] %}
+    <form method="post" action="{{ url_for('admin.teacher_account', tid=t.id) }}" {% if action == 'unlink' %}onsubmit="return confirm('Délier ce compte de la fiche ? Le professeur n\'aura plus accès à son espace.');"{% endif %}>
       <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="{{ action }}">
       <button class="btn btn-small {{ cls }}" type="submit">{{ label }}</button>
     </form>

@@ -1,0 +1,44 @@
+{% extends "admin/layout.html" %}
+{% block title %}Utilisateurs{% endblock %}
+{% block content %}
+<h1>Utilisateurs</h1>
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+{% if error %}<p class="errors" role="alert">{{ error }}</p>{% endif %}
+{% if pending %}<p class="errors" role="note"><b>{{ pending }} professeur{{ 's' if pending > 1 }} à valider</b> : « Valider » crée sa fiche (brouillon) et ouvre son espace professeur.</p>{% endif %}
+<p class="note">Élève, parent et professeur se choisissent à l'inscription. Modérateur (tout l'admin sauf Tarifs, Utilisateurs et suppression des fiches) et administrateur se donnent ici.</p>
+<nav class="tabs-admin" aria-label="Filtrer par rôle">
+  <a href="{{ url_for('admin.users_admin') }}" {% if not role %}aria-current="page"{% endif %}>Tous <span>{{ counts.values()|sum }}</span></a>
+  {% for r in roles %}<a href="{{ url_for('admin.users_admin', role=r) }}" {% if role == r %}aria-current="page"{% endif %}>{{ role_label(r) }} <span>{{ counts.get(r, 0) }}</span></a>{% endfor %}
+</nav>
+{% if rows %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Nom</th><th scope="col">E-mail</th><th scope="col">Rôle</th><th scope="col">Inscrit le</th><th scope="col">Dernière connexion</th><th scope="col">Actions</th></tr></thead>
+  <tbody>
+  {% for u in rows %}
+  <tr {% if u.role == 'professeur' and not u.teacher_id and u.email_verified_at %}class="low"{% endif %}>
+    <td>{{ u.name }}{% if u.id == me.id %} <span class="tag">vous</span>{% endif %}</td>
+    <td>{{ u.email }}{% if not u.email_verified_at %} <span class="tag">non confirmé</span>{% endif %}{% if not u.active %} <span class="tag">désactivé</span>{% endif %}</td>
+    <td>{{ role_label(u.role) }}{% if u.role == 'professeur' %}<br>{% if u.teacher_id %}<a href="{{ url_for('admin.teacher', tid=u.teacher_id) }}">fiche {{ u.t_first }}</a>{% else %}<span class="note">sans fiche</span>{% endif %}{% endif %}</td>
+    <td>{{ u.created_at.astimezone(paris).strftime('%d/%m/%Y') }}</td>
+    <td>{{ u.last_login_at.astimezone(paris).strftime('%d/%m/%Y %H:%M') if u.last_login_at else '—' }}</td>
+    <td>
+      {% if u.id != me.id %}
+      <div class="actions" style="gap:6px">
+        {% if u.role == 'professeur' and not u.teacher_id %}
+        <form method="post"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="user_id" value="{{ u.id }}"><input type="hidden" name="action" value="validate_teacher"><button class="btn btn-navy btn-small" type="submit">Valider</button></form>
+        {% endif %}
+        <form method="post" style="display:flex;gap:4px"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="user_id" value="{{ u.id }}"><input type="hidden" name="action" value="role">
+          <label class="visually-hidden" for="r{{ u.id }}">Rôle</label>
+          <select id="r{{ u.id }}" name="role" style="font:inherit;font-size:14px;padding:6px 8px;border:1px solid #C9D2E3;border-radius:10px">{% for r in roles %}<option value="{{ r }}" {% if u.role == r %}selected{% endif %}>{{ role_label(r) }}</option>{% endfor %}</select>
+          <button class="btn btn-line btn-small" type="submit">OK</button></form>
+        <form method="post"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="user_id" value="{{ u.id }}"><input type="hidden" name="action" value="{{ 'disable' if u.active else 'enable' }}"><button class="btn btn-line btn-small" type="submit">{{ 'Désactiver' if u.active else 'Réactiver' }}</button></form>
+        <form method="post" onsubmit="return confirm('Supprimer ce compte ?');"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="user_id" value="{{ u.id }}"><input type="hidden" name="action" value="delete"><button class="btn btn-line btn-small danger-btn" type="submit">Supprimer</button></form>
+      </div>
+      {% else %}—{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}<p class="empty">Aucun compte.</p>{% endif %}
+{% endblock %}

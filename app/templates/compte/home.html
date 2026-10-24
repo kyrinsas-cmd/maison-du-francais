@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ t.ac_home_title }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<section class="account-page"><div class="account-box wide">
+  <h1>{{ t.ac_hello.format(name=u.name) }}</h1>
+  {% if ok == 'verified' %}<p class="flash">{{ t.ac_verified }}</p>{% endif %}
+  <dl class="account-dl card">
+    <dt>{{ t.ac_type }}</dt><dd>{{ role_label }}</dd>
+    <dt>{{ t.ac_email }}</dt><dd>{{ u.email }}</dd>
+  </dl>
+  {% if u.role == 'professeur' %}<p class="card note-card">{{ t.ac_teacher_pending }}</p>
+  {% else %}<p class="card note-card">{{ t.ac_next_family }} <a href="{{ url_for('contact') }}">{{ t.nav_contact }}</a></p>{% endif %}
+  <div class="actions">
+    <a class="btn btn-line btn-small" href="{{ url_for('account_password') }}">{{ t.ac_change_pw }}</a>
+    <form method="post" action="{{ url_for('account_logout') }}"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small" type="submit">{{ t.ac_logout }}</button></form>
+  </div>
+  <details class="review-notice">
+    <summary>{{ t.ac_delete_h }}</summary>
+    <p>{{ t.ac_delete_text }}</p>
+    <form method="post" action="{{ url_for('account_delete') }}" onsubmit="return confirm('{{ t.ac_delete_confirm }}');"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small danger-btn" type="submit">{{ t.ac_delete_btn }}</button></form>
+  </details>
+</div></section>
+{% endblock %}

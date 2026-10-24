@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>{% block title %}Espace professeur{% endblock %} · Maison du français</title>
 <link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=8">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=9">
 </head>
 <body class="admin">
 <header class="site-header">
@@ -20,7 +20,7 @@
       <a href="{{ url_for('espace.home') }}">Mon espace</a>
       <a href="{{ url_for('espace.profile') }}">Mon profil</a>
       <a href="{{ url_for('espace.password') }}">Mot de passe</a>
-      <form method="post" action="{{ url_for('espace.logout') }}" style="margin:0">
+      <form method="post" action="{{ url_for('account_logout', lang='fr') }}" style="margin:0">
         <input type="hidden" name="csrf" value="{{ csrf() }}">
         <button class="btn btn-line btn-small" type="submit">Déconnexion</button>
       </form>

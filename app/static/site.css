@@ -309,3 +309,21 @@ td:first-child { font-weight: 900; font-size: 20px; }
 .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .timeline li { border-left: 3px solid var(--line); padding: 2px 0 2px 14px; font-size: 14px; color: var(--ink); }
 .timeline time { display: block; font-size: 12px; color: var(--muted); }
+
+/* Comptes (inscription / connexion) */
+.account-page { padding: 56px 0 96px; }
+.account-box { max-width: 460px; margin: 0 auto; padding: 0 16px; display: flex; flex-direction: column; gap: 18px; }
+.account-box.wide { max-width: 640px; }
+.account-box h1 { font-size: clamp(28px, 4vw, 36px); }
+.account-box .form { border: 1px solid var(--line); }
+.account-alt { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.role-pick { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.role-pick legend { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+.role-card { position: relative; border: 2px solid var(--line); border-radius: 16px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; cursor: pointer; font-weight: 400 !important; }
+.role-card input { position: absolute; opacity: 0; }
+.role-card b { font-size: 17px; }
+.role-card span { font-size: 12px; color: var(--muted); }
+.role-card:has(input:checked) { border-color: var(--navy); background: var(--soft); }
+.role-card:has(input:focus-visible) { outline: 3px solid var(--red); outline-offset: 2px; }
+.note-card { background: var(--soft); color: var(--ink); margin: 0; }
+@media (max-width: 420px) { .role-pick { grid-template-columns: 1fr; } }

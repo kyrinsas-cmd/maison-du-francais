@@ -1,8 +1,0 @@
-{% extends "compte/layout.html" %}
-{% block title %}Compte en attente{% endblock %}
-{% block content %}
-<h1>Bonjour {{ u.name }}</h1>
-<p class="flash">Votre adresse est confirmée.</p>
-<p>Votre compte n'a pas encore d'accès : un administrateur doit vous donner le rôle « administrateur ». Dès que c'est fait, rechargez cette page pour ouvrir l'admin.</p>
-<p><a class="btn btn-line btn-small" href="{{ url_for('compte.home') }}">Recharger</a></p>
-{% endblock %}
