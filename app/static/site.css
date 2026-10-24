@@ -337,7 +337,7 @@ td:first-child { font-weight: 900; font-size: 20px; }
 .site-header.public .nav { flex-wrap: nowrap; white-space: nowrap; gap: 16px; margin-left: auto; font-size: 14px; }
 .menu-btn { display: none; margin-left: auto; align-items: center; gap: 8px; font: inherit; font-weight: 800; font-size: 15px; color: var(--navy); background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 9px 16px; cursor: pointer; }
 .menu-btn span { font-size: 18px; line-height: 1; }
-@media (max-width: 1320px) {  /* seuil mesuré (police 14 px) : menu fr le plus long, avec Avis + Tarifs = 1300 px */
+@media (max-width: 1340px) {  /* seuil mesuré (police 14 px) : menu fr le plus long, avec Avis + Tarifs et la flèche du sous-menu ≈ 1320 px */
   .has-js .site-header.public .menu-btn { display: inline-flex; }
   .has-js .site-header.public .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 24px 20px; border-bottom: 1px solid var(--line); box-shadow: 0 18px 30px rgba(6, 51, 114, .08); white-space: normal; }
   .has-js .site-header.public.open .nav { display: flex; }
@@ -459,3 +459,23 @@ section.list-page { padding: 56px 0 96px; }
 @media (max-width: 760px) { .pt-modes { grid-template-columns: 1fr; } }
 .account-tests { border: 1px solid var(--line); background: #fff; }
 .acct-test { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Sous-menu de la barre (课程体系 → 法语与证书) */
+.nav-group { position: relative; display: inline-flex; align-items: center; gap: 2px; }
+.nav-group.current > a { color: var(--red-text); }
+.sub-toggle { font: inherit; background: none; border: 0; padding: 4px 2px; cursor: pointer; color: var(--navy); line-height: 1; font-size: 12px; }
+.subnav { display: none; position: absolute; top: 100%; left: -14px; min-width: 210px; padding: 8px; margin-top: 10px; background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 16px 32px rgba(6, 51, 114, .12); flex-direction: column; z-index: 20; }
+.subnav::before { content: ""; position: absolute; top: -12px; left: 0; right: 0; height: 12px; } /* pont pour le survol */
+.subnav a { padding: 10px 12px; border-radius: 10px; white-space: nowrap; }
+.subnav a:hover, .subnav a[aria-current="page"] { background: var(--soft); }
+.nav-group:hover .subnav, .nav-group:focus-within .subnav, .nav-group.open .subnav { display: flex; }
+.nav-group.open .sub-toggle span, .nav-group:hover .sub-toggle span { display: inline-block; transform: rotate(180deg); }
+@media (max-width: 1340px) {
+  .has-js .site-header.public .nav-group { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+  .has-js .site-header.public .nav-group > a { display: none; }
+  .has-js .site-header.public .sub-toggle { display: none; }
+  .has-js .site-header.public .subnav { display: flex; position: static; box-shadow: none; border: 0; padding: 0; margin: 0; min-width: 0; }
+  .has-js .site-header.public .subnav::before { display: none; }
+  .has-js .site-header.public .subnav a { border-radius: 0; padding: 12px 2px; border-bottom: 1px solid var(--line); }
+  .has-js .site-header.public .subnav a + a { padding-left: 18px; }
+}

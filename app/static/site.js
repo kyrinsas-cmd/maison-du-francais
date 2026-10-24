@@ -9,6 +9,18 @@
   header.querySelectorAll(".nav a").forEach(function (a) { a.addEventListener("click", function () { set(false); }); });
 })();
 
+// Sous-menus de la barre (课程体系 → 法语与证书) : clic sur ▾, Échap ou clic ailleurs pour fermer
+(function () {
+  var groups = document.querySelectorAll(".nav-group");
+  function close(gr) { gr.classList.remove("open"); gr.querySelector(".sub-toggle").setAttribute("aria-expanded", "false"); }
+  groups.forEach(function (gr) {
+    var b = gr.querySelector(".sub-toggle");
+    b.addEventListener("click", function (e) { e.stopPropagation(); var o = !gr.classList.contains("open"); groups.forEach(close); if (o) { gr.classList.add("open"); b.setAttribute("aria-expanded", "true"); } });
+    gr.addEventListener("keydown", function (e) { if (e.key === "Escape") { close(gr); b.focus(); } });
+  });
+  document.addEventListener("click", function (e) { groups.forEach(function (gr) { if (!gr.contains(e.target)) close(gr); }); });
+})();
+
 // Animations avec Motion (vanilla, static/vendor/motion.js, MIT). Rien ne bouge si l'utilisateur a demandé moins de mouvement.
 (function () {
   window.__mdfAnim = true;
