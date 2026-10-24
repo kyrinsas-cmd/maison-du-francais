@@ -271,3 +271,11 @@ td:first-child { font-weight: 900; font-size: 20px; }
 .steps-list { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 18px; color: var(--ink); }
 .contact-qr { display: flex; justify-content: center; }
 .qr-big { width: 240px; height: 240px; font-size: 16px; border: 2px dashed var(--pale); }
+.link-box { display: flex; flex-direction: column; gap: 10px; }
+.link-box input { font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid #9FCDB0; border-radius: 10px; background: #fff; width: 100%; }
+.pending-box { border: 2px solid #F0C86B; background: #FFFBF0; margin-bottom: 24px; }
+.account-box { border: 1px solid var(--line); margin-bottom: 24px; }
+.account-dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 20px; margin: 0; }
+.account-dl dt { font-weight: 800; }
+.account-dl dd { margin: 0; overflow-wrap: anywhere; }
+.pre { white-space: pre-line; }

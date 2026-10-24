@@ -11,6 +11,65 @@
 {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
 {% if t.application_id %}<p class="note">Issue de la <a href="{{ url_for('admin.application', aid=t.application_id) }}">candidature n° {{ t.application_id }}</a>.</p>{% endif %}
 
+{% if link %}
+<div class="flash link-box" role="status">
+  <p style="margin:0"><b>Lien {{ "d'invitation" if link_kind == 'invitation' else 'de réinitialisation' }}</b> ({{ 'valable 7 jours' if link_kind == 'invitation' else 'valable 24 heures' }}). Copiez-le et envoyez-le au professeur, par e-mail ou WeChat. Il ne sera plus affiché ensuite.</p>
+  <input type="text" readonly value="{{ link }}" onclick="this.select()" aria-label="Lien à envoyer">
+</div>
+{% endif %}
+
+{% if pending %}
+<section class="form pending-box" aria-labelledby="pend-h">
+  <h2 id="pend-h" class="h3">Modifications proposées par le professeur</h2>
+  <p class="note" style="margin:0">Envoyées le {{ pending.at.astimezone(paris).strftime('%d/%m/%Y à %H:%M') }}. Rien n'est en ligne tant que vous n'avez pas appliqué.</p>
+  {% if pending.rows %}
+  <div class="table-box admin-table"><table>
+    <thead><tr><th scope="col">Champ</th><th scope="col">Actuel</th><th scope="col">Proposé</th></tr></thead>
+    <tbody>{% for r in pending.rows %}<tr><td>{{ r.label }}</td><td class="pre">{{ r.old }}</td><td class="pre">{{ r.new }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% endif %}
+  {% if pending.photo %}<p style="margin:0"><b>Nouvelle photo :</b></p><img class="admin-photo" src="/uploads/teachers/{{ pending.photo }}" alt="Photo proposée">{% endif %}
+  {% if pending.video %}<p style="margin:0"><b>Nouvelle vidéo</b> (sera « Validée » si vous appliquez) :</p><video class="admin-video" src="/uploads/teachers/{{ pending.video }}" controls preload="metadata"></video>{% endif %}
+  <div class="actions">
+    <form method="post" action="{{ url_for('admin.teacher_pending', tid=t.id) }}"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="apply"><button class="btn btn-navy" type="submit">Appliquer les modifications</button></form>
+  </div>
+  <form class="form" method="post" action="{{ url_for('admin.teacher_pending', tid=t.id) }}" style="padding:0">
+    <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="reject">
+    <label>Ou refuser, avec un message pour le professeur<textarea name="feedback" maxlength="2000" placeholder="Ex. : la vidéo est trop sombre, merci de la refaire en lumière naturelle."></textarea></label>
+    <button class="btn btn-line danger-btn" type="submit" style="align-self:flex-start">Refuser</button>
+  </form>
+</section>
+{% elif t.pending_feedback %}
+<p class="note">Dernières modifications du professeur refusées : « {{ t.pending_feedback }} »</p>
+{% endif %}
+
+<section class="form account-box" aria-labelledby="acc-h">
+  <h2 id="acc-h" class="h3">Compte de l'espace professeur</h2>
+  {% if not account %}
+  <p class="note" style="margin:0">Le professeur n'a pas encore de compte. Créez-le pour lui permettre de compléter son profil et d'envoyer sa vidéo lui-même.</p>
+  <form method="post" action="{{ url_for('admin.teacher_account', tid=t.id) }}" class="search-admin" style="margin:0">
+    <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="create">
+    <label class="visually-hidden" for="acc-email">E-mail du professeur</label>
+    <input id="acc-email" type="email" name="email" required placeholder="E-mail du professeur" value="{{ default_email }}">
+    <button class="btn btn-navy btn-small" type="submit">Créer le compte et le lien d'invitation</button>
+  </form>
+  {% else %}
+  <dl class="account-dl">
+    <dt>E-mail</dt><dd>{{ account.email }}</dd>
+    <dt>État</dt><dd>{% if not account.active %}<span class="status status-rejected">Désactivé</span>{% elif account.password_hash %}<span class="status status-accepted">Actif</span>{% else %}<span class="status status-contacted">Invitation non acceptée</span>{% endif %}</dd>
+    {% if account.last_login_at %}<dt>Dernière connexion</dt><dd>{{ account.last_login_at.astimezone(paris).strftime('%d/%m/%Y à %H:%M') }}</dd>{% endif %}
+  </dl>
+  <div class="actions">
+    {% for action, label, cls in [('link', ("Nouveau lien de réinitialisation" if account.password_hash else "Nouveau lien d'invitation"), 'btn-line'), (('disable', 'Désactiver le compte', 'btn-line') if account.active else ('enable', 'Réactiver le compte', 'btn-line')), ('delete', 'Supprimer le compte', 'btn-line danger-btn')] %}
+    <form method="post" action="{{ url_for('admin.teacher_account', tid=t.id) }}" {% if action == 'delete' %}onsubmit="return confirm('Supprimer ce compte ? La fiche reste en place.');"{% endif %}>
+      <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="{{ action }}">
+      <button class="btn btn-small {{ cls }}" type="submit">{{ label }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+
 <form class="form teacher-form" method="post" enctype="multipart/form-data">
   <input type="hidden" name="csrf" value="{{ csrf() }}">
 

@@ -236,5 +236,7 @@ def secure(resp):
 import admin  # noqa: E402  (après la définition de app et de ip_hash)
 import pricing  # noqa: E402  (idem)
 import teachers  # noqa: E402  (ajoute ses routes à app et au blueprint admin avant son enregistrement)
+import accounts  # noqa: E402  (espace professeur + routes admin des comptes)
 
 admin.init_app(app)
+accounts.init_app(app)

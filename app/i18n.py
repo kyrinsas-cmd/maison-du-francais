@@ -111,7 +111,7 @@ T = {
         "foot_parents": "Parents en Chine", "foot_qr": "QR code WeChat bientôt disponible",
         "foot_qr_text": "Le test de niveau et les cours d'essai se réservent sur WeChat.",
         "foot_contact": "Contact", "foot_contact_soon": "Adresse de contact bientôt disponible.",
-        "foot_teach": "Devenir professeur", "foot_legal": "Mentions légales", "foot_privacy": "Confidentialité",
+        "foot_teach": "Devenir professeur", "foot_espace": "Espace professeur", "teach_login": "Déjà professeur chez nous ?", "foot_legal": "Mentions légales", "foot_privacy": "Confidentialité",
         "legal_title": "Mentions légales", "privacy_title": "Confidentialité",
     },
     "zh": {
@@ -220,7 +220,7 @@ T = {
         "foot_parents": "中国的家长", "foot_qr": "微信二维码即将上线",
         "foot_qr_text": "水平测试和试听课请通过微信预约。",
         "foot_contact": "联系我们", "foot_contact_soon": "联系邮箱即将公布。",
-        "foot_teach": "成为老师", "foot_legal": "法律声明", "foot_privacy": "隐私政策",
+        "foot_teach": "成为老师", "foot_espace": "Espace professeur（教师登录）", "teach_login": "已经是我们的老师？", "foot_legal": "法律声明", "foot_privacy": "隐私政策",
         "legal_title": "法律声明", "privacy_title": "隐私政策",
     },
 }

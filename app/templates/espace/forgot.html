@@ -1,0 +1,9 @@
+{% extends "espace/layout.html" %}
+{% block title %}Mot de passe oublié{% endblock %}
+{% block content %}
+<div class="admin-login">
+  <h1>Mot de passe oublié</h1>
+  <p>Écrivez à l'équipe{% if contact_email %} (<a href="mailto:{{ contact_email }}">{{ contact_email }}</a>){% endif %} depuis l'adresse de votre compte : elle vous enverra un lien pour choisir un nouveau mot de passe, valable 24 heures.</p>
+  <p><a href="{{ url_for('espace.login') }}">← Connexion</a></p>
+</div>
+{% endblock %}

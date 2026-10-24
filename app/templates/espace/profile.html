@@ -1,0 +1,44 @@
+{% extends "espace/layout.html" %}
+{% block title %}Mon profil{% endblock %}
+{% block content %}
+<h1>Mon profil</h1>
+<p class="note">Vos modifications ne sont visibles sur le site qu'après validation par l'équipe.{% if pend.fields or pend.photo_file or pend.video_file %} Le formulaire affiche votre dernière proposition, en attente.{% endif %}</p>
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<form class="form teacher-form" method="post" enctype="multipart/form-data">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <fieldset>
+    <legend>Mes informations</legend>
+    <label>Diplômes<input type="text" name="diplomas" maxlength="300" placeholder="Master FLE, habilitation DELF…" value="{{ cur.diplomas or '' }}"></label>
+    <div class="row2">
+      <label>Âge des élèves : de<input type="number" name="ages_min" min="1" max="99" value="{{ cur.ages_min or '' }}"></label>
+      <label>à<input type="number" name="ages_max" min="1" max="99" value="{{ cur.ages_max or '' }}"></label>
+    </div>
+    <div class="checks"><span>Niveaux enseignés</span>
+      {% for lv in levels %}<label class="check"><input type="checkbox" name="level_{{ lv }}" value="1" {% if lv in (cur.levels or []) %}checked{% endif %}>{{ lv }}</label>{% endfor %}
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Ma présentation</legend>
+    <label>En français<textarea name="bio_fr" maxlength="4000" lang="fr">{{ cur.bio_fr or '' }}</textarea></label>
+    <label>En chinois (facultatif : l'équipe peut la traduire)<textarea name="bio_zh" maxlength="4000" lang="zh-Hans">{{ cur.bio_zh or '' }}</textarea></label>
+    <div class="row2">
+      <label>Cours enseignés, en français (un par ligne)<textarea name="courses_fr" maxlength="2000">{{ cur.courses_fr or '' }}</textarea></label>
+      <label>En chinois (facultatif)<textarea name="courses_zh" maxlength="2000" lang="zh-Hans">{{ cur.courses_zh or '' }}</textarea></label>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Photo</legend>
+    {% set photo = pend.photo_file or t.photo_file %}
+    {% if photo %}<img class="admin-photo" src="/uploads/teachers/{{ photo }}" alt="Votre photo">{% if pend.photo_file %}<p class="note" style="margin:0">Nouvelle photo en attente de validation.</p>{% endif %}{% endif %}
+    <label>{{ 'Changer de photo' if photo else 'Ajouter une photo' }} (JPEG, PNG ou WebP, 15 Mo au plus)<input type="file" name="photo" accept="image/jpeg,image/png,image/webp"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Vidéo de présentation</legend>
+    <p class="note" style="margin:0">Filmez-vous 2 à 3 minutes : qui vous êtes, comment vous enseignez, avec quels élèves. MP4 (H.264) de préférence, 150 Mo au plus.</p>
+    {% set video = pend.video_file or t.video_file %}
+    {% if video %}<video class="admin-video" src="/uploads/teachers/{{ video }}" controls preload="metadata"></video>{% if pend.video_file %}<p class="note" style="margin:0">Nouvelle vidéo en attente de validation.</p>{% endif %}{% endif %}
+    <label>{{ 'Envoyer une nouvelle vidéo' if video else 'Envoyer ma vidéo' }}<input type="file" name="video" accept="video/mp4,video/webm"></label>
+  </fieldset>
+  <button class="btn btn-navy" type="submit">Envoyer pour validation</button>
+</form>
+{% endblock %}

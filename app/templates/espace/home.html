@@ -1,0 +1,31 @@
+{% extends "espace/layout.html" %}
+{% block title %}Mon espace{% endblock %}
+{% block content %}
+<h1>Bonjour {{ t.first_name }}</h1>
+{% if welcome %}<p class="flash">Votre compte est activé.</p>{% endif %}
+{% if sent %}<p class="flash">Vos modifications sont envoyées. L'équipe les vérifie avant leur mise en ligne.</p>{% endif %}
+<div class="grid">
+  <div class="card">
+    <h2 class="h3">Ma fiche sur le site</h2>
+    {% if t.published %}<p><span class="status status-accepted">Publiée</span></p>
+      <p><a href="/professeurs/{{ t.slug }}" target="_blank" rel="noopener">Voir en chinois</a> · <a href="/fr/professeurs/{{ t.slug }}" target="_blank" rel="noopener">en français</a></p>
+    {% else %}<p><span class="status status-rejected">Pas encore publiée</span></p>
+      {% if problems %}<p>Il manque : {{ problems|join(', ') }}.</p>{% endif %}
+      <p>L'équipe publie la fiche une fois tout réuni, avec votre accord écrit.</p>
+    {% endif %}
+  </div>
+  <div class="card">
+    <h2 class="h3">Mes modifications</h2>
+    {% if t.pending %}<p><span class="status status-contacted">En attente</span> envoyées le {{ t.pending_at.astimezone(paris).strftime('%d/%m/%Y à %H:%M') }}</p><p>L'équipe les vérifie avant leur mise en ligne.</p>
+    {% elif t.pending_feedback %}<p><span class="status status-new">Refusées</span></p><p class="pre">{{ t.pending_feedback }}</p>
+    {% else %}<p>Aucune modification en attente.</p>{% endif %}
+    <a class="btn btn-line btn-small" href="{{ url_for('espace.profile') }}" style="align-self:flex-start">Modifier mon profil</a>
+  </div>
+  <div class="card">
+    <h2 class="h3">Ma vidéo de présentation</h2>
+    <p>{{ video_state }}</p>
+    {% if t.video_status == 'changes' and t.video_feedback %}<p class="pre">{{ t.video_feedback }}</p>{% endif %}
+    <p class="note" style="margin:0">MP4 (H.264) de préférence, 150 Mo au plus, 2 à 3 minutes conseillées.</p>
+  </div>
+</div>
+{% endblock %}

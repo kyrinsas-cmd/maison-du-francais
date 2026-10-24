@@ -226,15 +226,15 @@ def teacher(tid):
         t = c.execute("SELECT * FROM teachers WHERE id=%s", (tid,)).fetchone()
     if not t:
         abort(404)
-    errors, msg = [], request.args.get("ok") and "Enregistré."
+    errors = []
     if request.method == "POST":
         _check_csrf()
         f = request.form
         if f.get("action") == "delete":
             with connect() as c:
                 c.execute("DELETE FROM teachers WHERE id=%s", (tid,))
-            _remove(t["photo_file"])
-            _remove(t["video_file"])
+            for name in (t["photo_file"], t["video_file"], (t["pending"] or {}).get("photo_file"), (t["pending"] or {}).get("video_file")):
+                _remove(name)
             return redirect(url_for("admin.teachers_list", supprime=1))
 
         def num(k):
@@ -295,5 +295,16 @@ def teacher(tid):
                 _remove(name)
         if not errors:
             return redirect(url_for("admin.teacher", tid=tid, ok=1))
-    return render_template("admin/teacher.html", t=t, levels=LEVELS, vstatus=VIDEO_STATUSES, errors=errors, msg=msg,
-                           problems=publish_problems(t), display_name=display_name)
+    return render_teacher_admin(tid, errors=errors, msg=request.args.get("ok") and "Enregistré.")
+
+
+def render_teacher_admin(tid, errors=None, msg=None, link=None, link_kind=None):
+    import accounts
+    with connect() as c:
+        t = c.execute("SELECT * FROM teachers WHERE id=%s", (tid,)).fetchone()
+    if not t:
+        abort(404)
+    return render_template("admin/teacher.html", t=t, levels=LEVELS, vstatus=VIDEO_STATUSES, errors=errors or [], msg=msg,
+                           problems=publish_problems(t), display_name=display_name, account=accounts.account_for(tid),
+                           pending=accounts.pending_view(t) if t["pending"] else None, default_email=accounts.default_email(t),
+                           link=link, link_kind=link_kind)

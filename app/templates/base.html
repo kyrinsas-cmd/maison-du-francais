@@ -21,7 +21,7 @@
 <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='img/og.png') }}">
 <meta name="theme-color" content="#063372">
 <link rel="preload" href="{{ url_for('static', filename='fonts/nunito-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=5">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=6">
 <script>
   document.documentElement.classList.add("js");
   // Si les animations ne se chargent pas, on affiche tout au bout de 2,5 s
@@ -73,6 +73,7 @@
         {% if contact_email %}<a href="mailto:{{ contact_email }}">{{ contact_email }}</a>{% else %}<p>{{ t.foot_contact_soon }}</p>{% endif %}
         <a href="{{ url_for('contact') }}">{{ t.nav_contact }}</a>
         <a href="{{ url_for('teach_page') }}">{{ t.foot_teach }}</a>
+        <a href="{{ url_for('espace.login') }}" lang="fr">{{ t.foot_espace }}</a>
       </div>
     </div>
     <div class="legal-bar">

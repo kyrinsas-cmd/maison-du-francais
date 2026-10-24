@@ -1,0 +1,16 @@
+{% extends "espace/layout.html" %}
+{% block title %}Connexion{% endblock %}
+{% block content %}
+<div class="admin-login">
+  <h1>Connexion</h1>
+  <p class="note">Espace réservé aux professeurs de Maison du français. Le compte est créé par l'équipe : vous recevez un lien d'invitation pour choisir votre mot de passe.</p>
+  <form class="form" method="post">
+    {% if error %}<p class="errors" role="alert">{{ error }}</p>{% endif %}
+    <input type="hidden" name="csrf" value="{{ csrf() }}">
+    <label>E-mail<input type="email" name="email" required autocomplete="username" value="{{ email }}" autofocus></label>
+    <label>Mot de passe<input type="password" name="password" required autocomplete="current-password"></label>
+    <button class="btn btn-navy" type="submit">Se connecter</button>
+    <p class="note" style="margin:0"><a href="{{ url_for('espace.forgot') }}">Mot de passe oublié ?</a> · Pas encore de compte ? <a href="{{ url_for('teach_page', lang='fr') }}">Proposer sa candidature</a></p>
+  </form>
+</div>
+{% endblock %}
