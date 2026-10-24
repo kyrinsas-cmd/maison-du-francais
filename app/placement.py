@@ -144,9 +144,24 @@ def delete_recordings(test_id):
         c.execute("DELETE FROM placement_recordings WHERE test_id=%s", (test_id,))
 
 
-def items_for(c, level):
-    return c.execute("""SELECT * FROM placement_items WHERE level=%s AND active AND (section <> 'listening' OR audio_file IS NOT NULL)
-                        ORDER BY sort""", (level,)).fetchall()
+PICK = {"vocab": 2, "grammar": 2, "listening": 1}  # + 1 texte de lecture avec toutes ses questions
+
+
+def items_for(c, level, test_id):
+    """Questions d'un niveau pour un test : tirées au hasard dans la banque (toujours les mêmes pour un test donné)."""
+    pool = c.execute("""SELECT * FROM placement_items WHERE level=%s AND active AND (section <> 'listening' OR audio_file IS NOT NULL)
+                        ORDER BY sort, id""", (level,)).fetchall()
+    rnd = random.Random(f"tirage-{test_id}-{level}")
+    chosen = []
+    for sec, n in PICK.items():
+        items = [it for it in pool if it["section"] == sec]
+        chosen += rnd.sample(items, min(n, len(items)))
+    passages = sorted({it["passage"] for it in pool if it["section"] == "reading" and it["passage"]})
+    if passages:
+        p = rnd.choice(passages)
+        chosen += [it for it in pool if it["section"] == "reading" and it["passage"] == p]
+    order = {"vocab": 0, "grammar": 1, "reading": 2, "listening": 3}
+    return sorted(chosen, key=lambda it: (order[it["section"]], it["sort"], it["id"]))
 
 
 def shuffled(test_id, item):
@@ -232,7 +247,7 @@ def placement_step(tid):
     with connect() as c:
         if t["step"] == "qcm":
             lv = LEVELS[t["qcm_level_idx"]]
-            items = items_for(c, lv)
+            items = items_for(c, lv, tid)
             if request.method == "POST":
                 U.check_csrf()
                 answers, good = dict(t["answers"] or {}), 0
