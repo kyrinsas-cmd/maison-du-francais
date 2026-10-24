@@ -1,0 +1,28 @@
+{% extends "admin/layout.html" %}
+{% block title %}Ressources{% endblock %}
+{% block content %}
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
+  <h1 style="margin:0">Bibliothèque de ressources (教材库)</h1>
+  <a class="btn btn-navy btn-small" href="{{ url_for('admin.resource_new') }}">Ajouter une ressource</a>
+</div>
+{% if request.args.supprimee %}<p class="flash">Ressource supprimée.</p>{% endif %}
+<p class="note">Supports faits par l'équipe (§9). Pour tout élément venant d'un tiers (image, extrait, audio…), la source et l'autorisation sont obligatoires avant publication. Les ouvertures sont comptées par type de compte, sans identité.</p>
+{% if rows %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Titre</th><th scope="col">Type</th><th scope="col">Niveau</th><th scope="col">Accès</th><th scope="col">Ouvertures (30 j)</th><th scope="col">Par compte</th><th scope="col">Site</th></tr></thead>
+  <tbody>
+  {% for r in rows %}{% set s = stats.get(r.id) %}
+  <tr>
+    <td><a href="{{ url_for('admin.resource', rid=r.id) }}">{{ r.title_zh }}</a>{% if r.origin == 'tiers' %} <span class="tag">tiers</span>{% endif %}</td>
+    <td>{{ kinds.get(r.file_kind, '—') }}{% if r.file_size %} · {{ size_label(r.file_size) }}{% endif %}</td>
+    <td>{{ r.level or 'Tous' }}</td>
+    <td>{{ {'public':'Public','members':'Comptes connectés','teachers':'Professeurs'}[r.visibility] }}</td>
+    <td>{{ s.n if s else 0 }} ({{ s.n30 if s else 0 }})</td>
+    <td class="note">{% if s %}visiteurs {{ s.visiteur }} · élèves {{ s.eleve }} · parents {{ s.parent }} · profs {{ s.professeur }}{% else %}—{% endif %}</td>
+    <td>{{ 'Publiée' if r.published else 'Brouillon' }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}<p class="empty">Aucune ressource. Ajoutez la première avec « Ajouter une ressource ».</p>{% endif %}
+{% endblock %}

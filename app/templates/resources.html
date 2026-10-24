@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ t.lib_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.lib_desc }}{% endblock %}
+{% block content %}
+<section>
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">{{ t.nav_library }}</span>
+      <h1>{{ t.lib_h1 }}</h1>
+      <p class="lead">{{ t.lib_lead }}</p>
+    </div>
+    <form class="lib-filters" method="get">
+      <label>{{ t.lib_level }}
+        <select name="niveau"><option value="">{{ t.lib_all }}</option>{% for l in levels %}<option {% if lv == l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+      </label>
+      <label>{{ t.lib_skill }}
+        <select name="competence"><option value="">{{ t.lib_all }}</option>{% for s in skills %}<option value="{{ s }}" {% if sk == s %}selected{% endif %}>{{ t['lib_skill_' ~ s] }}</option>{% endfor %}</select>
+      </label>
+      <button class="btn btn-line btn-small" type="submit">{{ t.lib_filter }}</button>
+    </form>
+    {% if items %}
+    <div class="lib-grid">
+      {% for r in items %}
+      <article class="lib-item">
+        <div class="lib-tags">
+          <span class="status">{{ t['lib_kind_' ~ r.file_kind] if r.file_kind else '' }}</span>
+          <span class="status sev-normal">{{ r.level or t.lib_all_levels }}</span>
+          <span class="status sev-normal">{{ t['lib_skill_' ~ r.skill] }}</span>
+        </div>
+        <h2 class="h3">{{ r.title }}</h2>
+        {% if r.desc %}<p class="pre">{{ r.desc }}</p>{% endif %}
+        <p class="note" style="margin:0">{% if r.theme %}{{ r.theme }} · {% endif %}{% if r.ages_min or r.ages_max %}{{ t.lib_ages.format(a=(r.ages_min ~ '–' ~ r.ages_max) if r.ages_min and r.ages_max else (r.ages_min or r.ages_max)) }} · {% endif %}{{ r.size }}</p>
+        {% if r.allowed %}
+          {% if r.file_kind == 'audio' %}<audio controls preload="none" src="{{ url_for('resource_file', rid=r.id) }}"></audio>{% endif %}
+          <a class="btn btn-navy btn-small" href="{{ url_for('resource_file', rid=r.id) }}" {% if r.file_kind != 'doc' %}target="_blank" rel="noopener"{% endif %}>{{ t.lib_download if r.file_kind == 'doc' else t.lib_open }}</a>
+        {% else %}
+          <p class="lib-lock">{{ t.lib_locked_teachers if r.visibility == 'teachers' else t.lib_locked_members }}</p>
+          {% if not logged %}<a class="btn btn-line btn-small" href="{{ url_for('account_login', next=request.full_path) }}">{{ t.lib_login }}</a>{% endif %}
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}<p class="empty">{{ t.lib_none_filter if lv or sk else t.lib_none }}</p>{% endif %}
+  </div>
+</section>
+{% endblock %}

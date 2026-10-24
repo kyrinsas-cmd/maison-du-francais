@@ -332,12 +332,12 @@ td:first-child { font-weight: 900; font-size: 20px; }
 @media (max-width: 420px) { .role-pick { grid-template-columns: 1fr; } }
 
 /* En-tête public : toujours une seule ligne, identique en chinois et en français */
-.site-header.public .wrap { flex-wrap: nowrap; justify-content: flex-start; position: relative; }
+.site-header.public .wrap { flex-wrap: nowrap; justify-content: flex-start; position: relative; max-width: 1400px; }
 .site-header.public .brand { flex: none; }
-.site-header.public .nav { flex-wrap: nowrap; white-space: nowrap; gap: 18px; margin-left: auto; }
+.site-header.public .nav { flex-wrap: nowrap; white-space: nowrap; gap: 16px; margin-left: auto; font-size: 14px; }
 .menu-btn { display: none; margin-left: auto; align-items: center; gap: 8px; font: inherit; font-weight: 800; font-size: 15px; color: var(--navy); background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 9px 16px; cursor: pointer; }
 .menu-btn span { font-size: 18px; line-height: 1; }
-@media (max-width: 1200px) {  /* seuil mesuré : menu fr le plus long (avec Avis + Tarifs) = 1155 px */
+@media (max-width: 1320px) {  /* seuil mesuré (police 14 px) : menu fr le plus long, avec Avis + Tarifs = 1300 px */
   .has-js .site-header.public .menu-btn { display: inline-flex; }
   .has-js .site-header.public .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 24px 20px; border-bottom: 1px solid var(--line); box-shadow: 0 18px 30px rgba(6, 51, 114, .08); white-space: normal; }
   .has-js .site-header.public.open .nav { display: flex; }
@@ -348,3 +348,18 @@ td:first-child { font-weight: 900; font-size: 20px; }
   html:not(.has-js) .site-header.public .nav { flex-wrap: wrap; white-space: normal; margin-left: 0; }
 }
 @media (max-width: 640px) { .has-js .site-header.public .nav { padding: 8px 16px 18px; } }
+
+/* 教材库 */
+.lib-filters { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; margin-bottom: 28px; }
+.lib-filters label { display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px; }
+.lib-filters select { font: inherit; font-weight: 400; padding: 10px 14px; border: 1px solid #C9D2E3; border-radius: 12px; background: #fff; color: var(--navy); min-width: 160px; }
+.lib-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.lib-item { border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; display: flex; flex-direction: column; gap: 10px; background: #fff; }
+.lib-item p { margin: 0; color: var(--ink); font-size: 15px; }
+.lib-item .btn { align-self: flex-start; margin-top: auto; }
+.lib-item audio { width: 100%; }
+.lib-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.lib-lock { font-weight: 700; color: var(--muted) !important; margin-top: auto !important; }
+.live-steps { list-style: none; margin: 0; padding: 0; }
+.live-mine { flex: 1 1 340px; border: 2px dashed var(--pale); background: #fff; }
+.live-mine .btn { align-self: flex-start; }

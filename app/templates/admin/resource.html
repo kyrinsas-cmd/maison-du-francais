@@ -1,0 +1,62 @@
+{% extends "admin/layout.html" %}
+{% block title %}{{ r.title_zh if r else 'Nouvelle ressource' }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.resources_admin') }}">← Ressources</a></p>
+<h1>{{ r.title_zh if r else 'Nouvelle ressource' }}</h1>
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<form class="form teacher-form" method="post" enctype="multipart/form-data" style="max-width:820px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <fieldset>
+    <legend>Contenu</legend>
+    <div class="row2">
+      <label>Titre en chinois<input type="text" name="title_zh" maxlength="200" required lang="zh-Hans" value="{{ v.title_zh or '' }}"></label>
+      <label>Titre en français<input type="text" name="title_fr" maxlength="200" lang="fr" value="{{ v.title_fr or '' }}"></label>
+    </div>
+    <div class="row2">
+      <label>Description en chinois<textarea name="desc_zh" maxlength="2000" lang="zh-Hans">{{ v.desc_zh or '' }}</textarea></label>
+      <label>Description en français<textarea name="desc_fr" maxlength="2000" lang="fr">{{ v.desc_fr or '' }}</textarea></label>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Classement</legend>
+    <div class="row2">
+      <label>Niveau<select name="level"><option value="">Tous niveaux</option>{% for l in levels %}<option {% if v.level == l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+      <label>Compétence<select name="skill">{% for k, label in [('co','Compréhension orale · 听力'),('eo','Expression orale · 口语'),('ce','Compréhension écrite · 阅读'),('ee','Expression écrite · 写作'),('mixte','Mixte · 综合')] %}<option value="{{ k }}" {% if v.skill == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+    </div>
+    <div class="row2">
+      <label>Thème<input type="text" name="theme" maxlength="100" placeholder="La famille, les couleurs, se présenter…" value="{{ v.theme or '' }}"></label>
+      <div class="row2"><label>Âges : de<input type="number" name="ages_min" min="1" max="99" value="{{ v.ages_min or '' }}"></label><label>à<input type="number" name="ages_max" min="1" max="99" value="{{ v.ages_max or '' }}"></label></div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Fichier</legend>
+    {% if v.file_name %}<p style="margin:0">Fichier actuel : {{ kinds.get(v.file_kind) }} · {{ size_label(v.file_size) }} — <a href="{{ url_for('resource_file', rid=v.id) }}" target="_blank" rel="noopener">ouvrir</a> (visible seulement si la ressource est publiée)</p>{% endif %}
+    <label>{{ 'Remplacer le fichier' if v.file_name else 'Fichier' }} (PDF, MP3/M4A, PNG/JPEG, .docx, .pptx — 60 Mo au plus)<input type="file" name="file" accept=".pdf,.mp3,.m4a,.png,.jpg,.jpeg,.docx,.pptx"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Accès et droits</legend>
+    <label>Qui peut l'ouvrir
+      <select name="visibility">{% for k, label in [('public','Tout le monde (partie publique, visible des élèves en essai)'),('members','Comptes connectés (élèves, parents, professeurs)'),('teachers','Professeurs et équipe seulement')] %}<option value="{{ k }}" {% if v.visibility == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    <label>Origine
+      <select name="origin"><option value="maison" {% if v.origin != 'tiers' %}selected{% endif %}>Fait par notre équipe</option><option value="tiers" {% if v.origin == 'tiers' %}selected{% endif %}>Contient un élément tiers</option></select>
+    </label>
+    <div class="row2">
+      <label>Source de l'élément tiers<input type="text" name="tp_source" maxlength="300" placeholder="Auteur, site, ouvrage…" value="{{ v.tp_source or '' }}"></label>
+      <label>Autorisation / licence<input type="text" name="tp_license" maxlength="300" placeholder="CC BY 4.0, accord écrit du 12/10/2026…" value="{{ v.tp_license or '' }}"></label>
+    </div>
+    <label>Ordre d'affichage (plus petit = en premier)<input type="number" name="sort" value="{{ v.sort or 0 }}"></label>
+    <label class="check"><input type="checkbox" name="published" value="1" {% if v.published %}checked{% endif %}>Publier dans le 教材库</label>
+    {% if problems %}<p class="note" style="margin:0">Pour publier, il manque : {{ problems|join(', ') }}.</p>{% endif %}
+  </fieldset>
+  <button class="btn btn-navy" type="submit" style="align-self:flex-start">Enregistrer</button>
+</form>
+{% if r and is_admin() %}
+<form class="form danger" method="post" style="margin-top:24px;max-width:520px;border:1px solid var(--line)" onsubmit="return confirm('Supprimer définitivement cette ressource et son fichier ?');">
+  <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="delete">
+  <p>Suppression définitive de la ressource, de son fichier et de ses statistiques.</p>
+  <button class="btn btn-line danger-btn" type="submit">Supprimer</button>
+</form>
+{% endif %}
+{% endblock %}

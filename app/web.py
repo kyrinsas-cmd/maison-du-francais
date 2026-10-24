@@ -125,6 +125,11 @@ def path():
     return render_template("path.html", levels=LEVELS)
 
 
+@route("/cours-en-direct")
+def live():
+    return render_template("live.html")
+
+
 @route("/atelier-paris")
 def atelier():
     return render_template("atelier.html")
@@ -199,7 +204,7 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    paths = ["/", "/methode", "/cours", "/professeurs", "/atelier-paris", "/enseigner", "/contact", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + reviews.sitemap_paths() + teachers.sitemap_paths()
+    paths = ["/", "/methode", "/cours", "/cours-en-direct", "/professeurs", "/atelier-paris", "/enseigner", "/contact", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + resources.sitemap_paths() + reviews.sitemap_paths() + teachers.sitemap_paths()
     pages = [p for path in paths for p in (path, "/fr" + path)]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     xml += "".join(f"  <url><loc>{SITE_URL}{p}</loc></url>\n" for p in pages) + "</urlset>\n"
@@ -246,6 +251,7 @@ import accounts  # noqa: E402  (espace professeur + routes admin des comptes)
 import reviews  # noqa: E402  (notes et avis)
 import complaints  # noqa: E402,F401  (réclamations + suivi)
 import users  # noqa: E402,F401  (comptes : inscription, connexion, rôles)
+import resources  # noqa: E402  (教材库)
 
 admin.init_app(app)
 accounts.init_app(app)

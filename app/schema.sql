@@ -149,3 +149,39 @@ CREATE TABLE IF NOT EXISTS user_tokens (
     expires_at timestamptz NOT NULL,
     used_at    timestamptz
 );
+
+-- 2026-10-24 : bibliothèque de ressources 教材库 (cahier des charges §7, §9)
+-- Supports faits par l'équipe ; tout élément tiers : source + autorisation obligatoires pour publier.
+-- Visibilité : public (tout le monde) | members (comptes connectés) | teachers (professeurs et équipe).
+CREATE TABLE IF NOT EXISTS resources (
+    id            bigserial PRIMARY KEY,
+    created_at    timestamptz NOT NULL DEFAULT now(),
+    updated_at    timestamptz NOT NULL DEFAULT now(),
+    title_zh      text NOT NULL,
+    title_fr      text,
+    desc_zh       text,
+    desc_fr       text,
+    level         text,                         -- A1 A2 B1 B2, NULL = tous niveaux
+    skill         text NOT NULL DEFAULT 'mixte', -- co | eo | ce | ee | mixte (听 说 读 写 综合)
+    theme         text,
+    ages_min      int,
+    ages_max      int,
+    file_name     text,                         -- dans uploads/resources/
+    file_kind     text,                         -- pdf | audio | image | doc
+    file_size     bigint,
+    visibility    text NOT NULL DEFAULT 'members',
+    origin        text NOT NULL DEFAULT 'maison', -- maison | tiers
+    tp_source     text,                         -- élément tiers : d'où il vient
+    tp_license    text,                         -- élément tiers : autorisation / licence
+    published     boolean NOT NULL DEFAULT false,
+    sort          int NOT NULL DEFAULT 0,
+    downloads     int NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS resources_pub ON resources (published, level, skill);
+CREATE TABLE IF NOT EXISTS resource_hits (            -- statistiques (§7) : qui ouvre quoi, par type de compte, sans identité
+    id          bigserial PRIMARY KEY,
+    resource_id bigint NOT NULL REFERENCES resources(id) ON DELETE CASCADE,
+    at          timestamptz NOT NULL DEFAULT now(),
+    role        text NOT NULL                    -- visiteur | eleve | parent | professeur | moderateur | admin
+);
+CREATE INDEX IF NOT EXISTS resource_hits_res ON resource_hits (resource_id, at);

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ t.live_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.live_desc }}{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-text">
+      <span class="pill">{{ t.nav_live }}</span>
+      <h1>{{ t.live_h1 }}</h1>
+      <p class="lead">{{ t.live_lead }}</p>
+      <div class="actions"><a class="btn btn-red" href="{{ url_for('contact') }}">{{ t.live_cta }}</a></div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="classroom">
+        <div class="classroom-top"><span class="live">{{ t.class_live }}</span><span>{{ t.class_time }}</span></div>
+        <div class="teacher-tile" lang="fr">Bonjour !</div>
+        <div class="pupils"><div>Léo</div><div class="talk">Mia</div><div>Tom</div><div>Lina</div><div>Hugo</div></div>
+        <small>{{ t.class_caption }}</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="head" data-reveal><h2>{{ t.live_steps_h }}</h2></div>
+    <ol class="grid live-steps" data-reveal>
+      {% for i in range(1, 5) %}<li class="card"><span class="step-num {{ 'red' if i == 2 }}">{{ i }}</span><h3>{{ t['live_s' ~ i ~ '_h'] }}</h3><p>{{ t['live_s' ~ i ~ '_p'] }}</p></li>{% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="soft">
+  <div class="wrap">
+    <div class="head" data-reveal><h2>{{ t.live_class_h }}</h2></div>
+    <div class="grid" data-reveal>
+      {% for i in range(1, 5) %}<div class="card"><h3>{{ t['live_c' ~ i ~ '_h'] }}</h3><p>{{ t['live_c' ~ i ~ '_p'] }}</p></div>{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap split">
+    <div data-reveal>
+      <h2>{{ t.live_time_h }}</h2><p class="lead">{{ t.live_time_p }}</p>
+      <h2 style="margin-top:32px">{{ t.live_safe_h }}</h2><p class="lead">{{ t.live_safe_p }}</p>
+    </div>
+    <div class="card live-mine" data-reveal>
+      <h2 class="h3">{{ t.live_mine_h }}</h2>
+      {% if current_user() %}<p>{{ t.live_mine_in }}</p>
+      {% else %}<p>{{ t.live_mine_out }}</p><a class="btn btn-navy btn-small" href="{{ url_for('account_login', next=request.path) }}">{{ t.lib_login }}</a>{% endif %}
+    </div>
+  </div>
+</section>
+
+{% include "_cta.html" %}
+{% endblock %}
