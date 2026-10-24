@@ -1,0 +1,19 @@
+{% extends "admin/layout.html" %}
+{% block title %}Tarifs{% endblock %}
+{% block content %}
+<h1>Page Tarifs</h1>
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<p class="note">Prix en yuans, par séance et par élève (1 séance facturée = 45 min de cours + 15 min de devoirs). Le cahier des charges (§19) suggère 130 à 150 ¥ ; le prix final reste à décider. La page n'apparaît sur le site, avec un lien dans le menu, qu'une fois publiée.</p>
+<form class="form teacher-form" method="post" style="max-width:640px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <label>Prix d'une séance, par élève (¥)<input type="number" name="price_session" min="1" max="10000" value="{{ p.price_session or '' }}"></label>
+  <label>Séances par forfait (36 = environ 12 semaines à 3 cours par semaine)<input type="number" name="block_sessions" min="1" max="500" value="{{ p.block_sessions or 36 }}"></label>
+  <label>Cours particulier, par heure (¥, facultatif ; vide = non affiché)<input type="number" name="private_hourly" min="1" max="10000" value="{{ p.private_hourly or '' }}"></label>
+  <label class="check"><input type="checkbox" name="published" value="1" {% if p.published %}checked{% endif %}>Publier la page Tarifs</label>
+  <div class="actions">
+    <button class="btn btn-navy" type="submit">Enregistrer</button>
+    {% if p.price_session %}<a class="btn btn-line" href="/tarifs?apercu=1" target="_blank" rel="noopener">Aperçu en chinois</a><a class="btn btn-line" href="/fr/tarifs?apercu=1" target="_blank" rel="noopener">en français</a>{% endif %}
+  </div>
+</form>
+{% endblock %}

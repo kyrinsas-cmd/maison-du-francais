@@ -173,7 +173,7 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    paths = ["/", "/mentions-legales", "/confidentialite"] + teachers.sitemap_paths()
+    paths = ["/", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + teachers.sitemap_paths()
     pages = [p for path in paths for p in (path, "/fr" + path)]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     xml += "".join(f"  <url><loc>{SITE_URL}{p}</loc></url>\n" for p in pages) + "</urlset>\n"
@@ -214,6 +214,7 @@ def secure(resp):
 
 
 import admin  # noqa: E402  (après la définition de app et de ip_hash)
-import teachers  # noqa: E402,F401  (ajoute ses routes à app et au blueprint admin avant son enregistrement)
+import pricing  # noqa: E402  (idem)
+import teachers  # noqa: E402  (ajoute ses routes à app et au blueprint admin avant son enregistrement)
 
 admin.init_app(app)

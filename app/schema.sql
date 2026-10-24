@@ -51,3 +51,10 @@ CREATE TABLE IF NOT EXISTS teachers (
     application_id bigint REFERENCES teacher_applications(id) ON DELETE SET NULL
 );
 CREATE INDEX IF NOT EXISTS teachers_published ON teachers (published, sort, id);
+
+-- 2026-10-24 : réglages modifiables dans l'admin (ex. tarifs)
+CREATE TABLE IF NOT EXISTS settings (
+    key        text PRIMARY KEY,
+    value      jsonb NOT NULL,
+    updated_at timestamptz NOT NULL DEFAULT now()
+);

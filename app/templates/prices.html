@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ t.pr_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.pr_desc }}{% endblock %}
+{% block content %}
+{% if preview %}<p class="preview-bar" role="status">{{ t.pr_preview }}</p>{% endif %}
+<section class="hero">
+  <div class="wrap prices-hero">
+    <div class="hero-text">
+      <span class="eyebrow">{{ t.pr_eyebrow }}</span>
+      <h1>{{ t.pr_h1 }}</h1>
+      <p class="lead">{{ t.pr_lead }}</p>
+    </div>
+    <div class="price-main">
+      <p class="price"><span class="cur">{{ t.pr_cny }}</span>{{ price }}</p>
+      <p class="unit">{{ t.pr_unit }}</p>
+      <p class="free">{{ t.pr_free }}</p>
+      <a class="btn btn-red" href="#contact">{{ t.pr_cta }}</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="grid price-grid" data-reveal>
+      <div class="card">
+        <h2 class="h3">{{ t.pr_block_h }}</h2>
+        <p class="price small"><span class="cur">{{ t.pr_cny }}</span>{{ block_total }}</p>
+        <p>{{ t.pr_block.format(n=block, w=block_weeks) }}</p>
+      </div>
+      {% if private %}
+      <div class="card">
+        <h2 class="h3">{{ t.pr_private_h }}</h2>
+        <p class="price small"><span class="cur">{{ t.pr_cny }}</span>{{ private }}</p>
+        <p>{{ t.pr_private }}</p>
+      </div>
+      {% endif %}
+      <div class="card">
+        <h2 class="h3">{{ t.pr_included_h }}</h2>
+        <ul class="ticks">
+          <li>{{ t.pr_inc1 }}</li><li>{{ t.pr_inc2 }}</li><li>{{ t.pr_inc3 }}</li><li>{{ t.pr_inc4 }}</li><li>{{ t.pr_inc5 }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="soft">
+  <div class="wrap split">
+    <div data-reveal>
+      <h2>{{ t.pr_level_h }}</h2>
+      <p class="lead">{{ t.pr_level_lead }}</p>
+    </div>
+    <div class="table-box" data-reveal>
+      <table>
+        <thead><tr><th scope="col">{{ t.th_level }}</th><th scope="col">{{ t.th_sessions }}</th><th scope="col">{{ t.th_duration }}</th><th scope="col">{{ t.pr_th_total }}</th></tr></thead>
+        <tbody>
+        {% for l in rows %}
+          <tr><td>{{ l.code }}</td><td>≈ {{ l.sessions }}</td><td>{{ t.weeks.format(n=l.weeks) }}</td><td>≈ {{ t.pr_cny }}{{ l.total }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="wrap"><p class="note" style="margin-top:32px">{{ t.pr_note }}</p></div>
+</section>
+{% endblock %}
