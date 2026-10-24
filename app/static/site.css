@@ -364,10 +364,10 @@ td:first-child { font-weight: 900; font-size: 20px; }
 .live-mine { flex: 1 1 340px; border: 2px dashed var(--pale); background: #fff; }
 .live-mine .btn { align-self: flex-start; }
 
-/* Pages avec filtres à droite (直播课, 老师, 教材库) */
-.with-filters { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 32px; align-items: start; }
-.with-filters > .filters { grid-column: 2; grid-row: 1; position: sticky; top: 96px; }
-.with-filters > .results { grid-column: 1; grid-row: 1; min-width: 0; }
+/* Pages avec filtres à gauche (直播课, 老师, 教材库) */
+.with-filters { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 32px; align-items: start; }
+.with-filters > .filters { grid-column: 1; grid-row: 1; position: sticky; top: 96px; }
+.with-filters > .results { grid-column: 2; grid-row: 1; min-width: 0; }
 .filters-box { border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
 .filters-box summary { list-style: none; display: flex; align-items: center; gap: 8px; padding: 18px 20px 4px; font-weight: 900; font-size: 18px; cursor: default; }
 .filters-box summary::-webkit-details-marker { display: none; }
