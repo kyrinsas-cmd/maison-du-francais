@@ -14,7 +14,7 @@
       <p class="price"><span class="cur">{{ t.pr_cny }}</span>{{ price }}</p>
       <p class="unit">{{ t.pr_unit }}</p>
       <p class="free">{{ t.pr_free }}</p>
-      <a class="btn btn-red" href="#contact">{{ t.pr_cta }}</a>
+      <a class="btn btn-red" href="{{ url_for('contact') }}">{{ t.pr_cta }}</a>
     </div>
   </div>
 </section>

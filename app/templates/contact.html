@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ t.contact_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.contact_desc }}{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-text">
+      <span class="eyebrow">{{ t.contact_title }}</span>
+      <h1>{{ t.contact_h1 }}</h1>
+      <p class="lead">{{ t.contact_lead }}</p>
+      <ol class="steps-list">
+        <li>{{ t.contact_s1 }}</li>
+        <li>{{ t.contact_s2 }}</li>
+        <li>{{ t.contact_s3 }}</li>
+      </ol>
+    </div>
+    <div class="hero-visual contact-qr">
+      <div class="qr qr-big">{{ t.foot_qr }}</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="grid" data-reveal>
+      <div class="card">
+        <h2 class="h3">{{ t.contact_other_h }}</h2>
+        <p>{% if contact_email %}<a href="mailto:{{ contact_email }}">{{ contact_email }}</a>{% else %}{{ t.foot_contact_soon }}{% endif %}</p>
+        <p>{{ t.contact_partner }}</p>
+      </div>
+      <div class="card">
+        <h2 class="h3">{{ t.contact_teach }}</h2>
+        <p>{{ t.teach_lead }}</p>
+        <a class="btn btn-line btn-small" href="{{ url_for('teach_page') }}" style="align-self:flex-start">{{ t.nav_teach }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

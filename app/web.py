@@ -112,11 +112,31 @@ def home():
     return render_template("home.html", levels=LEVELS)
 
 
+@route("/methode")
+def method():
+    return render_template("method.html")
+
+
+@route("/cours")
+def path():
+    return render_template("path.html", levels=LEVELS)
+
+
+@route("/atelier-paris")
+def atelier():
+    return render_template("atelier.html")
+
+
+@route("/contact")
+def contact():
+    return render_template("contact.html")
+
+
 @route("/enseigner", methods=["GET", "POST"])
-def teach():
+def teach_page():
     t = texts(g.lang)
     if request.method == "GET":
-        return redirect(url_for("home", _anchor="enseigner"))
+        return render_template("teach.html")
     f = request.form
     if f.get("csrf") != session.get("csrf"):
         abort(400)
@@ -135,13 +155,13 @@ def teach():
     if not f.get("consent"):
         errors.append(t.err_consent)
     if errors:
-        return render_template("home.html", levels=LEVELS, errors=errors, form=data), 422
+        return render_template("teach.html", errors=errors, form=data), 422
     from db import connect
     h = ip_hash()
     with connect() as c:
         n = c.execute("SELECT count(*) AS n FROM teacher_applications WHERE ip_hash=%s AND created_at > now() - interval '1 hour'", (h,)).fetchone()["n"]
         if n >= 5:
-            return render_template("home.html", levels=LEVELS, errors=[t.err_rate], form=data), 429
+            return render_template("teach.html", errors=[t.err_rate], form=data), 429
         c.execute("INSERT INTO teacher_applications (full_name, email, diploma, message, ip_hash) VALUES (%s,%s,%s,%s,%s)",
                   (data["full_name"], data["email"], data["diploma"], data["message"] or None, h))
     return render_template("teach_done.html")
@@ -173,7 +193,7 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    paths = ["/", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + teachers.sitemap_paths()
+    paths = ["/", "/methode", "/cours", "/professeurs", "/atelier-paris", "/enseigner", "/contact", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + teachers.sitemap_paths()
     pages = [p for path in paths for p in (path, "/fr" + path)]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     xml += "".join(f"  <url><loc>{SITE_URL}{p}</loc></url>\n" for p in pages) + "</urlset>\n"

@@ -4,7 +4,7 @@
 {% block content %}
 <section class="teacher-page">
   <div class="wrap">
-    <p><a href="{{ url_for('home') }}#professeurs">← {{ t.tp_back }}</a></p>
+    <p><a href="{{ url_for('teachers_page') }}">← {{ t.tp_back }}</a></p>
     <div class="teacher-head">
       <img src="{{ tp.photo }}" alt="{{ tp.name }}" width="400" height="500">
       <div>
@@ -15,7 +15,7 @@
           {% if tp.levels %}<dt>{{ t.tp_levels }}</dt><dd>{{ tp.levels }}</dd>{% endif %}
           {% if tp.ages %}<dt>{{ t.tp_ages }}</dt><dd>{{ tp.ages }}</dd>{% endif %}
         </dl>
-        <div class="actions"><a class="btn btn-red" href="#contact">{{ t.tp_cta }}</a></div>
+        <div class="actions"><a class="btn btn-red" href="{{ url_for('contact') }}">{{ t.tp_cta }}</a></div>
         <p class="note">{{ t.tp_cta_note }}</p>
       </div>
     </div>

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ t.path_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.path_desc }}{% endblock %}
+{% block content %}
+<section id="parcours" >
+  <div class="wrap split">
+    <div data-reveal>
+      <span class="eyebrow">{{ t.path_eyebrow }}</span>
+      <h1>{{ t.path_h2 }}</h1>
+      <p class="lead">{{ t.path_lead }}</p>
+    </div>
+    <div class="table-box" data-reveal>
+      <table>
+        <thead><tr><th scope="col">{{ t.th_level }}</th><th scope="col">{{ t.th_sessions }}</th><th scope="col">{{ t.th_duration }}</th><th scope="col">{{ t.th_exam }}</th></tr></thead>
+        <tbody>
+        {% for l in levels %}
+          <tr><td>{{ l.code }}</td><td>≈ {{ l.sessions }}</td><td>{{ t.weeks.format(n=l.weeks) }}</td><td>{{ l.exam }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+{% include "_cta.html" %}
+{% endblock %}

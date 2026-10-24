@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ t.atelier_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.atelier_desc }}{% endblock %}
+{% block content %}
+<section id="atelier">
+  <div class="wrap">
+    <div class="banner" data-reveal>
+      <div>
+        <span class="eyebrow">{{ t.atelier_eyebrow }}</span>
+        <h1>{{ t.atelier_h2 }}</h1>
+        <p>{{ t.atelier_p }}</p>
+        <a class="btn" href="{{ url_for('contact') }}">{{ t.atelier_cta }}</a>
+      </div>
+      <div class="banner-art" aria-hidden="true">
+        <svg viewBox="0 0 200 220" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M100 10 L100 40"/><path d="M92 40 H108 L120 110 H80 Z"/><path d="M80 110 L60 200"/><path d="M120 110 L140 200"/><path d="M70 150 H130"/><path d="M84 200 Q100 168 116 200"/><path d="M40 200 H160"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

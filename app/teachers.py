@@ -86,6 +86,11 @@ def teachers_ctx():
     return {"published_teachers": lambda: published(web.current_lang())}
 
 
+@web.route("/professeurs")
+def teachers_page():
+    return render_template("teachers_list.html", teachers=published(g.lang))
+
+
 @web.route("/professeurs/<slug>")
 def teacher_page(slug):
     with connect() as c:

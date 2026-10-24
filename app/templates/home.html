@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_teacher_card.html" import teacher_card %}
 {% block content %}
 
 <section class="hero">
@@ -9,8 +10,8 @@
       <p class="zh" lang="{{ t.hero_alt_lang }}">{{ t.hero_alt }}</p>
       <p class="lead">{{ t.hero_lead }}</p>
       <div class="actions">
-        <a class="btn btn-red" href="#contact">{{ t.hero_cta1 }}</a>
-        <a class="btn btn-line" href="#methode">{{ t.hero_cta2 }}</a>
+        <a class="btn btn-red" href="{{ url_for('contact') }}">{{ t.hero_cta1 }}</a>
+        <a class="btn btn-line" href="{{ url_for('method') }}">{{ t.hero_cta2 }}</a>
       </div>
       <p class="note">{{ t.hero_note }}</p>
     </div>
@@ -34,135 +35,35 @@
   </div>
 </div>
 
-<section id="methode">
+<section>
   <div class="wrap">
     <div class="head" data-reveal>
-      <span class="eyebrow">{{ t.method_eyebrow }}</span>
-      <h2>{{ t.method_h2 }}</h2>
-      <p class="lead">{{ t.method_lead }}</p>
+      <h2>{{ t.home_more_h2 }}</h2>
     </div>
     <div class="grid" data-reveal>
-      <div class="card"><span class="step-num">1</span><h3>{{ t.step1_h }}</h3><p>{{ t.step1_p }}</p></div>
-      <div class="card"><span class="step-num">2</span><h3>{{ t.step2_h }}</h3><p>{{ t.step2_p }}</p></div>
-      <div class="card"><span class="step-num">3</span><h3>{{ t.step3_h }}</h3><p>{{ t.step3_p }}</p></div>
-      <div class="card"><span class="step-num red">4</span><h3>{{ t.step4_h }}</h3><p>{{ t.step4_p }}</p></div>
+      <a class="card link-card" href="{{ url_for('method') }}"><span class="step-num">1</span><h3>{{ t.nav_method }}</h3><p>{{ t.tz_method }}</p><span class="more">{{ t.more }} →</span></a>
+      <a class="card link-card" href="{{ url_for('path') }}"><span class="step-num">2</span><h3>{{ t.nav_path }}</h3><p>{{ t.tz_path }}</p><span class="more">{{ t.more }} →</span></a>
+      <a class="card link-card" href="{{ url_for('teachers_page') }}"><span class="step-num">3</span><h3>{{ t.nav_teachers }}</h3><p>{{ t.tz_teachers }}</p><span class="more">{{ t.more }} →</span></a>
+      <a class="card link-card" href="{{ url_for('atelier') }}"><span class="step-num red">4</span><h3>{{ t.nav_atelier }}</h3><p>{{ t.tz_atelier }}</p><span class="more">{{ t.more }} →</span></a>
     </div>
   </div>
 </section>
 
-<section id="parcours" class="soft">
-  <div class="wrap split">
-    <div data-reveal>
-      <span class="eyebrow">{{ t.path_eyebrow }}</span>
-      <h2>{{ t.path_h2 }}</h2>
-      <p class="lead">{{ t.path_lead }}</p>
-    </div>
-    <div class="table-box" data-reveal>
-      <table>
-        <thead><tr><th scope="col">{{ t.th_level }}</th><th scope="col">{{ t.th_sessions }}</th><th scope="col">{{ t.th_duration }}</th><th scope="col">{{ t.th_exam }}</th></tr></thead>
-        <tbody>
-        {% for l in levels %}
-          <tr><td>{{ l.code }}</td><td>≈ {{ l.sessions }}</td><td>{{ t.weeks.format(n=l.weeks) }}</td><td>{{ l.exam }}</td></tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<section id="professeurs">
-  <div class="wrap">
-    <div class="head" data-reveal>
-      <span class="eyebrow">{{ t.teachers_eyebrow }}</span>
-      <h2>{{ t.teachers_h2 }}</h2>
-      <p class="lead">{{ t.teachers_lead }}</p>
-    </div>
-    {% set teachers = published_teachers() %}
-    {% if teachers %}
-    <div class="grid teachers" data-reveal>
-      {% for tp in teachers %}
-      <article class="teacher-card">
-        <a href="{{ url_for('teacher_page', slug=tp.slug) }}" tabindex="-1" aria-hidden="true"><img src="{{ tp.photo }}" alt="" loading="lazy" width="400" height="500"></a>
-        <div>
-          <h3><a href="{{ url_for('teacher_page', slug=tp.slug) }}">{{ tp.name }}</a></h3>
-          <p>{{ tp.diplomas }}</p>
-          {% if tp.levels or tp.ages %}<p class="meta">{{ tp.levels }}{% if tp.levels and tp.ages %} · {% endif %}{{ tp.ages or '' }}</p>{% endif %}
-          <a class="btn btn-line btn-small" href="{{ url_for('teacher_page', slug=tp.slug) }}">{{ t.tp_profile }}</a>
-        </div>
-      </article>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty" data-reveal>
-      <p>{{ t.teachers_empty }}</p>
-      <a class="btn btn-navy btn-small" href="#enseigner">{{ t.teachers_cta }}</a>
-    </div>
-    {% endif %}
-  </div>
-</section>
-
+{% set teachers = published_teachers() %}
+{% if teachers %}
 <section class="soft">
   <div class="wrap">
-    <div class="head" data-reveal>
-      <span class="eyebrow">{{ t.parents_eyebrow }}</span>
-      <h2>{{ t.parents_h2 }}</h2>
+    <div class="head" data-reveal style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px">
+      <div><span class="eyebrow">{{ t.teachers_eyebrow }}</span><h2>{{ t.teachers_h2 }}</h2></div>
+      <a href="{{ url_for('teachers_page') }}">{{ t.teachers_all }} →</a>
     </div>
-    <div class="grid" data-reveal>
-      <div class="card">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        <h3>{{ t.par1_h }}</h3><p>{{ t.par1_p }}</p>
-      </div>
-      <div class="card">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <h3>{{ t.par2_h }}</h3><p>{{ t.par2_p }}</p>
-      </div>
-      <div class="card">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-        <h3>{{ t.par3_h }}</h3><p>{{ t.par3_p }}</p>
-      </div>
-      <div class="card">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
-        <h3>{{ t.par4_h }}</h3><p>{{ t.par4_p }}</p>
-      </div>
+    <div class="grid teachers" data-reveal>
+      {% for tp in teachers[:3] %}{{ teacher_card(tp, t) }}{% endfor %}
     </div>
   </div>
 </section>
+{% endif %}
 
-<section id="atelier">
-  <div class="wrap">
-    <div class="banner" data-reveal>
-      <div>
-        <span class="eyebrow">{{ t.atelier_eyebrow }}</span>
-        <h2>{{ t.atelier_h2 }}</h2>
-        <p>{{ t.atelier_p }}</p>
-        <a class="btn" href="#contact">{{ t.atelier_cta }}</a>
-      </div>
-      <div class="banner-art" aria-hidden="true">
-        <svg viewBox="0 0 200 220" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M100 10 L100 40"/><path d="M92 40 H108 L120 110 H80 Z"/><path d="M80 110 L60 200"/><path d="M120 110 L140 200"/><path d="M70 150 H130"/><path d="M84 200 Q100 168 116 200"/><path d="M40 200 H160"/></svg>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="enseigner" class="soft">
-  <div class="wrap split">
-    <div data-reveal>
-      <span class="eyebrow">{{ t.teach_eyebrow }}</span>
-      <h2>{{ t.teach_h2 }}</h2>
-      <p class="lead">{{ t.teach_lead }}</p>
-    </div>
-    <form class="form" method="post" action="{{ url_for('teach') }}#enseigner" data-reveal novalidate>
-      {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      <input type="hidden" name="csrf" value="{{ csrf() }}">
-      <div class="hp" aria-hidden="true"><label>{{ t.f_website }} <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
-      <label>{{ t.f_name }}<input type="text" name="full_name" required maxlength="120" autocomplete="name" value="{{ form.full_name if form }}"></label>
-      <label>{{ t.f_email }}<input type="email" name="email" required maxlength="200" autocomplete="email" value="{{ form.email if form }}"></label>
-      <label>{{ t.f_diploma }}<input type="text" name="diploma" required maxlength="200" placeholder="{{ t.f_diploma_ph }}" value="{{ form.diploma if form }}"></label>
-      <label>{{ t.f_message }}<textarea name="message" maxlength="3000" placeholder="{{ t.f_message_ph }}">{{ form.message if form }}</textarea></label>
-      <label class="check"><input type="checkbox" name="consent" value="1" required><span>{{ t.f_consent }} (<a href="{{ url_for('privacy') }}">{{ t.f_privacy }}</a>).</span></label>
-      <button class="btn btn-navy" type="submit">{{ t.f_submit }}</button>
-    </form>
-  </div>
-</section>
+{% include "_cta.html" %}
 
 {% endblock %}

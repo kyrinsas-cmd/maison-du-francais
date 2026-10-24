@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_teacher_card.html" import teacher_card %}
+{% block title %}{{ t.teachers_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.teachers_desc }}{% endblock %}
+{% block content %}
+<section id="professeurs">
+  <div class="wrap">
+    <div class="head" data-reveal>
+      <span class="eyebrow">{{ t.teachers_eyebrow }}</span>
+      <h1>{{ t.teachers_h2 }}</h1>
+      <p class="lead">{{ t.teachers_lead }}</p>
+    </div>
+    {% if teachers %}
+    <div class="grid teachers" data-reveal>
+      {% for tp in teachers %}
+      {{ teacher_card(tp, t) }}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty" data-reveal>
+      <p>{{ t.teachers_empty }}</p>
+      <a class="btn btn-navy btn-small" href="{{ url_for('teach_page') }}">{{ t.teachers_cta }}</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

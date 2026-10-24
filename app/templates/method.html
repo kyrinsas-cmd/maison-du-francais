@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ t.method_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.method_desc }}{% endblock %}
+{% block content %}
+<section id="methode">
+  <div class="wrap">
+    <div class="head" data-reveal>
+      <span class="eyebrow">{{ t.method_eyebrow }}</span>
+      <h1>{{ t.method_h2 }}</h1>
+      <p class="lead">{{ t.method_lead }}</p>
+    </div>
+    <div class="grid" data-reveal>
+      <div class="card"><span class="step-num">1</span><h3>{{ t.step1_h }}</h3><p>{{ t.step1_p }}</p></div>
+      <div class="card"><span class="step-num">2</span><h3>{{ t.step2_h }}</h3><p>{{ t.step2_p }}</p></div>
+      <div class="card"><span class="step-num">3</span><h3>{{ t.step3_h }}</h3><p>{{ t.step3_p }}</p></div>
+      <div class="card"><span class="step-num red">4</span><h3>{{ t.step4_h }}</h3><p>{{ t.step4_p }}</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="soft">
+  <div class="wrap">
+    <div class="head" data-reveal>
+      <span class="eyebrow">{{ t.parents_eyebrow }}</span>
+      <h2>{{ t.parents_h2 }}</h2>
+    </div>
+    <div class="grid" data-reveal>
+      <div class="card">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <h3>{{ t.par1_h }}</h3><p>{{ t.par1_p }}</p>
+      </div>
+      <div class="card">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <h3>{{ t.par2_h }}</h3><p>{{ t.par2_p }}</p>
+      </div>
+      <div class="card">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        <h3>{{ t.par3_h }}</h3><p>{{ t.par3_p }}</p>
+      </div>
+      <div class="card">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+        <h3>{{ t.par4_h }}</h3><p>{{ t.par4_p }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

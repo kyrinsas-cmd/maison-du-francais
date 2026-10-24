@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ t.teach_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.teach_desc }}{% endblock %}
+{% block content %}
+<section id="enseigner" >
+  <div class="wrap split">
+    <div data-reveal>
+      <span class="eyebrow">{{ t.teach_eyebrow }}</span>
+      <h1>{{ t.teach_h2 }}</h1>
+      <p class="lead">{{ t.teach_lead }}</p>
+    </div>
+    <form class="form" method="post" action="{{ url_for('teach_page') }}#enseigner" data-reveal novalidate>
+      {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      <input type="hidden" name="csrf" value="{{ csrf() }}">
+      <div class="hp" aria-hidden="true"><label>{{ t.f_website }} <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <label>{{ t.f_name }}<input type="text" name="full_name" required maxlength="120" autocomplete="name" value="{{ form.full_name if form }}"></label>
+      <label>{{ t.f_email }}<input type="email" name="email" required maxlength="200" autocomplete="email" value="{{ form.email if form }}"></label>
+      <label>{{ t.f_diploma }}<input type="text" name="diploma" required maxlength="200" placeholder="{{ t.f_diploma_ph }}" value="{{ form.diploma if form }}"></label>
+      <label>{{ t.f_message }}<textarea name="message" maxlength="3000" placeholder="{{ t.f_message_ph }}">{{ form.message if form }}</textarea></label>
+      <label class="check"><input type="checkbox" name="consent" value="1" required><span>{{ t.f_consent }} (<a href="{{ url_for('privacy') }}">{{ t.f_privacy }}</a>).</span></label>
+      <button class="btn btn-navy" type="submit">{{ t.f_submit }}</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

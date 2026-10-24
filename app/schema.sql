@@ -58,3 +58,30 @@ CREATE TABLE IF NOT EXISTS settings (
     value      jsonb NOT NULL,
     updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- 2026-10-24 : espace professeur (comptes e-mail + mot de passe, créés sur invitation depuis l'admin)
+CREATE TABLE IF NOT EXISTS teacher_accounts (
+    id            bigserial PRIMARY KEY,
+    teacher_id    bigint UNIQUE NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
+    email         text NOT NULL,
+    password_hash text,                          -- NULL tant que l'invitation n'est pas acceptée
+    active        boolean NOT NULL DEFAULT true,
+    created_at    timestamptz NOT NULL DEFAULT now(),
+    activated_at  timestamptz,
+    last_login_at timestamptz
+);
+CREATE UNIQUE INDEX IF NOT EXISTS teacher_accounts_email ON teacher_accounts (lower(email));
+CREATE TABLE IF NOT EXISTS account_tokens (
+    token_hash text PRIMARY KEY,                 -- sha256 du jeton ; le jeton lui-même n'est jamais stocké
+    account_id bigint NOT NULL REFERENCES teacher_accounts(id) ON DELETE CASCADE,
+    purpose    text NOT NULL,                    -- invite | reset
+    created_at timestamptz NOT NULL DEFAULT now(),
+    expires_at timestamptz NOT NULL,
+    used_at    timestamptz
+);
+-- Modifications proposées par le professeur, en attente de validation par l'équipe
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS pending jsonb;
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS pending_at timestamptz;
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS pending_feedback text;   -- message de l'équipe si refus
+-- Échecs de connexion : admin et espace professeur
+ALTER TABLE admin_login_failures ADD COLUMN IF NOT EXISTS scope text NOT NULL DEFAULT 'admin';

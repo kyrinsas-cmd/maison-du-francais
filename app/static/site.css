@@ -259,3 +259,15 @@ td:first-child { font-weight: 900; font-size: 20px; }
 .ticks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; color: var(--ink); }
 .ticks li { padding-left: 26px; position: relative; }
 .ticks li::before { content: ""; position: absolute; left: 4px; top: 7px; width: 12px; height: 7px; border-left: 3px solid var(--red); border-bottom: 3px solid var(--red); transform: rotate(-45deg); }
+
+/* Pages séparées */
+.nav a[aria-current="page"] { color: var(--red-text); }
+.link-card { text-decoration: none; transition: transform .15s ease, box-shadow .15s ease; }
+.link-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(6, 51, 114, .10); color: var(--navy); }
+.link-card .more { margin-top: auto; font-weight: 800; color: var(--red-text); }
+.cta-banner { justify-content: center; text-align: center; }
+.cta-banner > div:first-child { align-items: center; }
+.cta-banner .btn { align-self: center; }
+.steps-list { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 18px; color: var(--ink); }
+.contact-qr { display: flex; justify-content: center; }
+.qr-big { width: 240px; height: 240px; font-size: 16px; border: 2px dashed var(--pale); }
