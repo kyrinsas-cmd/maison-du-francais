@@ -22,5 +22,14 @@
   </div>
 </section>
 
+<section>
+  <div class="wrap">
+    <div class="card fle-cta" data-reveal>
+      <div><h2 class="h3">{{ t.fle_box_h }}</h2><p>{{ t.fle_box_p }}</p></div>
+      <a class="btn btn-navy btn-small" href="{{ url_for('fle') }}">{{ t.fle_box_link }} →</a>
+    </div>
+  </div>
+</section>
+
 {% include "_cta.html" %}
 {% endblock %}

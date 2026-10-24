@@ -125,6 +125,11 @@ def path():
     return render_template("path.html", levels=LEVELS)
 
 
+@route("/fle")
+def fle():
+    return render_template("fle_zh.html" if g.lang == "zh" else "fle.html")
+
+
 @route("/atelier-paris")
 def atelier():
     return render_template("atelier.html")
@@ -199,7 +204,7 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    paths = ["/", "/methode", "/cours", "/cours-en-direct", "/professeurs", "/atelier-paris", "/enseigner", "/contact", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + resources.sitemap_paths() + reviews.sitemap_paths() + teachers.sitemap_paths()
+    paths = ["/", "/methode", "/cours", "/cours-en-direct", "/fle", "/professeurs", "/atelier-paris", "/enseigner", "/contact", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + resources.sitemap_paths() + reviews.sitemap_paths() + teachers.sitemap_paths()
     pages = [p for path in paths for p in (path, "/fr" + path)]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     xml += "".join(f"  <url><loc>{SITE_URL}{p}</loc></url>\n" for p in pages) + "</urlset>\n"

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}法语与证书：FLE、DELF、DALF、TCF · {{ t.brand_main }}{% endblock %}
+{% block description %}什么是FLE？DELF、DALF和TCF有什么区别？根据法国官方文件整理。{% endblock %}
+{% block content %}
+<section class="list-page">
+  <div class="wrap">
+    <div class="head list-head">
+      <span class="eyebrow">法语与证书</span>
+      <h1>FLE、DELF、DALF、TCF，一页看懂。</h1>
+      <p class="lead">以下内容根据法国官方文件整理，来源列在页面底部。报考日期和费用请以考点公布为准。</p>
+    </div>
+
+    <div class="fle-grid">
+      <div class="card fle-card">
+        <h2 class="h3">什么是FLE？</h2>
+        <p>FLE是 <span lang="fr">Français Langue Étrangère</span>（对外法语）的缩写，指面向母语不是法语的学习者的法语教学。FLE有专门的教学法和评估方式，法语之家的老师都持有FLE专业文凭。</p>
+      </div>
+      <div class="card fle-card">
+        <h2 class="h3">什么是欧标（CECRL）？</h2>
+        <p>欧洲委员会于2001年制定的《欧洲语言共同参考框架》，把语言能力分为A1、A2、B1、B2、C1、C2六个等级。DELF、DALF和我们的课程体系都以它为标准。</p>
+      </div>
+    </div>
+
+    <h2 class="fle-h2">DELF 和 DALF：法国官方法语文凭</h2>
+    <ul class="fle-list">
+      <li>由法国政府法令设立（2020年9月29日第2020-1196号法令），面向没有法国公立中学或大学文凭的人。</li>
+      <li><b>共7个独立文凭</b>：DELF A1.1、A1、A2、B1、B2，DALF C1、C2。<b>A1.1 专为小学阶段的孩子设置。</b></li>
+      <li>每个文凭考四项：听力、阅读、写作、口语（表达与互动）。每项25分，总分100分，<b>总分达到50分且每项不低于5分</b>即可获得文凭。</li>
+      <li>在法国以外，考试由法国国际教育研究中心（<span lang="fr">France Éducation international</span>）负责：批准考点、确定考期、培训考官、出题。</li>
+      <li><b>文凭终身有效</b>，这是它和语言测试最大的区别。同一级别的DELF有面向成人、中学生（DELF junior / scolaire）和职场的不同版本，文凭级别相同。</li>
+    </ul>
+
+    <h2 class="fle-h2">TCF：法语水平测试</h2>
+    <ul class="fle-list">
+      <li>TCF（<span lang="fr">Test de connaissance du français</span>）是一项<b>测试</b>，给出某一时刻的水平，不是文凭。</li>
+      <li><b>成绩有效期两年</b>，两次考试之间至少间隔30天。</li>
+    </ul>
+
+    <h2 class="fle-h2">各级别所需学时（参考）</h2>
+    <div class="table-box fle-table">
+      <table>
+        <thead><tr><th scope="col">级别</th><th scope="col">累计学习时间（约）</th><th scope="col">对应文凭</th></tr></thead>
+        <tbody>
+          <tr><td>A1</td><td>80–150 小时</td><td>DELF A1（小学生可先考 A1.1）</td></tr>
+          <tr><td>A2</td><td>180–300 小时</td><td>DELF A2</td></tr>
+          <tr><td>B1</td><td>330–550 小时</td><td>DELF B1</td></tr>
+          <tr><td>B2</td><td>500–690 小时</td><td>DELF B2</td></tr>
+          <tr><td>C1</td><td>700–900 小时</td><td>DALF C1</td></tr>
+          <tr><td>C2</td><td>因人而异</td><td>DALF C2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">学时数据来自 Campus France（2018年），为大致范围。</p>
+
+    <h2 class="fle-h2">和留学有什么关系？</h2>
+    <p class="fle-p">根据 Campus France（2018年）的资料：申请法国大学本科一年级（需走DAP预注册程序）时，最低要求是 <b>DELF B2</b>（任何版本均可）或 TCF-DAP；持有 DALF C1 或 C2 可免除语言测试。本科二、三年级、硕士和大学校由各学校自行规定，<b>具体要求请以目标学校为准</b>。</p>
+
+    <div class="card fle-cta">
+      <div>
+        <h2 class="h3">我们的课程如何对接？</h2>
+        <p>法语之家的课程体系从A1到B2，按DELF的级别设计，每个级别都可以对接相应的DELF考试。</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-navy btn-small" href="{{ url_for('path') }}">{{ t.nav_path }}</a>
+        <a class="btn btn-red btn-small" href="{{ url_for('contact') }}">{{ t.hero_cta1 }}</a>
+      </div>
+    </div>
+
+    <h2 class="fle-h2">资料来源</h2>
+    <ul class="fle-sources">
+      <li><a href="https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000042382849" target="_blank" rel="noopener" lang="fr">Décret n° 2020-1196 du 29 septembre 2020 relatif au DELF et au DALF</a>（Légifrance，法国政府法规官网）</li>
+      <li><a href="https://ressources.campusfrance.org/esr/diplomes/fr/fle_fr.pdf" target="_blank" rel="noopener" lang="fr">Campus France — Les tests et diplômes de français langue étrangère</a>（2018年11月）</li>
+      <li>报考信息：<a href="https://www.france-education-international.fr/" target="_blank" rel="noopener" lang="fr">France Éducation international</a></li>
+    </ul>
+    <p class="note">资料核对日期：2026年10月25日。</p>
+  </div>
+</section>
+{% endblock %}

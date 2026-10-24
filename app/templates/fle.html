@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Le FLE et les diplômes : DELF, DALF, TCF · {{ t.brand_main }}{% endblock %}
+{% block description %}Qu'est-ce que le FLE ? Quelle différence entre DELF, DALF et TCF ? D'après les textes officiels français.{% endblock %}
+{% block content %}
+<section class="list-page">
+  <div class="wrap">
+    <div class="head list-head">
+      <span class="eyebrow">Le FLE et les diplômes</span>
+      <h1>FLE, DELF, DALF, TCF : l'essentiel en une page.</h1>
+      <p class="lead">Informations tirées des textes officiels français, cités en bas de page. Pour les dates et les tarifs des sessions, renseignez-vous auprès du centre d'examen.</p>
+    </div>
+
+    <div class="fle-grid">
+      <div class="card fle-card">
+        <h2 class="h3">Qu'est-ce que le FLE ?</h2>
+        <p>Le FLE (français langue étrangère) est l'enseignement du français à des personnes dont ce n'est pas la langue maternelle. Il a sa didactique et ses modes d'évaluation ; les professeurs de Maison du français sont diplômés en FLE.</p>
+      </div>
+      <div class="card fle-card">
+        <h2 class="h3">Qu'est-ce que le CECRL ?</h2>
+        <p>Le Cadre européen commun de référence pour les langues, défini par le Conseil de l'Europe en 2001, découpe la maîtrise d'une langue en six niveaux : A1, A2, B1, B2, C1, C2. Le DELF, le DALF et notre parcours s'y réfèrent.</p>
+      </div>
+    </div>
+
+    <h2 class="fle-h2">DELF et DALF : les diplômes officiels de français</h2>
+    <ul class="fle-list">
+      <li>Ils sont régis par le décret n° 2020-1196 du 29 septembre 2020, et s'adressent aux personnes qui n'ont pas de diplôme de l'enseignement secondaire ou supérieur public français.</li>
+      <li><b>Sept diplômes indépendants</b> : DELF A1.1, A1, A2, B1, B2 et DALF C1, C2. <b>Le niveau A1.1 est réservé aux élèves du premier degré</b> (école primaire).</li>
+      <li>Chaque diplôme comporte quatre épreuves : compréhension de l'oral, compréhension des écrits, production écrite, production et interaction orales. Chaque épreuve est notée sur 25 ; il faut <b>50/100 au total et au moins 5/25 à chaque épreuve</b>.</li>
+      <li>À l'étranger, les examens sont organisés par France Éducation international : agrément des centres, dates des sessions, habilitation des examinateurs, élaboration des sujets.</li>
+      <li><b>Les diplômes sont acquis à vie</b>, à la différence des tests. Le DELF existe en plusieurs formules (tout public, scolaire, junior, Pro) ; le diplôme obtenu est le même pour un niveau donné.</li>
+    </ul>
+
+    <h2 class="fle-h2">Le TCF : un test de niveau</h2>
+    <ul class="fle-list">
+      <li>Le TCF (test de connaissance du français) est un <b>test</b> : il donne une photographie du niveau à un moment donné, ce n'est pas un diplôme.</li>
+      <li><b>Les résultats sont valables deux ans</b> ; il faut attendre au moins 30 jours entre deux passations.</li>
+    </ul>
+
+    <h2 class="fle-h2">Heures d'apprentissage par niveau (indicatif)</h2>
+    <div class="table-box fle-table">
+      <table>
+        <thead><tr><th scope="col">Niveau</th><th scope="col">Heures d'apprentissage cumulées (environ)</th><th scope="col">Diplôme</th></tr></thead>
+        <tbody>
+          <tr><td>A1</td><td>80 à 150 h</td><td>DELF A1 (A1.1 possible pour les élèves du primaire)</td></tr>
+          <tr><td>A2</td><td>180 à 300 h</td><td>DELF A2</td></tr>
+          <tr><td>B1</td><td>330 à 550 h</td><td>DELF B1</td></tr>
+          <tr><td>B2</td><td>500 à 690 h</td><td>DELF B2</td></tr>
+          <tr><td>C1</td><td>700 à 900 h</td><td>DALF C1</td></tr>
+          <tr><td>C2</td><td>Variable</td><td>DALF C2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Heures indicatives données par Campus France (2018).</p>
+
+    <h2 class="fle-h2">Et pour étudier en France ?</h2>
+    <p class="fle-p">D'après Campus France (2018) : pour une première inscription en licence (procédure de demande d'admission préalable, DAP), le niveau minimum est le <b>DELF B2</b> (quelle que soit sa formule) ou le TCF-DAP ; le DALF C1 ou C2 dispense de tout test. Pour les autres années, les masters et les grandes écoles, chaque établissement fixe ses critères : <b>vérifiez toujours auprès de l'établissement visé</b>.</p>
+
+    <div class="card fle-cta">
+      <div>
+        <h2 class="h3">Et nos cours ?</h2>
+        <p>Notre parcours va de A1 à B2, construit sur les niveaux du DELF : chaque niveau prépare à l'examen correspondant.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-navy btn-small" href="{{ url_for('path') }}">{{ t.nav_path }}</a>
+        <a class="btn btn-red btn-small" href="{{ url_for('contact') }}">{{ t.hero_cta1 }}</a>
+      </div>
+    </div>
+
+    <h2 class="fle-h2">Sources</h2>
+    <ul class="fle-sources">
+      <li><a href="https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000042382849" target="_blank" rel="noopener">Décret n° 2020-1196 du 29 septembre 2020 relatif au diplôme d'études en langue française et au diplôme approfondi de langue française</a> (Légifrance)</li>
+      <li><a href="https://ressources.campusfrance.org/esr/diplomes/fr/fle_fr.pdf" target="_blank" rel="noopener">Campus France — Les tests et diplômes de français langue étrangère</a> (novembre 2018)</li>
+      <li>Inscriptions et sessions : <a href="https://www.france-education-international.fr/" target="_blank" rel="noopener">France Éducation international</a></li>
+    </ul>
+    <p class="note">Informations vérifiées le 25 octobre 2026.</p>
+  </div>
+</section>
+{% endblock %}

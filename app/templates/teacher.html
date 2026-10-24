@@ -13,7 +13,7 @@
         <h1>{{ tp.name }}{% if tp.is_demo %} <span class="demo-tag">{{ t.demo_tag }}</span>{% endif %}</h1>
         {% if tp.is_demo %}<p class="demo-banner" role="note">{{ t.demo_banner }}</p>{% endif %}
         <dl class="teacher-facts">
-          <dt>{{ t.tp_diplomas }}</dt><dd>{{ tp.diplomas }}</dd>
+          <dt>{{ t.tp_diplomas }}</dt><dd>{{ tp.diplomas }} · <a href="{{ url_for('fle') }}">{{ t.tp_fle_link }}</a></dd>
           {% if tp.levels %}<dt>{{ t.tp_levels }}</dt><dd>{{ tp.levels }}</dd>{% endif %}
           {% if tp.ages %}<dt>{{ t.tp_ages }}</dt><dd>{{ tp.ages }}</dd>{% endif %}
         </dl>

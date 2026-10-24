@@ -410,3 +410,19 @@ section.list-page { padding: 56px 0 96px; }
 /* Données de démonstration */
 .demo-tag { display: inline-block; vertical-align: middle; font-size: 12px; font-weight: 800; color: #6B4E00; background: #FFF4D6; border: 1px solid #F0C86B; border-radius: 999px; padding: 2px 9px; letter-spacing: 0; }
 .demo-banner { margin: 0 0 18px; background: #FFF4D6; color: #6B4E00; border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+
+/* Page FLE et diplômes */
+.fle-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 16px; }
+.fle-card p { margin: 0; }
+.fle-h2 { font-size: clamp(22px, 2.6vw, 28px); margin: 48px 0 16px; }
+.fle-list { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; color: var(--ink); font-size: 17px; line-height: 1.65; max-width: 900px; }
+.fle-p { color: var(--ink); font-size: 17px; line-height: 1.65; max-width: 900px; margin: 0; }
+.fle-table { max-width: 900px; padding: 8px; border: 1px solid var(--line); }
+.fle-table table { min-width: 420px; }
+.fle-table td:first-child { font-weight: 900; }
+.fle-cta { margin-top: 48px; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px 32px; }
+.fle-cta > div:first-child { flex: 1 1 360px; }
+.fle-cta p { margin: 6px 0 0; }
+.fle-sources { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: var(--ink); }
+.fact-link { color: #fff; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.fact-link:hover { color: var(--pale); }
