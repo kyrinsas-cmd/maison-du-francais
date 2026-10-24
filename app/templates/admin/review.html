@@ -1,0 +1,62 @@
+{% extends "admin/layout.html" %}
+{% block title %}{{ 'Avis n° ' ~ r.id if r else 'Saisir un avis' }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.reviews_admin') }}">← Tous les avis</a></p>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-bottom:20px">
+  <h1 style="margin:0">{{ 'Avis n° ' ~ r.id if r else 'Saisir un avis' }}</h1>
+  {% if r %}<span class="status status-{{ {'pending':'contacted','published':'accepted','rejected':'rejected'}[r.status] }}">{{ statuses[r.status] }}</span>{% if r.reject_reason %} <span class="note">Motif : {{ r.reject_reason }}</span>{% endif %}{% endif %}
+</div>
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+{% if r and r.rating <= 2 %}<p class="errors" role="note">Note basse : vérifiez s'il s'agit aussi d'une réclamation (en particulier toute question de sécurité des enfants) et traitez-la à part.</p>{% endif %}
+<form class="form teacher-form" method="post" style="max-width:760px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <fieldset>
+    <legend>Avis</legend>
+    <label>Professeur
+      <select name="teacher_id" required><option value="">—</option>{% for t in teachers %}<option value="{{ t.id }}" {% if v.teacher_id == t.id %}selected{% endif %}>{{ display_name(t) }}</option>{% endfor %}</select>
+    </label>
+    <div class="checks"><span>Note</span>
+      {% for n in range(1, 6) %}<label class="check"><input type="radio" name="rating" value="{{ n }}" {% if v.rating == n %}checked{% endif %} required>{{ n }} ★</label>{% endfor %}
+    </div>
+    <label>Commentaire tel qu'écrit par l'auteur, en chinois (ne pas le réécrire)<textarea name="comment_zh" maxlength="3000" lang="zh-Hans">{{ v.comment_zh or '' }}</textarea></label>
+    <label>Traduction en français (facultative ; sinon l'original est affiché en version française)<textarea name="comment_fr" maxlength="3000" lang="fr">{{ v.comment_fr or '' }}</textarea></label>
+    <div class="row2">
+      <label>Auteur affiché (sans nom complet)<input type="text" name="author_label" maxlength="80" placeholder="Léo 的妈妈" value="{{ v.author_label or '' }}" required></label>
+      <label>Niveau de la classe
+        <select name="level"><option value="">—</option>{% for lv in levels %}<option {% if v.level == lv %}selected{% endif %}>{{ lv }}</option>{% endfor %}</select>
+      </label>
+    </div>
+    <label>Mois du cours évalué<input type="month" name="course_month" value="{{ v.course_month.strftime('%Y-%m') if v.course_month else '' }}"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Vérification</legend>
+    <label>Source de l'avis (obligatoire, jamais affichée)<input type="text" name="source" maxlength="300" required placeholder="Message WeChat du 20/10/2026, questionnaire de fin de trimestre…" value="{{ v.source or '' }}"></label>
+    <label class="check"><input type="checkbox" name="consent_publish" value="1" {% if v.consent_publish %}checked{% endif %}><span>L'auteur a accepté que son avis soit publié sur le site</span></label>
+  </fieldset>
+  {% if not r %}
+  <button class="btn btn-navy" type="submit">Enregistrer (à modérer)</button>
+  {% else %}
+  <div class="actions">
+    <button class="btn btn-line" type="submit" name="action" value="save">Enregistrer</button>
+    {% if r.status != 'published' %}<button class="btn btn-navy" type="submit" name="action" value="publish">Publier</button>{% else %}<button class="btn btn-line" type="submit" name="action" value="pending">Dépublier (remettre à modérer)</button>{% endif %}
+  </div>
+  {% if r.status != 'rejected' %}
+  <fieldset>
+    <legend>Refuser</legend>
+    <label>Motif
+      <select name="reject_reason"><option value="">—</option>{% for m in reasons %}<option>{{ m }}</option>{% endfor %}</select>
+    </label>
+    <button class="btn btn-line danger-btn" type="submit" name="action" value="reject" style="align-self:flex-start">Refuser l'avis</button>
+  </fieldset>
+  {% endif %}
+  {% endif %}
+</form>
+{% if r %}
+<form class="form danger" method="post" style="margin-top:24px;max-width:520px;border:1px solid var(--line)" onsubmit="return confirm('Supprimer définitivement cet avis ?');">
+  <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="delete">
+  <p>Suppression définitive, par exemple à la demande de l'auteur.</p>
+  <button class="btn btn-line danger-btn" type="submit">Supprimer l'avis</button>
+</form>
+{% endif %}
+{% endblock %}

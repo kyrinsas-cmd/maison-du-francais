@@ -193,7 +193,7 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    paths = ["/", "/methode", "/cours", "/professeurs", "/atelier-paris", "/enseigner", "/contact", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + teachers.sitemap_paths()
+    paths = ["/", "/methode", "/cours", "/professeurs", "/atelier-paris", "/enseigner", "/contact", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + reviews.sitemap_paths() + teachers.sitemap_paths()
     pages = [p for path in paths for p in (path, "/fr" + path)]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     xml += "".join(f"  <url><loc>{SITE_URL}{p}</loc></url>\n" for p in pages) + "</urlset>\n"
@@ -237,6 +237,7 @@ import admin  # noqa: E402  (après la définition de app et de ip_hash)
 import pricing  # noqa: E402  (idem)
 import teachers  # noqa: E402  (ajoute ses routes à app et au blueprint admin avant son enregistrement)
 import accounts  # noqa: E402  (espace professeur + routes admin des comptes)
+import reviews  # noqa: E402  (notes et avis)
 
 admin.init_app(app)
 accounts.init_app(app)

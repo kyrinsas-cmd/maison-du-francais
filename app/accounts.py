@@ -177,7 +177,10 @@ def video_state(t):
 def home():
     with connect() as c:
         t = _teacher(c)
-    return render_template("espace/home.html", t=t, video_state=video_state(t), problems=T.publish_problems(t),
+    import reviews
+    with connect() as c:
+        rsum = reviews.summary(c, t["id"])
+    return render_template("espace/home.html", t=t, video_state=video_state(t), problems=T.publish_problems(t), rsum=rsum,
                            welcome=request.args.get("bienvenue"), sent=request.args.get("envoye"))
 
 

@@ -85,3 +85,25 @@ ALTER TABLE teachers ADD COLUMN IF NOT EXISTS pending_at timestamptz;
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS pending_feedback text;   -- message de l'équipe si refus
 -- Échecs de connexion : admin et espace professeur
 ALTER TABLE admin_login_failures ADD COLUMN IF NOT EXISTS scope text NOT NULL DEFAULT 'admin';
+
+-- 2026-10-24 : notes et avis sur les professeurs (cahier des charges §18)
+-- Saisis et modérés par l'équipe à partir d'avis réels recueillis auprès des familles (WeChat, questionnaire) :
+-- source et accord de publication obligatoires ; jamais d'avis inventé ni rémunéré.
+CREATE TABLE IF NOT EXISTS reviews (
+    id              bigserial PRIMARY KEY,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    updated_at      timestamptz NOT NULL DEFAULT now(),
+    teacher_id      bigint NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
+    rating          smallint NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment_zh      text,
+    comment_fr      text,                      -- traduction (facultative)
+    author_label    text NOT NULL,             -- ex. « Léo 的妈妈 » : jamais de nom complet
+    level           text,                      -- A1, A2…
+    course_month    date,                      -- mois du cours évalué (1er du mois)
+    source          text NOT NULL,             -- d'où vient l'avis : « message WeChat du 20/10/2026 »…
+    consent_publish boolean NOT NULL DEFAULT false,
+    status          text NOT NULL DEFAULT 'pending',  -- pending | published | rejected
+    reject_reason   text,
+    published_at    timestamptz
+);
+CREATE INDEX IF NOT EXISTS reviews_teacher ON reviews (teacher_id, status, published_at DESC);

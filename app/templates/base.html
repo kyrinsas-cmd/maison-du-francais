@@ -21,7 +21,7 @@
 <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='img/og.png') }}">
 <meta name="theme-color" content="#063372">
 <link rel="preload" href="{{ url_for('static', filename='fonts/nunito-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=6">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=7">
 <script>
   document.documentElement.classList.add("js");
   // Si les animations ne se chargent pas, on affiche tout au bout de 2,5 s
@@ -42,6 +42,7 @@
       <a href="{{ url_for('path') }}" {% if ep == 'path' %}aria-current="page"{% endif %}>{{ t.nav_path }}</a>
       <a href="{{ url_for('teachers_page') }}" {% if ep in ('teachers_page', 'teacher_page') %}aria-current="page"{% endif %}>{{ t.nav_teachers }}</a>
       <a href="{{ url_for('atelier') }}" {% if ep == 'atelier' %}aria-current="page"{% endif %}>{{ t.nav_atelier }}</a>
+      {% if reviews_live() %}<a href="{{ url_for('reviews_page') }}" {% if ep == 'reviews_page' %}aria-current="page"{% endif %}>{{ t.nav_reviews }}</a>{% endif %}
       {% if pricing_live() %}<a href="{{ url_for('prices') }}" {% if ep == 'prices' %}aria-current="page"{% endif %}>{{ t.nav_prices }}</a>{% endif %}
       <a href="{{ url_for('teach_page') }}" {% if ep == 'teach_page' %}aria-current="page"{% endif %}>{{ t.nav_teach }}</a>
       <a class="lang-switch" href="{{ alt[other_lang] }}" lang="{{ t.switch_lang }}" hreflang="{{ t.switch_lang }}" aria-label="{{ t.switch_aria }}">{{ t.switch_label }}</a>

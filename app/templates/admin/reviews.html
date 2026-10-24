@@ -1,0 +1,38 @@
+{% extends "admin/layout.html" %}
+{% block title %}Avis{% endblock %}
+{% block content %}
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
+  <h1 style="margin:0">Notes et avis</h1>
+  <a class="btn btn-navy btn-small" href="{{ url_for('admin.review_new') }}">Saisir un avis</a>
+</div>
+{% if request.args.supprime %}<p class="flash">Avis supprimé.</p>{% endif %}
+<p class="note">Saisissez uniquement des avis réels, reçus d'une famille dont l'enfant a suivi le cours, avec leur source et l'accord de l'auteur. Publiez-les quelle que soit la note : un avis ne se refuse que pour l'un des motifs prévus (injures, données personnelles, hors sujet, auteur non vérifié, accord retiré).</p>
+
+{% if per_teacher %}
+<div class="table-box admin-table" style="margin-bottom:24px"><table>
+  <thead><tr><th scope="col">Professeur</th><th scope="col">Avis publiés</th><th scope="col">Moyenne</th><th scope="col">Notes ≤ {{ low }}</th></tr></thead>
+  <tbody>{% for p in per_teacher %}<tr {% if p.low %}class="low"{% endif %}><td>{{ display_name(p) }}</td><td>{{ p.n }}</td><td>{{ p.avg }} / 5</td><td>{% if p.low %}<b>{{ p.low }} — à examiner</b>{% else %}0{% endif %}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endif %}
+
+<nav class="tabs-admin" aria-label="Filtrer par statut">
+  <a href="{{ url_for('admin.reviews_admin') }}" {% if not status %}aria-current="page"{% endif %}>Tous <span>{{ counts.values()|sum }}</span></a>
+  {% for k, label in statuses.items() %}<a href="{{ url_for('admin.reviews_admin', statut=k) }}" {% if status == k %}aria-current="page"{% endif %}>{{ label }} <span>{{ counts.get(k, 0) }}</span></a>{% endfor %}
+</nav>
+{% if rows %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Saisi le</th><th scope="col">Professeur</th><th scope="col">Note</th><th scope="col">Auteur</th><th scope="col">Statut</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr {% if r.rating <= low %}class="low"{% endif %}>
+    <td>{{ r.created_at.astimezone(paris).strftime('%d/%m/%Y') }}</td>
+    <td>{{ display_name(r) }}</td>
+    <td><a href="{{ url_for('admin.review', rid=r.id) }}"><span class="stars">{{ stars(r.rating) }}</span> {{ r.rating }}/5</a></td>
+    <td>{{ r.author_label }}</td>
+    <td><span class="status status-{{ {'pending':'contacted','published':'accepted','rejected':'rejected'}[r.status] }}">{{ statuses[r.status] }}</span></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}<p class="empty">Aucun avis.</p>{% endif %}
+{% endblock %}

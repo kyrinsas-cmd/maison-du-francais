@@ -4,6 +4,7 @@
   <div>
     <h3><a href="{{ url_for('teacher_page', slug=tp.slug) }}">{{ tp.name }}</a></h3>
     <p>{{ tp.diplomas }}</p>
+    {% set rs = teacher_summary(tp.slug) %}{% if rs.n %}<p class="rating-line"><span class="stars" aria-hidden="true">{{ stars(rs.avg) }}</span> <b>{{ rs.avg }}</b> <span>({{ t.rv_count.format(n=rs.n) }})</span></p>{% endif %}
     {% if tp.levels or tp.ages %}<p class="meta">{{ tp.levels }}{% if tp.levels and tp.ages %} · {% endif %}{{ tp.ages or '' }}</p>{% endif %}
     <a class="btn btn-line btn-small" href="{{ url_for('teacher_page', slug=tp.slug) }}">{{ t.tp_profile }}</a>
   </div>

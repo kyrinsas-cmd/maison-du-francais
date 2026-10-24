@@ -1,0 +1,20 @@
+{% macro review_list(rows, t, show_teacher=False) %}
+<div class="review-list">
+  {% for r in rows %}
+  <article class="review">
+    <header>
+      <span class="stars" role="img" aria-label="{{ r.rating }} {{ t.rv_out_of }}">{{ r.stars }}</span>
+      <b>{{ r.author }}</b>
+      <span class="review-meta">{% if r.level %}{{ t.rv_level }} {{ r.level }} · {% endif %}{{ month_label(r.month) }}{% if show_teacher %} · {{ t.rv_with }} <a href="{{ url_for('teacher_page', slug=r.slug) }}">{{ r.teacher }}</a>{% endif %}</span>
+    </header>
+    {% if r.text %}<p class="pre" {% if r.original %}lang="zh-Hans"{% endif %}>{{ r.text }}</p>{% if r.original %}<p class="note" style="margin:0">{{ t.rv_orig }}</p>{% endif %}{% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% endmacro %}
+{% macro notice(t) %}
+<details class="review-notice">
+  <summary>{{ t.rv_notice_h }}</summary>
+  <p>{{ t.rv_notice }}</p>
+</details>
+{% endmacro %}

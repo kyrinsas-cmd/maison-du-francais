@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_teacher_card.html" import teacher_card %}
+{% from "_teacher_card.html" import teacher_card with context %}
 {% block title %}{{ t.teachers_title }} · {{ t.brand_main }}{% endblock %}
 {% block description %}{{ t.teachers_desc }}{% endblock %}
 {% block content %}

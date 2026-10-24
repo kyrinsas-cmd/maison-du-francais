@@ -97,7 +97,9 @@ def teacher_page(slug):
         t = c.execute("SELECT * FROM teachers WHERE slug=%s AND published", (slug,)).fetchone()
     if not t:
         abort(404)
-    return render_template("teacher.html", tp=public_view(t, g.lang))
+    import reviews
+    rs, rlist = reviews.for_teacher(slug, g.lang)
+    return render_template("teacher.html", tp=public_view(t, g.lang), rsum=rs, rlist=rlist)
 
 
 @web.app.route("/uploads/teachers/<name>")

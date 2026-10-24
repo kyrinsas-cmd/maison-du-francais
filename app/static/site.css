@@ -279,3 +279,21 @@ td:first-child { font-weight: 900; font-size: 20px; }
 .account-dl dt { font-weight: 800; }
 .account-dl dd { margin: 0; overflow-wrap: anywhere; }
 .pre { white-space: pre-line; }
+
+/* Avis */
+.stars { color: #E0A100; letter-spacing: 1px; }
+.rating-line { font-size: 15px; color: var(--ink); }
+.rating-line span:last-child { color: var(--muted); }
+.rating-big { font-size: 20px; margin: 16px 0 0; color: var(--ink); }
+.rating-big .stars { font-size: 26px; }
+.review-list { display: flex; flex-direction: column; gap: 16px; max-width: 820px; }
+.review { border: 1px solid var(--line); border-radius: 20px; padding: 20px 24px; background: #fff; display: flex; flex-direction: column; gap: 10px; }
+.review header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.review p { margin: 0; color: var(--ink); line-height: 1.7; }
+.review-meta { font-size: 14px; color: var(--muted); font-weight: 400; }
+.review-notice { max-width: 820px; margin-top: 24px; font-size: 14px; color: var(--ink); }
+.review-notice summary { cursor: pointer; font-weight: 800; color: var(--navy); }
+.review-notice p { margin: 8px 0 0; line-height: 1.7; }
+.teacher-reviews { margin-top: 56px; }
+.teacher-reviews h2 { font-size: 24px; margin-bottom: 16px; }
+.low { background: #FDECEC; }

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_reviews.html" import review_list, notice with context %}
 {% block title %}{{ t.tp_title.format(name=tp.name) }} · {{ t.brand_main }}{% endblock %}
 {% block description %}{{ t.tp_desc.format(name=tp.name) }}{% endblock %}
 {% block content %}
@@ -15,6 +16,7 @@
           {% if tp.levels %}<dt>{{ t.tp_levels }}</dt><dd>{{ tp.levels }}</dd>{% endif %}
           {% if tp.ages %}<dt>{{ t.tp_ages }}</dt><dd>{{ tp.ages }}</dd>{% endif %}
         </dl>
+        {% if rsum and rsum.n %}<p class="rating-line"><span class="stars" aria-hidden="true">{{ stars(rsum.avg) }}</span> <b>{{ rsum.avg }}</b> {{ t.rv_out_of }} · <a href="#avis">{{ t.rv_count.format(n=rsum.n) }}</a></p>{% endif %}
         <div class="actions"><a class="btn btn-red" href="{{ url_for('contact') }}">{{ t.tp_cta }}</a></div>
         <p class="note">{{ t.tp_cta_note }}</p>
       </div>
@@ -33,6 +35,14 @@
       </div>
       {% endif %}
     </div>
+
+    {% if rlist %}
+    <div class="teacher-reviews" id="avis">
+      <h2>{{ t.rv_h2 }} <span class="review-meta">· {{ t.rv_count.format(n=rsum.n) }}</span></h2>
+      {{ review_list(rlist, t) }}
+      {{ notice(t) }}
+    </div>
+    {% endif %}
   </div>
 </section>
 {% endblock %}

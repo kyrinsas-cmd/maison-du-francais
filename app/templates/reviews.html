@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_reviews.html" import review_list, notice with context %}
+{% block title %}{{ t.rv_title }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ t.rv_desc }}{% endblock %}
+{% block content %}
+<section>
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">{{ t.nav_reviews }}</span>
+      <h1>{{ t.rv_h2 }}</h1>
+      {% if s.n %}<p class="rating-big"><span class="stars" aria-hidden="true">{{ stars(s.avg) }}</span> <b>{{ s.avg }}</b> {{ t.rv_out_of }} · {{ t.rv_count.format(n=s.n) }}</p>{% endif %}
+    </div>
+    {% if rows %}{{ review_list(rows, t, show_teacher=True) }}{% else %}<p class="empty">{{ t.rv_none }}</p>{% endif %}
+    {{ notice(t) }}
+  </div>
+</section>
+{% endblock %}

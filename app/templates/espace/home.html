@@ -22,6 +22,12 @@
     <a class="btn btn-line btn-small" href="{{ url_for('espace.profile') }}" style="align-self:flex-start">Modifier mon profil</a>
   </div>
   <div class="card">
+    <h2 class="h3">Avis des familles</h2>
+    {% if rsum.n %}<p><span class="stars">{{ stars(rsum.avg) }}</span> <b>{{ rsum.avg }}</b> / 5 · {{ rsum.n }} avis publié{{ 's' if rsum.n > 1 }}</p>
+    {% if t.published %}<p><a href="/fr/professeurs/{{ t.slug }}#avis" target="_blank" rel="noopener">Les lire sur ma page</a></p>{% endif %}
+    {% else %}<p>Pas encore d'avis publié.</p>{% endif %}
+  </div>
+  <div class="card">
     <h2 class="h3">Ma vidéo de présentation</h2>
     <p>{{ video_state }}</p>
     {% if t.video_status == 'changes' and t.video_feedback %}<p class="pre">{{ t.video_feedback }}</p>{% endif %}
