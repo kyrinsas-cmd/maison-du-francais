@@ -21,7 +21,7 @@
 <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='img/og.png') }}">
 <meta name="theme-color" content="#063372">
 <link rel="preload" href="{{ url_for('static', filename='fonts/nunito-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=22">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=23">
 <script>
   document.documentElement.classList.add("js", "has-js");
   // Si les animations ne se chargent pas, on affiche tout au bout de 2,5 s
@@ -40,12 +40,13 @@
     <nav class="nav" id="site-nav" aria-label="{{ t.nav_aria }}">
       {% set ep = request.endpoint %}
       <a href="{{ url_for('method') }}" {% if ep == 'method' %}aria-current="page"{% endif %}>{{ t.nav_method }}</a>
-      <div class="nav-group{{ ' current' if ep in ('path', 'fle') }}">
+      <div class="nav-group{{ ' current' if ep in ('path', 'fle', 'exam_centres') }}">
         <a href="{{ url_for('path') }}" {% if ep == 'path' %}aria-current="page"{% endif %}>{{ t.nav_path }}</a>
         <button class="sub-toggle" type="button" aria-expanded="false" aria-controls="sub-path" aria-label="{{ t.nav_sub_aria }}"><span aria-hidden="true">▾</span></button>
         <div class="subnav" id="sub-path">
           <a href="{{ url_for('path') }}" {% if ep == 'path' %}aria-current="page"{% endif %}>{{ t.nav_path_sub }}</a>
           <a href="{{ url_for('fle') }}" {% if ep == 'fle' %}aria-current="page"{% endif %}>{{ t.nav_fle }}</a>
+          <a href="{{ url_for('exam_centres') }}" {% if ep == 'exam_centres' %}aria-current="page"{% endif %}>{{ t.nav_centres }}</a>
         </div>
       </div>
       <a href="{{ url_for('live') }}" {% if ep == 'live' %}aria-current="page"{% endif %}>{{ t.nav_live }}</a>

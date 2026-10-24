@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_page_head.html" import page_head %}
+{% set zh = lang == 'zh' %}
+{% block title %}{{ 'DELF-DALF 考点与考试安排' if zh else "Centres d'examen DELF-DALF en Chine" }} · {{ t.brand_main }}{% endblock %}
+{% block description %}{{ '中国的DELF-DALF考点、考试日期和报名方式（来源：教育部教育考试院）。' if zh else "Les centres d'examen DELF-DALF en Chine, les dates des sessions et l'inscription (source : NEEA, ministère chinois de l'Éducation)." }}{% endblock %}
+{% block content %}
+<section class="list-page">
+  <div class="wrap">
+    {{ page_head(t.nav_centres, ('DELF-DALF 考点与考试安排' if zh else "Centres d'examen DELF-DALF en Chine"),
+                 ('在中国，DELF-DALF 由教育部教育考试院统一组织，全国共有以下考点。报名只能在考试院的官方报名网站进行，不在考点现场报名。' if zh else
+                  "En Chine, le DELF-DALF est organisé par l'autorité des examens du ministère chinois de l'Éducation (NEEA), dans les centres ci-dessous. L'inscription se fait uniquement sur le site de la NEEA, pas auprès du centre.")) }}
+
+    <div class="card fle-cta centres-register">
+      <div>
+        <h2 class="h3">{{ '如何报名' if zh else "S'inscrire" }}</h2>
+        <p>{{ '登录考试院法语考试报名网站，在报名期内选择考点和级别、缴费。准考证上会写明实际考场和时间。' if zh else "Sur le site d'inscription de la NEEA, pendant la période d'inscription : choix du centre et du niveau, paiement. Le lieu et l'heure exacts figurent sur la convocation." }}</p>
+      </div>
+      <a class="btn btn-red btn-small" href="{{ neea }}" target="_blank" rel="noopener">{{ '官方报名网站' if zh else "Site d'inscription officiel" }} ↗</a>
+    </div>
+
+    <h2 class="fle-h2">{{ '考试安排' if zh else 'Sessions' }}</h2>
+    {% if sessions %}
+    <div class="session-list">
+      {% for s in sessions %}
+      <article class="card session {{ 'past' if s.past }}">
+        <div class="session-head"><h3>{{ s.title_zh if zh else (s.title_fr or s.title_zh) }}</h3>{% if s.past %}<span class="status status-rejected">{{ '已结束' if zh else 'Passée' }}</span>{% endif %}</div>
+        {% if s.levels %}<p><b>{{ '级别' if zh else 'Niveaux' }}</b> : {{ s.levels }}</p>{% endif %}
+        {% if s.exams_zh or s.exams_fr %}<p><b>{{ '考试时间' if zh else 'Examens' }}</b> : {{ s.exams_zh if zh else (s.exams_fr or s.exams_zh) }}</p>{% endif %}
+        {% if s.register_zh or s.register_fr %}<p><b>{{ '报名时间' if zh else 'Inscriptions' }}</b> : {{ s.register_zh if zh else (s.register_fr or s.register_zh) }}</p>{% endif %}
+        {% if s.source_url %}<p class="note"><a href="{{ s.source_url }}" target="_blank" rel="noopener">{{ '考试院通知' if zh else "Avis officiel de la NEEA" }} ↗</a></p>{% endif %}
+      </article>
+      {% endfor %}
+    </div>
+    <p class="note">{{ '具体时间以准考证为准。费用以报名网站公布为准。' if zh else "Les horaires exacts figurent sur la convocation ; les tarifs, sur le site d'inscription." }}</p>
+    {% endif %}
+
+    <h2 class="fle-h2">{{ '全国考点（%d个）'|format(centres|length) if zh else "Les %d centres d'examen"|format(centres|length) }}</h2>
+    <div class="centre-grid">
+      {% for c in centres %}
+      <article class="card centre">
+        <span class="centre-city">{{ c.city_zh if zh else (c.city_fr or c.city_zh) }}</span>
+        <h3 {% if not zh and c.name_fr %}lang="fr"{% else %}lang="zh-Hans"{% endif %}>{{ c.name_zh if zh else (c.name_fr or c.name_zh) }}</h3>
+        {% if not zh and c.name_fr %}<p class="note" lang="zh-Hans" style="margin:0">{{ c.name_zh }}</p>{% endif %}
+        {% if c.address %}<p lang="zh-Hans">{{ c.address }}</p>{% endif %}
+        {% if c.phone %}<p>{{ '电话' if zh else 'Tél.' }} <a href="tel:{{ c.phone.split('、')[0]|replace('-', '') }}">{{ c.phone }}</a></p>{% endif %}
+        {% if c.website %}<p><a href="{{ c.website }}" target="_blank" rel="noopener">{{ '考点网站' if zh else 'Site du centre' }} ↗</a></p>{% endif %}
+      </article>
+      {% endfor %}
+    </div>
+
+    <h2 class="fle-h2">{{ '资料来源' if zh else 'Sources' }}</h2>
+    <ul class="fle-sources">
+      <li><a href="{{ neea_centres }}" target="_blank" rel="noopener">{{ '教育部教育考试院：DELF-DALF 考试机构' if zh else "NEEA (教育部教育考试院) : centres d'examen DELF-DALF" }}</a></li>
+      <li><a href="{{ neea }}" target="_blank" rel="noopener">{{ '教育部教育考试院：法语考试报名网站' if zh else "NEEA : site d'inscription aux examens de français" }}</a></li>
+      <li>{{ '其他国家和地区的考点：' if zh else 'Centres dans les autres pays (dont la France) :' }} <a href="https://www.france-education-international.fr/centres-d-examen/liste" target="_blank" rel="noopener" lang="fr">France Éducation international</a></li>
+    </ul>
+    <p class="note">{{ '资料核对日期：%s。报名前请以考试院最新通知为准。'|format(checked.strftime('%Y年%m月%d日')) if zh else 'Informations vérifiées le %s. Avant de vous inscrire, consultez le dernier avis de la NEEA.'|format(checked.strftime('%d/%m/%Y')) }}</p>
+    <div class="card fle-cta" style="margin-top:32px">
+      <div><h2 class="h3">{{ t.fle_box_h }}</h2><p>{{ t.fle_box_p }}</p></div>
+      <a class="btn btn-navy btn-small" href="{{ url_for('fle') }}">{{ t.fle_box_link }} →</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

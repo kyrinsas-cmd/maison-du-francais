@@ -1,0 +1,17 @@
+{% extends "admin/layout.html" %}
+{% block title %}Centres d'examen{% endblock %}
+{% block content %}
+<h1>Centres d'examen et sessions DELF-DALF (Chine)</h1>
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+<p class="note">Source : NEEA (教育部教育考试院). À chaque nouvel avis (en général 3 sessions par an + la session 青少版), ajoutez la session ; vérifiez la liste des centres une fois par an. Les 10 centres et les sessions 2026 ont été chargés le 25/10/2026.</p>
+<div style="display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px"><h2 class="h3">Sessions</h2><a class="btn btn-navy btn-small" href="{{ url_for('admin.session_edit') }}">Ajouter une session</a></div>
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Session</th><th scope="col">1er jour</th><th scope="col">Inscriptions</th><th scope="col">Site</th></tr></thead>
+  <tbody>{% for s in sessions %}<tr><td><a href="{{ url_for('admin.session_edit', rid=s.id) }}">{{ s.title_zh }}</a></td><td>{{ s.first_day.strftime('%d/%m/%Y') if s.first_day else '—' }}</td><td>{{ s.register_zh or '—' }}</td><td>{{ 'Affichée' if s.published else 'Masquée' }}</td></tr>{% endfor %}</tbody>
+</table></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin:32px 0 12px"><h2 class="h3">Centres</h2><a class="btn btn-navy btn-small" href="{{ url_for('admin.centre_edit') }}">Ajouter un centre</a></div>
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Ville</th><th scope="col">Centre</th><th scope="col">Téléphone</th><th scope="col">Site</th></tr></thead>
+  <tbody>{% for c in centres %}<tr><td>{{ c.city_zh }} · {{ c.city_fr }}</td><td><a href="{{ url_for('admin.centre_edit', rid=c.id) }}">{{ c.name_zh }}</a></td><td>{{ c.phone or '—' }}</td><td>{{ 'Affiché' if c.published else 'Masqué' }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

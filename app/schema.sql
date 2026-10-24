@@ -263,3 +263,32 @@ CREATE TABLE IF NOT EXISTS placement_recordings (
     created_at timestamptz NOT NULL DEFAULT now(),
     UNIQUE (test_id, task)
 );
+
+-- 2026-10-25 : centres d'examen DELF-DALF en Chine et sessions (source : NEEA 教育部教育考试院 ; gérés dans /admin/centres)
+CREATE TABLE IF NOT EXISTS exam_centres (
+    id        bigserial PRIMARY KEY,
+    key       text UNIQUE,                   -- graine (examcentres_seed.py)
+    city_zh   text NOT NULL,
+    city_fr   text,
+    name_zh   text NOT NULL,
+    name_fr   text,
+    address   text,
+    phone     text,
+    website   text,
+    published boolean NOT NULL DEFAULT true,
+    sort      int NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS exam_sessions (
+    id          bigserial PRIMARY KEY,
+    key         text UNIQUE,
+    title_zh    text NOT NULL,
+    title_fr    text,
+    levels      text,                        -- ex. « A1 A2 B1 B2 C1 C2 » ou « Prim A1.1–A2 · Junior A1–B2 »
+    exams_zh    text,                        -- dates d'examen (texte)
+    exams_fr    text,
+    register_zh text,                        -- période d'inscription (texte)
+    register_fr text,
+    first_day   date,                        -- 1er jour d'examen (tri, « passée »)
+    source_url  text,
+    published   boolean NOT NULL DEFAULT true
+);

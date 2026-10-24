@@ -1,0 +1,19 @@
+{% extends "admin/layout.html" %}
+{% set labels = {'city_zh': 'Ville (chinois)', 'city_fr': 'Ville (français)', 'name_zh': 'Nom (chinois)', 'name_fr': 'Nom (français)', 'address': 'Adresse', 'phone': 'Téléphone', 'website': 'Site web',
+                 'title_zh': 'Titre (chinois)', 'title_fr': 'Titre (français)', 'levels': 'Niveaux', 'exams_zh': "Dates d'examen (chinois)", 'exams_fr': "Dates d'examen (français)",
+                 'register_zh': "Période d'inscription (chinois)", 'register_fr': "Période d'inscription (français)", 'source_url': "Lien vers l'avis officiel"} %}
+{% block title %}{{ 'Centre' if table == 'exam_centres' else 'Session' }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.centres_admin') }}">← Centres d'examen</a></p>
+<h1>{{ ('Modifier' if row else 'Ajouter') ~ (' le centre' if table == 'exam_centres' else ' la session') }}</h1>
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<form class="form teacher-form" method="post" style="max-width:720px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  {% for k in fields %}<label>{{ labels[k] }}<input type="{{ 'url' if k in ('website', 'source_url') else 'text' }}" name="{{ k }}" maxlength="500" value="{{ v[k] or '' }}"></label>{% endfor %}
+  {% if table == 'exam_sessions' %}<label>Premier jour d'examen (pour le tri et « passée »)<input type="date" name="first_day" value="{{ v.first_day.isoformat() if v.first_day else '' }}"></label>
+  {% else %}<label>Ordre<input type="number" name="sort" value="{{ v.sort or 0 }}"></label>{% endif %}
+  <label class="check"><input type="checkbox" name="published" value="1" {% if v.published %}checked{% endif %}>Afficher sur le site</label>
+  <button class="btn btn-navy" type="submit" style="align-self:flex-start">Enregistrer</button>
+</form>
+{% if row %}<form method="post" style="margin-top:20px" onsubmit="return confirm('Supprimer ?');"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="delete"><button class="btn btn-line btn-small danger-btn" type="submit">Supprimer</button></form>{% endif %}
+{% endblock %}

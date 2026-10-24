@@ -204,7 +204,7 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    paths = ["/", "/methode", "/cours", "/cours-en-direct", "/fle", "/professeurs", "/atelier-paris", "/enseigner", "/contact", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + resources.sitemap_paths() + reviews.sitemap_paths() + teachers.sitemap_paths()
+    paths = ["/", "/methode", "/cours", "/cours-en-direct", "/fle", "/centres-examen", "/professeurs", "/atelier-paris", "/enseigner", "/contact", "/mentions-legales", "/confidentialite"] + pricing.sitemap_paths() + resources.sitemap_paths() + reviews.sitemap_paths() + teachers.sitemap_paths()
     pages = [p for path in paths for p in (path, "/fr" + path)]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     xml += "".join(f"  <url><loc>{SITE_URL}{p}</loc></url>\n" for p in pages) + "</urlset>\n"
@@ -254,6 +254,7 @@ import users  # noqa: E402,F401  (comptes : inscription, connexion, rôles)
 import resources  # noqa: E402  (教材库)
 import liveclasses  # noqa: E402,F401  (直播课 : catalogue des classes)
 import placement  # noqa: E402,F401  (test de niveau)
+import examcentres  # noqa: E402,F401  (centres d'examen DELF-DALF)
 
 admin.init_app(app)
 accounts.init_app(app)

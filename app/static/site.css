@@ -479,3 +479,17 @@ section.list-page { padding: 56px 0 96px; }
   .has-js .site-header.public .subnav a { border-radius: 0; padding: 12px 2px; border-bottom: 1px solid var(--line); }
   .has-js .site-header.public .subnav a + a { padding-left: 18px; }
 }
+
+/* Centres d'examen */
+.centres-register { margin: 0 0 8px; border: 2px solid var(--navy); background: #fff; }
+.session-list { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.session { border: 1px solid var(--line); background: #fff; }
+.session p { margin: 0; font-size: 15px; }
+.session.past { opacity: .6; }
+.session-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.session-head h3 { font-size: 18px; }
+.centre-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.centre { border: 1px solid var(--line); background: #fff; gap: 6px; }
+.centre p { margin: 0; font-size: 14px; }
+.centre h3 { font-size: 17px; }
+.centre-city { align-self: flex-start; font-weight: 900; font-size: 13px; color: #fff; background: var(--navy); border-radius: 999px; padding: 3px 12px; }
