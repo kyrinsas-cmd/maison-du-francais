@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Mentions légales · Maison du français{% endblock %}
+{% block title %}{{ t.legal_title }} · {{ t.brand_main }}{% endblock %}
 {% macro v(x, label) %}{% if x %}{{ x }}{% else %}<span class="todo">{{ label }} à compléter</span>{% endif %}{% endmacro %}
 {% block content %}
 <div class="prose">
@@ -19,6 +19,6 @@
   <p>Les textes, le logo et les visuels de ce site sont la propriété de l'éditeur. Toute reproduction sans autorisation est interdite.</p>
 
   <h2>Données personnelles</h2>
-  <p>Voir la page <a href="/confidentialite">Confidentialité</a>.</p>
+  <p>Voir la page <a href="{{ url_for('privacy') }}">Confidentialité</a>.</p>
 </div>
 {% endblock %}

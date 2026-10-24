@@ -10,7 +10,9 @@ import secrets
 from datetime import date
 
 from dotenv import load_dotenv
-from flask import Flask, abort, redirect, render_template, request, session, url_for
+from flask import Flask, abort, g, redirect, render_template, request, session, url_for
+
+from i18n import HTML_LANG, LANGS, texts
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 app = Flask(__name__)
@@ -40,9 +42,50 @@ def publisher():
     return {k: os.environ.get(f"PUBLISHER_{k.upper()}") for k in ("name", "address", "siren", "director", "email")}
 
 
+def route(path, **kw):
+    """Enregistre la page en français (path) et en chinois (/zh + path)."""
+    def deco(f):
+        app.add_url_rule(path, view_func=f, defaults={"lang": "fr"}, **kw)
+        app.add_url_rule("/<any(zh):lang>" + path, view_func=f, **kw)
+        return f
+    return deco
+
+
+@app.url_value_preprocessor
+def pull_lang(endpoint, values):
+    if values and "lang" in values:  # pas de route (404) : current_lang() regardera l'adresse
+        g.lang = values.pop("lang")
+
+
+@app.url_defaults
+def add_lang(endpoint, values):
+    if "lang" not in values and app.url_map.is_endpoint_expecting(endpoint, "lang"):
+        values["lang"] = g.get("lang", "fr")
+
+
+def current_lang():
+    if "lang" not in g:  # 404 et erreurs : pas de route, on regarde l'adresse
+        g.lang = "zh" if request.path == "/zh" or request.path.startswith("/zh/") else "fr"
+    return g.lang
+
+
+def alternates():
+    """Adresses de la même page dans chaque langue (sélecteur de langue, balises hreflang)."""
+    ep = request.endpoint
+    if not ep or not app.url_map.is_endpoint_expecting(ep, "lang"):
+        ep = "home"
+    return {lang: url_for(ep, **dict(request.view_args or {}, lang=lang)) for lang in LANGS}
+
+
 @app.context_processor
 def inject():
+    lang = current_lang()
     return {
+        "lang": lang,
+        "html_lang": HTML_LANG[lang],
+        "other_lang": "zh" if lang == "fr" else "fr",
+        "t": texts(lang),
+        "alternates": alternates,
         "indexable": INDEXABLE,
         "site_url": SITE_URL,
         "year": date.today().year,
@@ -64,13 +107,14 @@ def ip_hash():
     return hashlib.sha256(f"{salt}:{ip}".encode()).hexdigest()[:32]
 
 
-@app.route("/")
+@route("/")
 def home():
     return render_template("home.html", levels=LEVELS)
 
 
-@app.route("/enseigner", methods=["GET", "POST"])
+@route("/enseigner", methods=["GET", "POST"])
 def teach():
+    t = texts(g.lang)
     if request.method == "GET":
         return redirect(url_for("home", _anchor="enseigner"))
     f = request.form
@@ -81,15 +125,15 @@ def teach():
     data = {k: (f.get(k) or "").strip() for k in ("full_name", "email", "diploma", "message")}
     errors = []
     if not 2 <= len(data["full_name"]) <= 120:
-        errors.append("Indiquez votre nom et prénom.")
+        errors.append(t.err_name)
     if not EMAIL_RE.match(data["email"]) or len(data["email"]) > 200:
-        errors.append("Indiquez une adresse e-mail valide.")
+        errors.append(t.err_email)
     if not 2 <= len(data["diploma"]) <= 200:
-        errors.append("Indiquez votre diplôme FLE.")
+        errors.append(t.err_diploma)
     if len(data["message"]) > 3000:
-        errors.append("Votre message est trop long (3 000 caractères au plus).")
+        errors.append(t.err_long)
     if not f.get("consent"):
-        errors.append("Merci d'accepter le traitement de vos données pour que nous puissions vous répondre.")
+        errors.append(t.err_consent)
     if errors:
         return render_template("home.html", levels=LEVELS, errors=errors, form=data), 422
     from db import connect
@@ -97,20 +141,20 @@ def teach():
     with connect() as c:
         n = c.execute("SELECT count(*) AS n FROM teacher_applications WHERE ip_hash=%s AND created_at > now() - interval '1 hour'", (h,)).fetchone()["n"]
         if n >= 5:
-            return render_template("home.html", levels=LEVELS, errors=["Trop d'envois depuis cette connexion. Réessayez dans une heure."], form=data), 429
+            return render_template("home.html", levels=LEVELS, errors=[t.err_rate], form=data), 429
         c.execute("INSERT INTO teacher_applications (full_name, email, diploma, message, ip_hash) VALUES (%s,%s,%s,%s,%s)",
                   (data["full_name"], data["email"], data["diploma"], data["message"] or None, h))
     return render_template("teach_done.html")
 
 
-@app.route("/mentions-legales")
+@route("/mentions-legales")
 def legal():
-    return render_template("legal.html")
+    return render_template("legal_zh.html" if g.lang == "zh" else "legal.html")
 
 
-@app.route("/confidentialite")
+@route("/confidentialite")
 def privacy():
-    return render_template("privacy.html")
+    return render_template("privacy_zh.html" if g.lang == "zh" else "privacy.html")
 
 
 @app.route("/robots.txt")
@@ -121,7 +165,7 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    pages = ["/", "/mentions-legales", "/confidentialite"]
+    pages = [p for path in ("/", "/mentions-legales", "/confidentialite") for p in (path, "/zh" + path)]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     xml += "".join(f"  <url><loc>{SITE_URL}{p}</loc></url>\n" for p in pages) + "</urlset>\n"
     return app.response_class(xml, mimetype="application/xml")

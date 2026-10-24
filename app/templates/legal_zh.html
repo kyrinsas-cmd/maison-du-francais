@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ t.legal_title }} · {{ t.brand_main }}{% endblock %}
+{% macro v(x, label) %}{% if x %}{{ x }}{% else %}<span class="todo">{{ label }}（待补充）</span>{% endif %}{% endmacro %}
+{% block content %}
+<div class="prose">
+  <h1>法律声明</h1>
+  <p>本页为法文《Mentions légales》的中文译本，如有出入，以<a href="{{ url_for('legal', lang='fr') }}" lang="fr" hreflang="fr">法文版本</a>为准。</p>
+
+  <h2>网站发布者</h2>
+  <p>{{ v(pub.name, "公司名称") }}<br>
+  {{ v(pub.address, "注册地址") }}<br>
+  SIREN 注册号：{{ v(pub.siren, "SIREN") }}<br>
+  出版负责人：{{ v(pub.director, "姓名") }}<br>
+  联系方式：{{ v(pub.email or contact_email, "电子邮箱") }}</p>
+
+  <h2>网站托管</h2>
+  <p>OVH SAS，2 rue Kellermann, 59100 Roubaix，法国。</p>
+
+  <h2>知识产权</h2>
+  <p>本网站的文字、标志和图片归发布者所有，未经许可不得转载。</p>
+
+  <h2>个人信息</h2>
+  <p>请见<a href="{{ url_for('privacy') }}">隐私政策</a>。</p>
+</div>
+{% endblock %}

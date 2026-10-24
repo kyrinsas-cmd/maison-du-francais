@@ -1,43 +1,50 @@
 <!doctype html>
-<html lang="fr">
+<html lang="{{ html_lang }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}Maison du français · 法语之家 — cours de français en direct{% endblock %}</title>
-<meta name="description" content="{% block description %}École de français en ligne : cours en direct de 5 élèves au maximum avec des professeurs FLE diplômés, basés en France.{% endblock %}">
+<title>{% block title %}{{ t.title }}{% endblock %}</title>
+<meta name="description" content="{% block description %}{{ t.description }}{% endblock %}">
 {% if not indexable %}<meta name="robots" content="noindex">{% endif %}
-<link rel="canonical" href="{{ site_url }}{{ request.path }}">
+{% set alt = alternates() %}
+<link rel="canonical" href="{{ site_url }}{{ alt[lang] }}">
+<link rel="alternate" hreflang="fr" href="{{ site_url }}{{ alt.fr }}">
+<link rel="alternate" hreflang="zh-Hans" href="{{ site_url }}{{ alt.zh }}">
+<link rel="alternate" hreflang="x-default" href="{{ site_url }}{{ alt.fr }}">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Maison du français">
+<meta property="og:site_name" content="{{ t.brand_main }}">
+<meta property="og:locale" content="{{ 'zh_CN' if lang == 'zh' else 'fr_FR' }}">
 <meta property="og:title" content="{{ self.title() }}">
 <meta property="og:description" content="{{ self.description() }}">
 <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='img/og.png') }}">
 <meta name="theme-color" content="#063372">
 <link rel="preload" href="{{ url_for('static', filename='fonts/nunito-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=1">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=2">
 <script>
   document.documentElement.classList.add("js");
   // Si les animations ne se chargent pas, on affiche tout au bout de 2,5 s
   setTimeout(function () { if (!window.__mdfAnim) document.documentElement.classList.remove("js"); }, 2500);
 </script>
 </head>
-<body>
-<a class="skip" href="#contenu">Aller au contenu</a>
+<body class="lang-{{ lang }}">
+<a class="skip" href="#contenu">{{ t.skip }}</a>
 <header class="site-header">
   <div class="wrap">
-    <a class="brand" href="/" aria-label="Maison du français, accueil">
+    <a class="brand" href="{{ url_for('home') }}" aria-label="{{ t.home_aria }}">
       <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="" width="52" height="52">
-      <span class="brand-name"><b>Maison du français</b><span lang="zh-Hans">法语之家</span></span>
+      <span class="brand-name"><b>{{ t.brand_main }}</b><span lang="{{ t.brand_sub_lang }}">{{ t.brand_sub }}</span></span>
     </a>
-    <nav class="nav" aria-label="Navigation principale">
-      <a href="/#methode">Méthode</a>
-      <a href="/#parcours">Parcours</a>
-      <a href="/#professeurs">Professeurs</a>
-      <a href="/#atelier">Atelier Paris</a>
-      <a href="/#enseigner">Enseigner chez nous</a>
-      <a class="btn btn-navy btn-small" href="/#contact">Cours d'essai gratuit</a>
+    <nav class="nav" aria-label="{{ t.nav_aria }}">
+      {% set h = url_for('home') %}
+      <a href="{{ h }}#methode">{{ t.nav_method }}</a>
+      <a href="{{ h }}#parcours">{{ t.nav_path }}</a>
+      <a href="{{ h }}#professeurs">{{ t.nav_teachers }}</a>
+      <a href="{{ h }}#atelier">{{ t.nav_atelier }}</a>
+      <a href="{{ h }}#enseigner">{{ t.nav_teach }}</a>
+      <a class="lang-switch" href="{{ alt[other_lang] }}" lang="{{ t.switch_lang }}" hreflang="{{ t.switch_lang }}" aria-label="{{ t.switch_aria }}">{{ t.switch_label }}</a>
+      <a class="btn btn-navy btn-small" href="{{ h }}#contact">{{ t.nav_cta }}</a>
     </nav>
   </div>
 </header>
@@ -50,26 +57,27 @@
   <div class="wrap">
     <div class="foot">
       <div>
-        <img src="{{ url_for('static', filename='img/logo-white.png') }}" alt="Maison du français · 法语之家" width="200" height="170" style="width:200px">
-        <p>École de français en ligne, professeurs FLE en France.</p>
+        <img src="{{ url_for('static', filename='img/logo-white.png') }}" alt="{{ t.foot_logo_alt }}" width="200" height="170" style="width:200px">
+        <p>{{ t.foot_tagline }}</p>
       </div>
       <div>
-        <b>Parents en Chine</b>
+        <b>{{ t.foot_parents }}</b>
         <div class="qr-row">
-          <div class="qr">QR code WeChat bientôt disponible</div>
-          <p>Le test de niveau et les cours d'essai se réservent sur WeChat.</p>
+          <div class="qr">{{ t.foot_qr }}</div>
+          <p>{{ t.foot_qr_text }}</p>
         </div>
       </div>
       <div>
-        <b>Contact</b>
-        {% if contact_email %}<a href="mailto:{{ contact_email }}">{{ contact_email }}</a>{% else %}<p>Adresse de contact bientôt disponible.</p>{% endif %}
-        <a href="/#enseigner">Devenir professeur</a>
+        <b>{{ t.foot_contact }}</b>
+        {% if contact_email %}<a href="mailto:{{ contact_email }}">{{ contact_email }}</a>{% else %}<p>{{ t.foot_contact_soon }}</p>{% endif %}
+        <a href="{{ url_for('home') }}#enseigner">{{ t.foot_teach }}</a>
       </div>
     </div>
     <div class="legal-bar">
-      <span>© {{ year }} {{ pub.name or "Maison du français" }}</span>
-      <a href="/mentions-legales">Mentions légales</a>
-      <a href="/confidentialite">Confidentialité</a>
+      <span>© {{ year }} {{ pub.name or t.brand_main }}</span>
+      <a href="{{ url_for('legal') }}">{{ t.foot_legal }}</a>
+      <a href="{{ url_for('privacy') }}">{{ t.foot_privacy }}</a>
+      <a href="{{ alt[other_lang] }}" lang="{{ t.switch_lang }}" hreflang="{{ t.switch_lang }}">{{ t.switch_label }}</a>
     </div>
   </div>
 </footer>
