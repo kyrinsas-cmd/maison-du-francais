@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}Compte{% endblock %} · Maison du français</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=8">
+</head>
+<body class="admin">
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/fr/">
+      <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="" width="40" height="40" style="width:40px;height:40px">
+      <span class="brand-name"><b>Espace équipe</b><span>Maison du français</span></span>
+    </a>
+    <nav class="nav">
+      {% if staff_user() %}
+      <span class="note" style="margin:0">{{ staff_user().name }}</span>
+      <form method="post" action="{{ url_for('compte.logout') }}" style="margin:0"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small" type="submit">Déconnexion</button></form>
+      {% else %}<a href="/fr/">Retour au site</a>{% endif %}
+    </nav>
+  </div>
+</header>
+<main class="wrap admin-main"><div class="admin-login">
+{% block content %}{% endblock %}
+</div></main>
+</body>
+</html>

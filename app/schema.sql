@@ -137,3 +137,26 @@ CREATE TABLE IF NOT EXISTS complaint_events (
     at           timestamptz NOT NULL DEFAULT now(),
     text         text NOT NULL
 );
+
+-- 2026-10-24 : comptes nominatifs de l'équipe (remplacent le mot de passe unique de l'admin)
+-- Inscription libre mais sans aucun accès : seul un administrateur donne le rôle « admin ».
+CREATE TABLE IF NOT EXISTS staff_users (
+    id                bigserial PRIMARY KEY,
+    email             text NOT NULL,
+    name              text NOT NULL,
+    password_hash     text NOT NULL,
+    role              text NOT NULL DEFAULT 'none',   -- none | admin
+    active            boolean NOT NULL DEFAULT true,
+    email_verified_at timestamptz,
+    created_at        timestamptz NOT NULL DEFAULT now(),
+    last_login_at     timestamptz
+);
+CREATE UNIQUE INDEX IF NOT EXISTS staff_users_email ON staff_users (lower(email));
+CREATE TABLE IF NOT EXISTS staff_tokens (
+    token_hash text PRIMARY KEY,                 -- sha256 ; le jeton n'est jamais stocké
+    user_id    bigint NOT NULL REFERENCES staff_users(id) ON DELETE CASCADE,
+    purpose    text NOT NULL,                    -- verify | reset
+    created_at timestamptz NOT NULL DEFAULT now(),
+    expires_at timestamptz NOT NULL,
+    used_at    timestamptz
+);

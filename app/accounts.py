@@ -106,7 +106,6 @@ def espace_ctx():
 
 
 def _login(account_id):
-    session.pop("admin", None)
     session["teacher_acc"] = account_id
     session["csrf"] = secrets.token_urlsafe(24)
     session.permanent = True

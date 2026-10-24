@@ -1,15 +1,12 @@
-"""Admin des candidatures de professeurs : /admin (en français uniquement, hors du système de langues).
+"""Admin (/admin, en français, hors du système de langues).
 
-Connexion par un mot de passe unique dont seule l'empreinte est dans le .env (ADMIN_PASSWORD_HASH),
-définie par l'utilisateur avec ops/set-admin-password.sh. Sans empreinte, l'admin est fermé.
+Accès réservé aux comptes de l'équipe qui ont le rôle « admin » (staff.py, /compte). Le rôle est relu à chaque requête.
+Le rôle se donne depuis la page Équipe (/admin/equipe) ou en ligne de commande : sudo ./ops/make-admin.sh <e-mail>.
 """
-import os
-import secrets
 from datetime import timedelta
 from zoneinfo import ZoneInfo
 
 from flask import Blueprint, abort, redirect, render_template, request, session, url_for
-from werkzeug.security import check_password_hash
 
 from db import connect
 
@@ -22,15 +19,8 @@ def admin_ctx():
     return {"paris": PARIS}
 
 STATUSES = {"new": "Nouvelle", "contacted": "Contactée", "accepted": "Retenue", "rejected": "Refusée"}
-MAX_FAILURES = 5          # échecs de connexion tolérés…
-FAILURE_WINDOW = "15 minutes"  # …par empreinte IP sur cette durée
 SESSION_HOURS = 12
 PAGE = 50
-
-
-def _ip_hash():
-    from web import ip_hash
-    return ip_hash()
 
 
 def _check_csrf():
@@ -39,15 +29,19 @@ def _check_csrf():
 
 
 def _logged_in():
-    return session.get("admin") is True
+    import staff
+    return staff.is_admin()
 
 
 @bp.before_request
 def guard():
+    import staff
     if request.endpoint in ("admin.login", "admin.logout"):
         return None
-    if not _logged_in():
-        return redirect(url_for("admin.login", next=request.full_path if request.method == "GET" else None))
+    if not staff.current():
+        return redirect(url_for("compte.login", next=request.full_path if request.method == "GET" else None))
+    if not staff.is_admin():
+        return redirect(url_for("compte.home"))  # connecté mais sans rôle : page « en attente »
     return None
 
 
@@ -58,39 +52,53 @@ def no_cache(resp):
     return resp
 
 
-@bp.route("/login", methods=["GET", "POST"])
+@bp.route("/login")
 def login():
-    pw_hash = os.environ.get("ADMIN_PASSWORD_HASH")
-    if not pw_hash:
-        return render_template("admin/login.html", closed=True)
-    error = None
-    if request.method == "POST":
-        _check_csrf()
-        h = _ip_hash()
-        with connect() as c:
-            n = c.execute(f"SELECT count(*) AS n FROM admin_login_failures WHERE ip_hash=%s AND at > now() - interval '{FAILURE_WINDOW}'", (h,)).fetchone()["n"]
-            if n >= MAX_FAILURES:
-                error = "Trop de tentatives. Réessayez dans 15 minutes."
-            elif check_password_hash(pw_hash, request.form.get("password", "")):
-                c.execute("DELETE FROM admin_login_failures WHERE ip_hash=%s", (h,))
-                session.clear()
-                session["admin"] = True
-                session["csrf"] = secrets.token_urlsafe(24)
-                session.permanent = True
-                nxt = request.args.get("next") or ""
-                return redirect(nxt if nxt.startswith("/admin") else url_for("admin.applications"))
-            else:
-                c.execute("INSERT INTO admin_login_failures (ip_hash) VALUES (%s)", (h,))
-                c.execute("DELETE FROM admin_login_failures WHERE at < now() - interval '1 day'")
-                error = "Mot de passe incorrect."
-    return render_template("admin/login.html", error=error), (401 if error else 200)
+    """Ancienne adresse de connexion : redirige vers la connexion de l'équipe."""
+    return redirect(url_for("compte.login", next=request.args.get("next")))
 
 
 @bp.route("/logout", methods=["POST"])
 def logout():
-    _check_csrf()
-    session.clear()
-    return redirect(url_for("admin.login"))
+    return redirect(url_for("compte.logout"), code=307)
+
+
+# ---------- équipe ----------
+
+@bp.route("/equipe", methods=["GET", "POST"])
+def team():
+    import staff
+    me = staff.current()
+    msg = error = None
+    if request.method == "POST":
+        _check_csrf()
+        uid = request.form.get("user_id", type=int)
+        action = request.form.get("action")
+        with connect() as c:
+            u = c.execute("SELECT * FROM staff_users WHERE id=%s", (uid,)).fetchone()
+            admins = c.execute("SELECT count(*) AS n FROM staff_users WHERE role='admin' AND active").fetchone()["n"]
+            if not u:
+                abort(404)
+            if u["id"] == me["id"] and action in ("revoke", "disable", "delete"):
+                error = "Vous ne pouvez pas retirer votre propre accès (demandez à un autre administrateur)."
+            elif action in ("revoke", "disable", "delete") and u["role"] == "admin" and admins <= 1:
+                error = "Impossible : ce serait le dernier administrateur."
+            elif action == "grant":
+                if not u["email_verified_at"]:
+                    error = "Ce compte n'a pas encore confirmé son adresse e-mail."
+                else:
+                    c.execute("UPDATE staff_users SET role='admin' WHERE id=%s", (uid,)); msg = f"{u['name']} est maintenant administrateur."
+            elif action == "revoke":
+                c.execute("UPDATE staff_users SET role='none' WHERE id=%s", (uid,)); msg = f"Rôle administrateur retiré à {u['name']}."
+            elif action in ("disable", "enable"):
+                c.execute("UPDATE staff_users SET active=%s WHERE id=%s", (action == "enable", uid)); msg = "Compte mis à jour."
+            elif action == "delete":
+                c.execute("DELETE FROM staff_users WHERE id=%s", (uid,)); msg = "Compte supprimé."
+            else:
+                abort(400)
+    with connect() as c:
+        users = c.execute("SELECT * FROM staff_users ORDER BY role='admin' DESC, created_at").fetchall()
+    return render_template("admin/team.html", users=users, me=me, msg=msg, error=error)
 
 
 @bp.route("/")
