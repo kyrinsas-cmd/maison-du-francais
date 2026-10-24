@@ -3,7 +3,17 @@
 {% block content %}
 <div class="admin-login">
   <h1>Mot de passe oublié</h1>
+  {% if sent %}
+  <p class="flash">Si un compte existe avec cette adresse, un lien pour choisir un nouveau mot de passe vient d'y être envoyé (valable 24 heures). Pensez à regarder dans les indésirables.</p>
+  {% elif self_service %}
+  <form class="form" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf() }}">
+    <label>E-mail de votre compte<input type="email" name="email" required autocomplete="username" autofocus></label>
+    <button class="btn btn-navy" type="submit">Recevoir un lien</button>
+  </form>
+  {% else %}
   <p>Écrivez à l'équipe{% if contact_email %} (<a href="mailto:{{ contact_email }}">{{ contact_email }}</a>){% endif %} depuis l'adresse de votre compte : elle vous enverra un lien pour choisir un nouveau mot de passe, valable 24 heures.</p>
+  {% endif %}
   <p><a href="{{ url_for('espace.login') }}">← Connexion</a></p>
 </div>
 {% endblock %}

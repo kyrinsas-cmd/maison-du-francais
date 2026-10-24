@@ -71,6 +71,14 @@ def tracking():
 
 # ---------- admin ----------
 
+def _alert(code, cid):
+    """Alerte immédiate (§18) : e-mail à l'équipe, sans le contenu de la réclamation."""
+    import mailer
+    mailer.notify_team(f"ALERTE — réclamation grave {code}",
+                       f"Une réclamation de gravité « grave » vient d'être enregistrée (numéro {code}).\n"
+                       f"À traiter en priorité : {web.SITE_URL}/admin/reclamations/{cid}" + mailer.SIGN)
+
+
 def _log(c, cid, text):
     c.execute("INSERT INTO complaint_events (complaint_id, text) VALUES (%s, %s)", (cid, text))
 
@@ -139,6 +147,8 @@ def complaint_new():
                                    VALUES (%(code)s,%(category)s,%(severity)s,%(teacher_id)s,%(complainant_label)s,%(complainant_role)s,%(channel)s,%(channel_ref)s,%(description)s)
                                    RETURNING id""", dict(v, code=code)).fetchone()["id"]
                 _log(c, cid, f"Réclamation enregistrée ({CATEGORIES[v['category']]}, gravité {SEVERITIES[v['severity']].lower()}).")
+            if v["severity"] == "grave":
+                _alert(code, cid)
             return redirect(url_for("admin.complaint", cid=cid, nouveau=1))
     return render_template("admin/complaint.html", c=None, v=v, teachers=teachers, errors=errors, categories=CATEGORIES,
                            severities=SEVERITIES, statuses=STATUSES, channels=CHANNELS, display_name=T.display_name)
@@ -187,6 +197,9 @@ def complaint(cid):
                     changes.append("Résultat mis à jour")
                 if changes:
                     _log(c, cid, " · ".join(changes))
+            if upd["severity"] == "grave" and row["severity"] != "grave" and upd["status"] in OPEN:
+                _alert(row["code"], cid)
+            with connect() as c:
                 if note:
                     _log(c, cid, "Note : " + note)
             return redirect(url_for("admin.complaint", cid=cid, ok=1))

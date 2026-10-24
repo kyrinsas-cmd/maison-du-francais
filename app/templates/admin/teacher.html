@@ -13,7 +13,8 @@
 
 {% if link %}
 <div class="flash link-box" role="status">
-  <p style="margin:0"><b>Lien {{ "d'invitation" if link_kind == 'invitation' else 'de réinitialisation' }}</b> ({{ 'valable 7 jours' if link_kind == 'invitation' else 'valable 24 heures' }}). Copiez-le et envoyez-le au professeur, par e-mail ou WeChat. Il ne sera plus affiché ensuite.</p>
+  <p style="margin:0"><b>Lien {{ "d'invitation" if link_kind == 'invitation' else 'de réinitialisation' }}</b> ({{ 'valable 7 jours' if link_kind == 'invitation' else 'valable 24 heures' }}).
+  {% if link_mailed %}Envoyé par e-mail à <b>{{ link_mailed }}</b>. Si besoin, vous pouvez aussi le lui transmettre vous-même :{% else %}Copiez-le et envoyez-le au professeur, par e-mail ou WeChat (l'envoi automatique n'a pas fonctionné ou n'est pas configuré).{% endif %} Il ne sera plus affiché ensuite.</p>
   <input type="text" readonly value="{{ link }}" onclick="this.select()" aria-label="Lien à envoyer">
 </div>
 {% endif %}

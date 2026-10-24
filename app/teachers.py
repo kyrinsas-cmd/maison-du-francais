@@ -300,7 +300,7 @@ def teacher(tid):
     return render_teacher_admin(tid, errors=errors, msg=request.args.get("ok") and "Enregistré.")
 
 
-def render_teacher_admin(tid, errors=None, msg=None, link=None, link_kind=None):
+def render_teacher_admin(tid, errors=None, msg=None, link=None, link_kind=None, link_mailed=None):
     import accounts
     with connect() as c:
         t = c.execute("SELECT * FROM teachers WHERE id=%s", (tid,)).fetchone()
@@ -309,4 +309,4 @@ def render_teacher_admin(tid, errors=None, msg=None, link=None, link_kind=None):
     return render_template("admin/teacher.html", t=t, levels=LEVELS, vstatus=VIDEO_STATUSES, errors=errors or [], msg=msg,
                            problems=publish_problems(t), display_name=display_name, account=accounts.account_for(tid),
                            pending=accounts.pending_view(t) if t["pending"] else None, default_email=accounts.default_email(t),
-                           link=link, link_kind=link_kind)
+                           link=link, link_kind=link_kind, link_mailed=link_mailed)

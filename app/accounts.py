@@ -51,6 +51,22 @@ def _token_account(c, tok):
                         WHERE k.token_hash=%s AND k.used_at IS NULL AND k.expires_at > now() AND a.active""", (_h(tok),)).fetchone()
 
 
+# ---------- e-mails ----------
+
+def email_link(acc_email, first_name, link, purpose):
+    import mailer
+    if purpose == "invite":
+        subject = "Votre espace professeur — Maison du français"
+        body = (f"Bonjour {first_name},\n\nL'équipe de Maison du français a créé votre espace professeur. "
+                f"Choisissez votre mot de passe avec ce lien, valable {INVITE_DAYS} jours :\n\n{link}\n\n"
+                "Vous pourrez ensuite compléter votre profil et envoyer votre vidéo de présentation.")
+    else:
+        subject = "Nouveau mot de passe — Maison du français"
+        body = (f"Bonjour {first_name},\n\nVoici le lien pour choisir un nouveau mot de passe, valable {RESET_HOURS} heures :\n\n{link}\n\n"
+                "Si vous n'avez rien demandé, ignorez ce message : votre mot de passe actuel reste valable.")
+    return mailer.send(acc_email, subject, body + mailer.SIGN)
+
+
 # ---------- session ----------
 
 def current():
@@ -129,9 +145,27 @@ def logout():
     return redirect(url_for("espace.login"))
 
 
-@bp.route("/mot-de-passe-oublie")
+@bp.route("/mot-de-passe-oublie", methods=["GET", "POST"])
 def forgot():
-    return render_template("espace/forgot.html")
+    import mailer
+    sent = False
+    if request.method == "POST" and mailer.configured():
+        _check_csrf()
+        email = (request.form.get("email") or "").strip()[:200]
+        h = web.ip_hash()
+        with connect() as c:
+            n = c.execute("SELECT count(*) AS n FROM admin_login_failures WHERE scope='forgot' AND ip_hash=%s AND at > now() - interval '1 hour'", (h,)).fetchone()["n"]
+            c.execute("INSERT INTO admin_login_failures (ip_hash, scope) VALUES (%s, 'forgot')", (h,))  # chaque demande compte : 5 par heure
+            acc = None
+            if n < 5:
+                acc = c.execute("""SELECT a.*, t.first_name FROM teacher_accounts a JOIN teachers t ON t.id=a.teacher_id
+                                   WHERE lower(a.email)=lower(%s) AND a.active AND a.password_hash IS NOT NULL""", (email,)).fetchone()
+            if acc:
+                link = url_for("espace.activate", tok=new_token(c, acc["id"], "reset"), _external=True)
+        if acc:
+            email_link(acc["email"], acc["first_name"], link, "reset")
+        sent = True  # même réponse que l'adresse existe ou non
+    return render_template("espace/forgot.html", self_service=mailer.configured(), sent=sent)
 
 
 @bp.route("/activer/<tok>", methods=["GET", "POST"])
@@ -227,6 +261,10 @@ def profile():
                       (Jsonb(pend) if has_change else None, has_change, t["id"]))
         for name in old_files:
             T._remove(name)
+        if has_change:
+            import mailer
+            mailer.notify_team(f"Modifications proposées par {T.display_name(t)}",
+                               f"Le professeur {T.display_name(t)} a envoyé des modifications de sa fiche, à valider :\n{web.SITE_URL}/admin/professeurs/{t['id']}" + mailer.SIGN)
         if not errors:
             return redirect(url_for("espace.home", envoye=1 if has_change else None))
         cur.update(new)
@@ -309,8 +347,10 @@ def teacher_account(tid):
         else:
             abort(400)
     if link:
-        # Le lien n'est montré qu'une fois (pas dans l'adresse ni les journaux) ; l'équipe l'envoie au professeur.
-        return T.render_teacher_admin(tid, link=link, link_kind="réinitialisation" if acc and acc["password_hash"] else "invitation")
+        # Le lien est envoyé par e-mail si l'envoi est configuré ; il est aussi montré une fois (jamais dans l'adresse ni les journaux).
+        kind = "réinitialisation" if acc and acc["password_hash"] else "invitation"
+        mailed = email_link(acc["email"], t["first_name"], link, "reset" if kind == "réinitialisation" else "invite")
+        return T.render_teacher_admin(tid, link=link, link_kind=kind, link_mailed=acc["email"] if mailed else None)
     return T.render_teacher_admin(tid, errors=[error] if error else None, msg=None if error else "Compte mis à jour.")
 
 
@@ -347,6 +387,16 @@ def teacher_pending(tid):
             abort(400)
     for name in old:
         T._remove(name)
+    acc = account_for(tid)
+    if acc and acc["active"]:
+        import mailer
+        if request.form.get("action") == "apply":
+            mailer.send(acc["email"], "Vos modifications sont en ligne — Maison du français",
+                        f"Bonjour {t['first_name']},\n\nL'équipe a validé vos modifications : elles sont maintenant visibles sur votre fiche." + mailer.SIGN)
+        else:
+            mailer.send(acc["email"], "Vos modifications n'ont pas été validées — Maison du français",
+                        f"Bonjour {t['first_name']},\n\nL'équipe n'a pas validé vos dernières modifications. Son message :\n\n{fb}\n\n"
+                        f"Vous pouvez les corriger depuis votre espace : {web.SITE_URL}/espace/profil" + mailer.SIGN)
     return T.render_teacher_admin(tid, msg=msg)
 
 

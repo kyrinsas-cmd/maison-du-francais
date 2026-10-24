@@ -16,6 +16,9 @@ from i18n import HTML_LANG, LANGS, texts
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 app = Flask(__name__)
+# Derrière nginx : https et nom d'hôte réels pour les liens absolus (invitations, réinitialisations)
+from werkzeug.middleware.proxy_fix import ProxyFix  # noqa: E402
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
 app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024
 app.config["SESSION_COOKIE_SECURE"] = True
@@ -164,6 +167,9 @@ def teach_page():
             return render_template("teach.html", errors=[t.err_rate], form=data), 429
         c.execute("INSERT INTO teacher_applications (full_name, email, diploma, message, ip_hash) VALUES (%s,%s,%s,%s,%s)",
                   (data["full_name"], data["email"], data["diploma"], data["message"] or None, h))
+    if not data["email"].endswith("@example.test"):
+        import mailer
+        mailer.notify_team("Nouvelle candidature de professeur", f"Une nouvelle candidature est arrivée.\n\nÀ lire dans l'admin : {SITE_URL}/admin/candidatures?statut=new" + mailer.SIGN)
     return render_template("teach_done.html")
 
 
