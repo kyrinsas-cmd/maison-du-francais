@@ -210,3 +210,8 @@ def secure(resp):
     if not INDEXABLE:
         resp.headers.setdefault("X-Robots-Tag", "noindex")
     return resp
+
+
+import admin  # noqa: E402  (après la définition de app et de ip_hash)
+
+admin.init_app(app)

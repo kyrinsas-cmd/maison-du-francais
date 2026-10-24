@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}Admin{% endblock %} · Maison du français</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=3">
+</head>
+<body class="admin">
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="{{ url_for('admin.applications') }}">
+      <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="" width="40" height="40" style="width:40px;height:40px">
+      <span class="brand-name"><b>Admin</b><span>Maison du français</span></span>
+    </a>
+    {% if session.admin %}
+    <nav class="nav" aria-label="Admin">
+      <a href="{{ url_for('admin.applications') }}">Candidatures</a>
+      <a href="/" target="_blank" rel="noopener">Voir le site</a>
+      <form method="post" action="{{ url_for('admin.logout') }}" style="margin:0">
+        <input type="hidden" name="csrf" value="{{ csrf() }}">
+        <button class="btn btn-line btn-small" type="submit">Déconnexion</button>
+      </form>
+    </nav>
+    {% endif %}
+  </div>
+</header>
+<main class="wrap admin-main">
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

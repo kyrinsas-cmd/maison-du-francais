@@ -1,0 +1,18 @@
+{% extends "admin/layout.html" %}
+{% block title %}Connexion{% endblock %}
+{% block content %}
+<div class="admin-login">
+  <h1>Connexion</h1>
+  {% if closed %}
+    <p>L'admin est fermé : aucun mot de passe n'est défini sur le serveur.</p>
+    <p class="note">Pour l'ouvrir : <code>sudo /home/ubuntu/maisondufrancais/ops/set-admin-password.sh</code></p>
+  {% else %}
+  <form class="form" method="post">
+    {% if error %}<p class="errors" role="alert">{{ error }}</p>{% endif %}
+    <input type="hidden" name="csrf" value="{{ csrf() }}">
+    <label>Mot de passe<input type="password" name="password" required autocomplete="current-password" autofocus></label>
+    <button class="btn btn-navy" type="submit">Se connecter</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

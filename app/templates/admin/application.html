@@ -1,0 +1,37 @@
+{% extends "admin/layout.html" %}
+{% block title %}{{ a.full_name }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.applications') }}">← Toutes les candidatures</a></p>
+<h1>{{ a.full_name }}</h1>
+{% if saved %}<p class="flash">Enregistré.</p>{% endif %}
+
+<div class="admin-detail">
+  <dl class="card">
+    <dt>Reçue le</dt><dd>{{ a.created_at.astimezone(paris).strftime('%d/%m/%Y à %H:%M') }}</dd>
+    <dt>E-mail</dt><dd><a href="mailto:{{ a.email }}">{{ a.email }}</a></dd>
+    <dt>Diplôme FLE</dt><dd>{{ a.diploma }}</dd>
+    <dt>Message</dt><dd class="pre">{{ a.message or "—" }}</dd>
+    {% if a.updated_at %}<dt>Dernière modification</dt><dd>{{ a.updated_at.astimezone(paris).strftime('%d/%m/%Y à %H:%M') }}</dd>{% endif %}
+  </dl>
+
+  <div class="admin-side">
+    <form class="form" method="post">
+      <input type="hidden" name="csrf" value="{{ csrf() }}">
+      <label>Statut
+        <select name="status">
+          {% for k, label in statuses.items() %}<option value="{{ k }}" {% if a.status == k %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Note interne (jamais visible par le candidat)<textarea name="note" maxlength="5000">{{ a.note or "" }}</textarea></label>
+      <button class="btn btn-navy" type="submit">Enregistrer</button>
+    </form>
+
+    <form class="form danger" method="post" onsubmit="return confirm('Supprimer définitivement cette candidature ? Cette action est irréversible.');">
+      <input type="hidden" name="csrf" value="{{ csrf() }}">
+      <input type="hidden" name="action" value="delete">
+      <p>Suppression définitive, par exemple à la demande du candidat (RGPD) ou à la fin de la durée de conservation.</p>
+      <button class="btn btn-line danger-btn" type="submit">Supprimer la candidature</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

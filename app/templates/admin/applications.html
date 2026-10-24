@@ -1,0 +1,49 @@
+{% extends "admin/layout.html" %}
+{% block title %}Candidatures{% endblock %}
+{% block content %}
+<h1>Candidatures de professeurs</h1>
+{% if request.args.supprime %}<p class="flash">Candidature supprimée.</p>{% endif %}
+
+<nav class="tabs-admin" aria-label="Filtrer par statut">
+  {% set all_n = counts.values()|sum %}
+  <a href="{{ url_for('admin.applications', q=q or None) }}" {% if not status %}aria-current="page"{% endif %}>Toutes <span>{{ all_n }}</span></a>
+  {% for k, label in statuses.items() %}
+  <a href="{{ url_for('admin.applications', statut=k, q=q or None) }}" {% if status == k %}aria-current="page"{% endif %}>{{ label }} <span>{{ counts.get(k, 0) }}</span></a>
+  {% endfor %}
+</nav>
+
+<form class="search-admin" method="get" role="search">
+  {% if status %}<input type="hidden" name="statut" value="{{ status }}">{% endif %}
+  <label class="visually-hidden" for="q">Rechercher</label>
+  <input id="q" type="search" name="q" value="{{ q }}" placeholder="Nom, e-mail ou diplôme">
+  <button class="btn btn-navy btn-small" type="submit">Rechercher</button>
+</form>
+
+{% if rows %}
+<div class="table-box admin-table">
+<table>
+  <thead><tr><th scope="col">Reçue le</th><th scope="col">Nom</th><th scope="col">E-mail</th><th scope="col">Diplôme</th><th scope="col">Statut</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr>
+    <td>{{ r.created_at.astimezone(paris).strftime('%d/%m/%Y %H:%M') }}</td>
+    <td><a href="{{ url_for('admin.application', aid=r.id) }}">{{ r.full_name }}</a>{% if r.has_note %} <span class="tag" title="Note interne">note</span>{% endif %}</td>
+    <td>{{ r.email }}</td>
+    <td>{{ r.diploma }}</td>
+    <td><span class="status status-{{ r.status }}">{{ statuses[r.status] }}</span></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if page > 1 %}<a href="{{ url_for('admin.applications', statut=status, q=q or None, page=page-1) }}">← Précédentes</a>{% endif %}
+  <span>Page {{ page }} / {{ pages }}</span>
+  {% if page < pages %}<a href="{{ url_for('admin.applications', statut=status, q=q or None, page=page+1) }}">Suivantes →</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<p class="empty">{% if q or status %}Aucune candidature ne correspond.{% else %}Aucune candidature pour l'instant.{% endif %}</p>
+{% endif %}
+{% endblock %}

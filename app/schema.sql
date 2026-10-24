@@ -13,3 +13,13 @@ CREATE TABLE IF NOT EXISTS teacher_applications (
     status      text NOT NULL DEFAULT 'new'  -- new | contacted | rejected | accepted
 );
 CREATE INDEX IF NOT EXISTS teacher_applications_created ON teacher_applications (created_at);
+
+-- 2026-10-24 : admin des candidatures
+ALTER TABLE teacher_applications ADD COLUMN IF NOT EXISTS note text;          -- note privée de l'équipe
+ALTER TABLE teacher_applications ADD COLUMN IF NOT EXISTS updated_at timestamptz;
+CREATE TABLE IF NOT EXISTS admin_login_failures (
+    id      bigserial PRIMARY KEY,
+    at      timestamptz NOT NULL DEFAULT now(),
+    ip_hash text NOT NULL
+);
+CREATE INDEX IF NOT EXISTS admin_login_failures_at ON admin_login_failures (at);
