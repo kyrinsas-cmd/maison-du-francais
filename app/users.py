@@ -23,7 +23,7 @@ from i18n import texts
 ROLES = ("eleve", "parent", "professeur", "moderateur", "admin")
 SELF_ROLES = ("eleve", "parent", "professeur")
 STAFF = ("moderateur", "admin")
-MIN_PASSWORD = 12
+MIN_PASSWORD = 7  # choix de l'utilisateur (2026-10-24)
 HOURS = {"verify": 24, "reset": 1, "invite": 24 * 7}
 
 

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ title }} · {{ t.brand_main }}{% endblock %}
 {% block content %}
-<section class="account-page"><div class="account-box">
+<section class="account-page"><div class="auth-box">
   <h1>{{ title }}</h1>
   {% if text %}<p>{{ text }}</p>{% endif %}
   <p><a href="{{ url_for('account_login') }}">← {{ t.ac_login_title }}</a></p>

@@ -2,7 +2,7 @@
 {% from "compte/_box.html" import errs %}
 {% block title %}{{ t.ac_signup_title }} · {{ t.brand_main }}{% endblock %}
 {% block content %}
-<section class="account-page"><div class="account-box">
+<section class="account-page"><div class="auth-box">
 {% if done %}
   <h1>{{ t.ac_check_title }}</h1>
   <p class="flash">{{ t.ac_check_text.format(email=form.email) }}</p>
@@ -23,8 +23,8 @@
     <p class="note" style="margin:0">{{ t.ac_under15 }}</p>
     <label>{{ t.ac_name }}<input type="text" name="name" required maxlength="80" autocomplete="name" value="{{ form.name or '' }}"></label>
     <label>{{ t.ac_email }}<input type="email" name="email" required maxlength="200" autocomplete="username" value="{{ form.email or '' }}"></label>
-    <label>{{ t.ac_password_new }}<input type="password" name="password" required minlength="12" autocomplete="new-password"></label>
-    <label>{{ t.ac_password2 }}<input type="password" name="password2" required minlength="12" autocomplete="new-password"></label>
+    <label>{{ t.ac_password_new }}<input type="password" name="password" required minlength="7" autocomplete="new-password"></label>
+    <label>{{ t.ac_password2 }}<input type="password" name="password2" required minlength="7" autocomplete="new-password"></label>
     <label class="check"><input type="checkbox" name="privacy" value="1" required><span>{{ t.ac_privacy_pre }} <a href="{{ url_for('privacy') }}" target="_blank" rel="noopener">{{ t.ac_privacy_link }}</a></span></label>
     <button class="btn btn-red" type="submit">{{ t.ac_signup_btn }}</button>
     <p class="note" style="margin:0">{{ t.ac_have_account }} <a href="{{ url_for('account_login') }}">{{ t.ac_login_btn }}</a></p>

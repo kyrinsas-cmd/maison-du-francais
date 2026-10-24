@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ t.ac_home_title }} · {{ t.brand_main }}{% endblock %}
 {% block content %}
-<section class="account-page"><div class="account-box wide">
+<section class="account-page"><div class="auth-box wide">
   <h1>{{ t.ac_hello.format(name=u.name) }}</h1>
   {% if ok == 'verified' %}<p class="flash">{{ t.ac_verified }}</p>{% endif %}
   <dl class="account-dl card">

@@ -2,15 +2,15 @@
 {% from "compte/_box.html" import errs %}
 {% block title %}{{ t.ac_activate_title if invite else t.ac_reset_title }} · {{ t.brand_main }}{% endblock %}
 {% block content %}
-<section class="account-page"><div class="account-box">
+<section class="account-page"><div class="auth-box">
   <h1>{{ t.ac_activate_title if invite else t.ac_reset_title }}</h1>
   <p>{{ t.ac_account }} : <b>{{ u.email }}</b></p>
   <form class="form" method="post">
     {{ errs(errors) }}
     <input type="hidden" name="csrf" value="{{ csrf() }}">
     <input type="text" name="username" value="{{ u.email }}" autocomplete="username" hidden>
-    <label>{{ t.ac_password_new }}<input type="password" name="password" required minlength="12" autocomplete="new-password"></label>
-    <label>{{ t.ac_password2 }}<input type="password" name="password2" required minlength="12" autocomplete="new-password"></label>
+    <label>{{ t.ac_password_new }}<input type="password" name="password" required minlength="7" autocomplete="new-password"></label>
+    <label>{{ t.ac_password2 }}<input type="password" name="password2" required minlength="7" autocomplete="new-password"></label>
     {% if invite %}<label class="check"><input type="checkbox" name="privacy" value="1" required><span>{{ t.ac_privacy_pre }} <a href="{{ url_for('privacy') }}" target="_blank" rel="noopener">{{ t.ac_privacy_link }}</a></span></label>{% endif %}
     <button class="btn btn-navy" type="submit">{{ t.ac_reset_btn }}</button>
   </form>

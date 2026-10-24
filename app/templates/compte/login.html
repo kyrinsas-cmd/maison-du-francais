@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ t.ac_login_title }} · {{ t.brand_main }}{% endblock %}
 {% block content %}
-<section class="account-page"><div class="account-box">
+<section class="account-page"><div class="auth-box">
   <h1>{{ t.ac_login_title }}</h1>
   <form class="form" method="post">
     {% if error %}<p class="errors" role="alert">{{ error }}</p>{% endif %}
