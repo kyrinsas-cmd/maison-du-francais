@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ p.title }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<section class="list-page">
+  <div class="wrap pt-wrap">
+    <div class="pt-progress" aria-hidden="true">{% for i in range(1, 7) %}<span class="on"></span>{% endfor %}</div>
+    <span class="eyebrow">{{ p.title }}</span>
+    <h1 class="pt-h1">{{ p.oral_h }}</h1>
+    <p class="lead" style="margin:0 0 24px">{{ p.oral_lead }}</p>
+    {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+    <div class="pt-modes">
+      <div class="card pt-mode">
+        <h2 class="h3">{{ p.oral_rec }}</h2>
+        <p>{{ p.oral_rec_p }}</p>
+        {% if not t.oral_consent_at %}
+        <form method="post" action="{{ url_for('placement_consent', tid=t.id) }}" class="form" style="padding:0;border:0">
+          <input type="hidden" name="csrf" value="{{ csrf() }}">
+          <label class="check"><input type="checkbox" name="consent" value="1" required><span>{{ p.consent }}</span></label>
+          <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">{{ p.oral_rec }} →</button>
+        </form>
+        {% else %}
+        <div id="recorder" data-csrf="{{ csrf() }}" data-tid="{{ t.id }}"
+             data-l-rec="{{ p.rec }}" data-l-stop="{{ p.stop }}" data-l-redo="{{ p.redo }}" data-l-saved="{{ p.saved }}" data-l-up="{{ p.uploading }}" data-l-err="{{ p.upload_err }}">
+          <p class="errors pt-nomic" hidden>{{ p.no_mic }}</p>
+          {% for task, title, body in [(1, p.task1, p.task1_p), (2, p.task2, read), (3, p.task3, question)] %}
+          <div class="pt-task" data-task="{{ task }}" data-url="{{ url_for('placement_record', tid=t.id, task=task) }}">
+            <h3>{{ title }}</h3>
+            <p {% if task > 1 %}lang="fr" class="pt-say"{% endif %}>{{ body }}</p>
+            <div class="pt-rec-row">
+              <button type="button" class="btn btn-small btn-red pt-rec-btn">{{ p.redo if task in recs else p.rec }}</button>
+              <span class="pt-timer" aria-live="polite">{% if task in recs %}✓ {{ p.saved }}{% endif %}</span>
+            </div>
+            <audio class="pt-play" controls {% if task not in recs %}hidden{% endif %}></audio>
+          </div>
+          {% endfor %}
+        </div>
+        <form method="post" style="margin-top:16px">
+          <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="mode" value="record">
+          <button class="btn btn-red" type="submit">{{ p.submit }}</button>
+        </form>
+        {% endif %}
+      </div>
+      <div class="card pt-mode">
+        <h2 class="h3">{{ p.oral_live }}</h2>
+        <p>{{ p.oral_live_p }}</p>
+        <form method="post">
+          <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="mode" value="live">
+          <button class="btn btn-line" type="submit">{{ p.submit }}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+<script src="{{ url_for('static', filename='recorder.js') }}?v=1" defer></script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "admin/layout.html" %}
+{% block title %}Test de {{ t.child_label or t.u_name }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.tests_admin') }}">← Tests de niveau</a></p>
+<h1>Test de {{ t.child_label or t.u_name }}{% if t.age %} · {{ t.age }} ans{% endif %}</h1>
+<p class="note">Compte : {{ t.u_name }} ({{ t.u_role }}) · {{ t.u_email }} · langue {{ t.u_lang }} · étape : {{ t.step }}</p>
+{% if ok == 'evaluate' %}<p class="flash">Résultat envoyé à la famille (e-mail + « Mon compte »).</p>{% elif ok == 'enregistrements' %}<p class="flash">Enregistrements supprimés.</p>{% elif ok %}<p class="flash">Enregistré.</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+<div class="admin-detail">
+  <div style="flex:2 1 520px;display:flex;flex-direction:column;gap:20px">
+    <div class="card" style="border:1px solid var(--line)">
+      <h2 class="h3">QCM — estimation automatique : {{ t.est_level or '…' }}</h2>
+      <div class="table-box"><table>
+        <thead><tr><th scope="col">Niveau</th><th scope="col">Bonnes réponses</th></tr></thead>
+        <tbody>{% for lv in ['A1','A2','B1','B2'] %}{% set s = (t.scores or {}).get(lv) %}<tr><td>{{ lv }}</td><td>{% if s %}{{ s[0] }} / {{ s[1] }} ({{ (100 * s[0] / s[1])|round|int if s[1] else 0 }} %){% else %}non atteint{% endif %}</td></tr>{% endfor %}</tbody>
+      </table></div>
+      <details><summary>Détail des réponses</summary>
+        <ul class="timeline">{% for it, a in answers %}<li lang="fr"><b>{{ it.level }}</b> · {{ it.question }} → {% if a == -1 %}<i>je ne sais pas</i>{% else %}{{ it.options[a] }}{% endif %} {{ '✓' if a == it.answer else '✗ (' ~ it.options[it.answer] ~ ')' }}</li>{% endfor %}</ul>
+      </details>
+    </div>
+    <div class="card" style="border:1px solid var(--line)">
+      <h2 class="h3">Rédaction</h2>
+      <p class="note" style="margin:0" lang="fr">Sujet : {{ writing_prompt }}</p>
+      <p class="pre pt-passage" lang="fr" style="margin:0">{{ t.writing_text or '—' }}</p>
+    </div>
+    <div class="card" style="border:1px solid var(--line)">
+      <h2 class="h3">Oral — {{ {'record': 'enregistrements', 'live': "entretien en direct (à fixer avec la famille sur WeChat)"}.get(t.oral_mode, 'pas encore choisi') }}</h2>
+      {% if t.oral_consent_at %}<p class="note" style="margin:0">Consentement à l'enregistrement donné le {{ t.oral_consent_at.astimezone(paris).strftime('%d/%m/%Y %H:%M') }}.</p>{% endif %}
+      {% for r in recs %}
+        <p style="margin:8px 0 0" lang="fr"><b>{{ {1: '1. Présentation', 2: '2. Lecture : « ' ~ read ~ ' »', 3: '3. Question : « ' ~ question ~ ' »'}[r.task] }}</b></p>
+        <audio controls preload="none" src="{{ url_for('admin.test_recording', name=r.file_name) }}" style="width:100%"></audio>
+      {% endfor %}
+      {% if recs %}
+      <form method="post" onsubmit="return confirm('Supprimer définitivement les enregistrements ?');" style="margin-top:8px">
+        <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="delete_recordings">
+        <button class="btn btn-line btn-small danger-btn" type="submit">Supprimer les enregistrements maintenant</button>
+      </form>
+      <p class="note" style="margin:0">Sinon, suppression automatique {{ keep }} après l'évaluation.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <form class="form admin-side" method="post" style="border:1px solid var(--line)">
+    <h2 class="h3">Évaluation</h2>
+    <input type="hidden" name="csrf" value="{{ csrf() }}">
+    {% for k, label in [('writing_level', 'Niveau écrit'), ('oral_level', 'Niveau oral'), ('final_level', 'Niveau final conseillé')] %}
+    <label>{{ label }}<select name="{{ k }}"><option value="">—</option>{% for l in levels %}<option {% if t[k] == l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    {% endfor %}
+    <label>Classe proposée<select name="class_id"><option value="">—</option>{% for c in classes %}<option value="{{ c.id }}" {% if t.class_id == c.id %}selected{% endif %}>{{ c.level }} · {{ c.ages_min or '?' }}–{{ c.ages_max or '?' }} ans · Pékin {{ c.start_bj.strftime('%H:%M') }} · {{ c.capacity - c.seats_taken }} place(s){{ ' · exemple' if c.is_demo }}</option>{% endfor %}</select></label>
+    <label>Message à la famille ({{ 'chinois' if t.u_lang == 'zh' else 'français' }}, affiché dans « Mon compte »)<textarea name="family_msg" maxlength="3000" {% if t.u_lang == 'zh' %}lang="zh-Hans"{% endif %}>{{ t.family_msg or '' }}</textarea></label>
+    <label>Notes internes<textarea name="notes" maxlength="3000">{{ t.notes or '' }}</textarea></label>
+    <div class="actions">
+      <button class="btn btn-line btn-small" type="submit" name="action" value="save">Enregistrer</button>
+      <button class="btn btn-navy btn-small" type="submit" name="action" value="evaluate">{{ 'Renvoyer le résultat' if t.step == 'evaluated' else 'Envoyer le résultat à la famille' }}</button>
+    </div>
+    {% if is_admin() %}
+    <button class="btn btn-line btn-small danger-btn" type="submit" name="action" value="delete" formnovalidate onclick="return confirm('Supprimer ce test et ses enregistrements ?');" style="align-self:flex-start">Supprimer le test</button>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}

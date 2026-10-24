@@ -1,0 +1,32 @@
+{% extends "admin/layout.html" %}
+{% block title %}Tests de niveau{% endblock %}
+{% block content %}
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
+  <h1 style="margin:0">Tests de niveau</h1>
+  <a class="btn btn-line btn-small" href="{{ url_for('admin.test_items') }}">Banque de questions et audios</a>
+</div>
+<p class="note">Les enregistrements oraux ne sont accessibles qu'ici ; ils sont supprimés automatiquement 30 jours après l'évaluation (60 jours au plus).</p>
+<nav class="tabs-admin" aria-label="Filtrer">
+  <a href="{{ url_for('admin.tests_admin', statut='a-evaluer') }}" {% if status == 'a-evaluer' %}aria-current="page"{% endif %}>À évaluer <span>{{ counts.a }}</span></a>
+  <a href="{{ url_for('admin.tests_admin', statut='evalues') }}" {% if status == 'evalues' %}aria-current="page"{% endif %}>Évalués <span>{{ counts.e }}</span></a>
+  <a href="{{ url_for('admin.tests_admin', statut='en-cours') }}" {% if status == 'en-cours' %}aria-current="page"{% endif %}>En cours <span>{{ counts.c }}</span></a>
+  <a href="{{ url_for('admin.tests_admin', statut='tous') }}" {% if status == 'tous' %}aria-current="page"{% endif %}>Tous</a>
+</nav>
+{% if rows %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Envoyé le</th><th scope="col">Élève</th><th scope="col">Compte</th><th scope="col">QCM</th><th scope="col">Oral</th><th scope="col">Niveau final</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr>
+    <td>{{ r.submitted_at.astimezone(paris).strftime('%d/%m/%Y %H:%M') if r.submitted_at else '—' }}</td>
+    <td><a href="{{ url_for('admin.test_admin', tid=r.id) }}">{{ r.child_label or r.u_name }}</a>{% if r.age %} · {{ r.age }} ans{% endif %}</td>
+    <td>{{ r.u_name }} ({{ r.u_role }}, {{ r.u_lang }})</td>
+    <td>{{ r.est_level or '…' }}</td>
+    <td>{{ {'record': 'Enregistré (' ~ r.n_rec ~ ')', 'live': 'Entretien à fixer'}.get(r.oral_mode, '…') }}</td>
+    <td>{% if r.final_level %}<b>{{ r.final_level }}</b>{% else %}—{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}<p class="empty">Aucun test.</p>{% endif %}
+{% endblock %}

@@ -212,3 +212,54 @@ CREATE TABLE IF NOT EXISTS live_classes (
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS is_demo boolean NOT NULL DEFAULT false;
 ALTER TABLE live_classes ADD COLUMN IF NOT EXISTS is_demo boolean NOT NULL DEFAULT false;
 ALTER TABLE resources ADD COLUMN IF NOT EXISTS is_demo boolean NOT NULL DEFAULT false;
+
+-- 2026-10-25 : test de niveau (cahier des charges §5, §8) — écrit (QCM A1→B2 + rédaction) et oral (enregistrement avec
+-- consentement du parent, supprimé 30 jours après la notation ou 60 jours au plus ; ou entretien en direct).
+CREATE TABLE IF NOT EXISTS placement_items (           -- banque de questions (en français ; consignes traduites)
+    id          bigserial PRIMARY KEY,
+    key         text UNIQUE NOT NULL,                  -- identifiant stable (graine : placement_seed.py)
+    level       text NOT NULL,                         -- A1 A2 B1 B2
+    section     text NOT NULL,                         -- vocab | grammar | reading | listening
+    passage     text,                                  -- texte à lire (compréhension écrite)
+    transcript  text,                                  -- texte de l'audio (compréhension orale) : à enregistrer par l'équipe
+    question    text NOT NULL,
+    options     jsonb NOT NULL,                        -- liste de réponses
+    answer      int NOT NULL,                          -- index de la bonne réponse
+    audio_file  text,                                  -- uploads/placement-audio/ ; une question d'écoute sans audio n'est pas posée
+    active      boolean NOT NULL DEFAULT true,
+    sort        int NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS placement_tests (
+    id            bigserial PRIMARY KEY,
+    user_id       bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    child_label   text,                                -- pseudo de l'enfant (compte parent) ; jamais de nom complet
+    age           int,
+    created_at    timestamptz NOT NULL DEFAULT now(),
+    updated_at    timestamptz NOT NULL DEFAULT now(),
+    step          text NOT NULL DEFAULT 'qcm',         -- qcm | writing | oral | submitted | evaluated
+    qcm_level_idx int NOT NULL DEFAULT 0,              -- niveau en cours dans le QCM (0 = A1)
+    answers       jsonb NOT NULL DEFAULT '{}',         -- {id_question: index_choisi}
+    scores        jsonb NOT NULL DEFAULT '{}',         -- {niveau: [bonnes, total]}
+    est_level     text,                                -- estimation automatique (QCM)
+    writing_text  text,
+    oral_mode     text,                                -- record | live
+    oral_consent_at timestamptz,
+    submitted_at  timestamptz,
+    writing_level text,                                -- notes du professeur
+    oral_level    text,
+    final_level   text,
+    class_id      bigint REFERENCES live_classes(id) ON DELETE SET NULL,
+    family_msg    text,                                -- message visible par la famille
+    notes         text,                                -- interne
+    evaluated_at  timestamptz,
+    evaluated_by  bigint REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE INDEX IF NOT EXISTS placement_tests_user ON placement_tests (user_id, created_at DESC);
+CREATE TABLE IF NOT EXISTS placement_recordings (
+    id         bigserial PRIMARY KEY,
+    test_id    bigint NOT NULL REFERENCES placement_tests(id) ON DELETE CASCADE,
+    task       int NOT NULL,                           -- 1 présentation | 2 lecture | 3 question
+    file_name  text NOT NULL,                          -- uploads/placement/
+    created_at timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (test_id, task)
+);

@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>{% block title %}Admin{% endblock %} · Maison du français</title>
 <link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=20">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=21">
 </head>
 <body class="admin">
 <header class="site-header">
@@ -17,6 +17,7 @@
     </a>
     {% if is_staff() %}
     <nav class="nav" aria-label="Admin">
+      <a href="{{ url_for('admin.tests_admin') }}">Tests</a>
       <a href="{{ url_for('admin.applications') }}">Candidatures</a>
       <a href="{{ url_for('admin.teachers_list') }}">Professeurs</a>
       <a href="{{ url_for('admin.classes_admin') }}">Classes</a>

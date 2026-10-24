@@ -253,6 +253,7 @@ import complaints  # noqa: E402,F401  (réclamations + suivi)
 import users  # noqa: E402,F401  (comptes : inscription, connexion, rôles)
 import resources  # noqa: E402  (教材库)
 import liveclasses  # noqa: E402,F401  (直播课 : catalogue des classes)
+import placement  # noqa: E402,F401  (test de niveau)
 
 admin.init_app(app)
 accounts.init_app(app)

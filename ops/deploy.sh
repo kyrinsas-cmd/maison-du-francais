@@ -25,7 +25,7 @@ if [ "$new" != "$old" ]; then
 fi
 
 # 4. Schéma idempotent
-sudo -u $U sh -c "cd $DEST && ./venv/bin/python db.py init"
+sudo -u $U sh -c "cd $DEST && ./venv/bin/python db.py init && ./venv/bin/python placement_seed.py"
 
 # 5. Redémarrage
 if [ "${1:-}" != "--no-restart" ]; then

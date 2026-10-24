@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ p.title }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<section class="list-page">
+  <div class="wrap pt-wrap">
+    <div class="pt-progress" aria-hidden="true">{% for i in range(1, 7) %}<span class="{{ 'on' if i <= 5 }}"></span>{% endfor %}</div>
+    <span class="eyebrow">{{ p.title }}</span>
+    <h1 class="pt-h1">{{ p.writing_h }}</h1>
+    <p class="lead" style="margin:0 0 24px">{{ p.writing_lead }}</p>
+    {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+    <form method="post" class="form pt-form">
+      <input type="hidden" name="csrf" value="{{ csrf() }}">
+      <div class="pt-passage"><p lang="fr" style="font-weight:700">{{ prompt[0] }}</p>{% if lang == 'zh' %}<p class="note" style="margin:6px 0 0">{{ prompt[1] }}</p>{% endif %}</div>
+      <label class="visually-hidden" for="w">{{ p.writing_h }}</label>
+      <textarea id="w" name="writing" lang="fr" maxlength="4000" rows="10" required spellcheck="false" autocorrect="off" autocapitalize="sentences" oninput="document.getElementById('wc').textContent=(this.value.trim().match(/\S+/g)||[]).length">{{ text }}</textarea>
+      <p class="note" style="margin:0">{{ p.words }} : <span id="wc">0</span></p>
+      <button class="btn btn-red" type="submit">{{ p.next }} →</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "admin/layout.html" %}
+{% block title %}Banque de questions{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.tests_admin') }}">← Tests de niveau</a></p>
+<h1>Banque de questions</h1>
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+<p class="note">Questions originales (pas d'extraits du DELF), mises à jour par <code>placement_seed.py</code>. Une question d'écoute n'est posée qu'une fois son audio envoyé : enregistrez la transcription lue clairement (MP3, M4A ou OGG). La bonne réponse est la première de la liste ; l'ordre est mélangé à l'affichage.</p>
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Niveau</th><th scope="col">Type</th><th scope="col">Question</th><th scope="col">État</th><th scope="col">Actions</th></tr></thead>
+  <tbody>
+  {% for it in items %}
+  <tr {% if it.section == 'listening' and not it.audio_file %}class="low"{% endif %}>
+    <td><b>{{ it.level }}</b></td>
+    <td>{{ {'vocab': 'Vocabulaire', 'grammar': 'Grammaire', 'reading': 'Lecture', 'listening': 'Écoute'}[it.section] }}</td>
+    <td lang="fr">{{ it.question }}<br><span class="note">✓ {{ it.options[it.answer] }}</span>{% if it.transcript %}<br><span class="note">Audio à enregistrer : « {{ it.transcript }} »</span>{% endif %}</td>
+    <td>{% if not it.active %}Désactivée{% elif it.section == 'listening' and not it.audio_file %}<b>Audio manquant</b>{% else %}Posée{% endif %}</td>
+    <td>
+      <div class="actions" style="gap:6px">
+        <form method="post"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="item_id" value="{{ it.id }}"><input type="hidden" name="action" value="toggle"><button class="btn btn-line btn-small" type="submit">{{ 'Désactiver' if it.active else 'Activer' }}</button></form>
+        {% if it.section == 'listening' %}
+        <form method="post" enctype="multipart/form-data" style="display:flex;gap:6px;align-items:center"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="item_id" value="{{ it.id }}"><input type="hidden" name="action" value="audio">
+          <input type="file" name="audio" accept=".mp3,.m4a,.ogg,audio/*" required style="max-width:190px"><button class="btn btn-navy btn-small" type="submit">Envoyer l'audio</button></form>
+        {% if it.audio_file %}<audio controls preload="none" src="{{ url_for('placement_audio', name=it.audio_file) }}"></audio>{% endif %}
+        {% endif %}
+      </div>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

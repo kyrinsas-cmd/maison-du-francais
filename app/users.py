@@ -155,7 +155,10 @@ def account_home():
         return redirect(url_for("account_login"))
     if u["role"] in STAFF or (u["role"] == "professeur" and u["teacher_id"]):
         return redirect(landing(u, g.lang))
-    return _render("compte/home.html", u=u, role_label=role_label(u["role"], g.lang), ok=request.args.get("ok"))
+    import placement
+    tests = placement.tests_for_account(u["id"], g.lang) if u["role"] in ("parent", "eleve") else []
+    return _render("compte/home.html", u=u, role_label=role_label(u["role"], g.lang), ok=request.args.get("ok"),
+                   tests=tests, p=placement.pt(g.lang), rec_deleted=request.args.get("enregistrements"))
 
 
 @web.route("/compte/inscription", methods=["GET", "POST"])

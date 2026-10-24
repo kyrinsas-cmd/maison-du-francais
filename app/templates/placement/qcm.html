@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ p.title }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<section class="list-page">
+  <div class="wrap pt-wrap">
+    <div class="pt-progress" aria-hidden="true">{% for i in range(1, 7) %}<span class="{{ 'on' if i <= n }}"></span>{% endfor %}</div>
+    <span class="eyebrow">{{ p.title }}</span>
+    <h1 class="pt-h1">{{ p.qcm_h.format(n=n, lv=lv) }}</h1>
+    <p class="lead" style="margin:0 0 24px">{{ p.qcm_lead }}</p>
+    {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+    <form method="post" class="pt-qcm">
+      <input type="hidden" name="csrf" value="{{ csrf() }}">
+      {% for it in items %}
+        {% if it.show_passage %}<div class="pt-passage" lang="fr"><span class="note">{{ p.read_text }}</span><p>{{ it.passage }}</p></div>{% endif %}
+        <fieldset class="pt-q">
+          <legend lang="fr"><span class="pt-num">{{ loop.index }}</span> {{ it.question }}</legend>
+          {% if it.audio %}<audio controls preload="none" src="{{ it.audio }}" aria-label="{{ p.listen }}"></audio>{% endif %}
+          {% for idx, label in it.choices %}
+          <label class="pt-choice" lang="fr"><input type="radio" name="q{{ it.id }}" value="{{ idx }}" required>{{ label }}</label>
+          {% endfor %}
+          <label class="pt-choice dunno"><input type="radio" name="q{{ it.id }}" value="-1">{{ p.dunno }}</label>
+        </fieldset>
+      {% endfor %}
+      <button class="btn btn-red" type="submit">{{ p.next }} →</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

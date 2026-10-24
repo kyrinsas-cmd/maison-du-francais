@@ -8,6 +8,27 @@
     <dt>{{ t.ac_type }}</dt><dd>{{ role_label }}</dd>
     <dt>{{ t.ac_email }}</dt><dd>{{ u.email }}</dd>
   </dl>
+  {% if rec_deleted %}<p class="flash">{{ p.rec_deleted }}</p>{% endif %}
+  {% if u.role in ('parent', 'eleve') %}
+  <div class="card account-tests">
+    <h2 class="h3">{{ p.my_tests }}</h2>
+    {% for x in tests %}
+    <div class="acct-test">
+      <p style="margin:0"><b>{{ x.child_label or u.name }}</b>{% if x.age %} · {{ t.lib_ages.format(a=x.age) }}{% endif %} — <span class="status {{ 'status-accepted' if x.step == 'evaluated' else 'status-contacted' }}">{{ p['status_' ~ x.step] }}</span></p>
+      {% if x.step in ('qcm', 'writing', 'oral') %}<a class="btn btn-red btn-small" href="{{ url_for('placement_step', tid=x.id) }}">{{ p.continue }}</a>{% endif %}
+      {% if x.step == 'evaluated' %}
+      <dl class="account-dl">
+        <dt>{{ p.result_level }}</dt><dd><b>{{ x.final_level }}</b></dd>
+        {% if x.c_level %}<dt>{{ p.result_class }}</dt><dd><a href="{{ url_for('live', niveau=x.c_level) }}">{{ x.c_level }} · {% for d in x.c_days %}{{ t['day_' ~ d] }} {% endfor %}· {{ t.lc_bj }} {{ x.c_start.strftime('%H:%M') }}</a></dd>{% endif %}
+        {% if x.family_msg %}<dt>{{ p.result_msg }}</dt><dd class="pre">{{ x.family_msg }}</dd>{% endif %}
+      </dl>
+      {% endif %}
+      {% if x.n_rec %}<form method="post" action="{{ url_for('placement_delete_recordings', tid=x.id) }}"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small" type="submit">{{ p.del_rec }}</button></form>{% endif %}
+    </div>
+    {% endfor %}
+    <a class="btn btn-navy btn-small" href="{{ url_for('placement_home') }}" style="align-self:flex-start">{{ p.new_test if tests and u.role == 'parent' else p.start }}</a>
+  </div>
+  {% endif %}
   {% if u.role == 'professeur' %}<p class="card note-card">{{ t.ac_teacher_pending }}</p>
   {% else %}<p class="card note-card">{{ t.ac_next_family }} <a href="{{ url_for('contact') }}">{{ t.nav_contact }}</a></p>{% endif %}
   <div class="actions">
