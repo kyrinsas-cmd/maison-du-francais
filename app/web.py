@@ -43,10 +43,10 @@ def publisher():
 
 
 def route(path, **kw):
-    """Enregistre la page en français (path) et en chinois (/zh + path)."""
+    """Enregistre la page en chinois, langue principale (path), et en français (/fr + path)."""
     def deco(f):
-        app.add_url_rule(path, view_func=f, defaults={"lang": "fr"}, **kw)
-        app.add_url_rule("/<any(zh):lang>" + path, view_func=f, **kw)
+        app.add_url_rule(path, view_func=f, defaults={"lang": "zh"}, **kw)
+        app.add_url_rule("/<any(fr):lang>" + path, view_func=f, **kw)
         return f
     return deco
 
@@ -60,12 +60,12 @@ def pull_lang(endpoint, values):
 @app.url_defaults
 def add_lang(endpoint, values):
     if "lang" not in values and app.url_map.is_endpoint_expecting(endpoint, "lang"):
-        values["lang"] = g.get("lang", "fr")
+        values["lang"] = g.get("lang", "zh")
 
 
 def current_lang():
     if "lang" not in g:  # 404 et erreurs : pas de route, on regarde l'adresse
-        g.lang = "zh" if request.path == "/zh" or request.path.startswith("/zh/") else "fr"
+        g.lang = "fr" if request.path == "/fr" or request.path.startswith("/fr/") else "zh"
     return g.lang
 
 
@@ -83,7 +83,7 @@ def inject():
     return {
         "lang": lang,
         "html_lang": HTML_LANG[lang],
-        "other_lang": "zh" if lang == "fr" else "fr",
+        "other_lang": "fr" if lang == "zh" else "zh",
         "t": texts(lang),
         "alternates": alternates,
         "indexable": INDEXABLE,
@@ -157,6 +157,14 @@ def privacy():
     return render_template("privacy_zh.html" if g.lang == "zh" else "privacy.html")
 
 
+@app.route("/zh/", defaults={"rest": ""})
+@app.route("/zh/<path:rest>")
+def old_zh(rest):
+    """Le chinois était sous /zh/ avant de devenir la langue principale (2026-10-24) : redirection définitive."""
+    qs = request.query_string.decode()
+    return redirect("/" + rest + ("?" + qs if qs else ""), 301)
+
+
 @app.route("/robots.txt")
 def robots():
     body = f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n" if INDEXABLE else "User-agent: *\nDisallow: /\n"
@@ -165,7 +173,7 @@ def robots():
 
 @app.route("/sitemap.xml")
 def sitemap():
-    pages = [p for path in ("/", "/mentions-legales", "/confidentialite") for p in (path, "/zh" + path)]
+    pages = [p for path in ("/", "/mentions-legales", "/confidentialite") for p in (path, "/fr" + path)]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     xml += "".join(f"  <url><loc>{SITE_URL}{p}</loc></url>\n" for p in pages) + "</urlset>\n"
     return app.response_class(xml, mimetype="application/xml")

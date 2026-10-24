@@ -1,5 +1,5 @@
-"""Textes du site en français (fr) et en chinois simplifié (zh). Une clé absente en zh retombe sur le français.
-Le français est à la racine (/), le chinois sous /zh/."""
+"""Textes du site en chinois simplifié (zh, langue principale, à la racine /) et en français (fr, sous /fr/).
+Une clé absente en zh retombe sur le français."""
 
 LANGS = ("fr", "zh")
 HTML_LANG = {"fr": "fr", "zh": "zh-Hans"}
