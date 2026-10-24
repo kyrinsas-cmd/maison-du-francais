@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Mentions légales · Maison du français{% endblock %}
+{% macro v(x, label) %}{% if x %}{{ x }}{% else %}<span class="todo">{{ label }} à compléter</span>{% endif %}{% endmacro %}
+{% block content %}
+<div class="prose">
+  <h1>Mentions légales</h1>
+
+  <h2>Éditeur du site</h2>
+  <p>{{ v(pub.name, "Raison sociale") }}<br>
+  {{ v(pub.address, "Adresse du siège") }}<br>
+  SIREN : {{ v(pub.siren, "SIREN") }}<br>
+  Directeur ou directrice de la publication : {{ v(pub.director, "Nom") }}<br>
+  Contact : {{ v(pub.email or contact_email, "E-mail") }}</p>
+
+  <h2>Hébergement</h2>
+  <p>OVH SAS, 2 rue Kellermann, 59100 Roubaix, France.</p>
+
+  <h2>Propriété intellectuelle</h2>
+  <p>Les textes, le logo et les visuels de ce site sont la propriété de l'éditeur. Toute reproduction sans autorisation est interdite.</p>
+
+  <h2>Données personnelles</h2>
+  <p>Voir la page <a href="/confidentialite">Confidentialité</a>.</p>
+</div>
+{% endblock %}

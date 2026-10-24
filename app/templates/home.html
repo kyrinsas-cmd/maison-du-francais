@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-text">
+      <span class="pill">Cours de français en direct · 5 élèves maximum</span>
+      <h1>Votre enfant ose parler français, avec un professeur en France.</h1>
+      <p class="zh" lang="zh-Hans">法国本土持证老师 · 直播小班，每班最多5人</p>
+      <p class="lead">Des enseignants FLE diplômés, basés en France, animent chaque cours en direct. Dans une classe de cinq, chaque enfant prend la parole à chaque séance, et les parents suivent ses progrès.</p>
+      <div class="actions">
+        <a class="btn btn-red" href="#contact">Test de niveau gratuit</a>
+        <a class="btn btn-line" href="#methode">Comment ça marche</a>
+      </div>
+      <p class="note">3 cours d'essai offerts à chaque élève, sans engagement.</p>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="classroom">
+        <div class="classroom-top"><span class="live">En direct · Classe A1</span><span>Paris 10:00 · Pékin 17:00</span></div>
+        <div class="teacher-tile">Bonjour !</div>
+        <div class="pupils"><div>Léo</div><div class="talk">Mia</div><div>Tom</div><div>Lina</div><div>Hugo</div></div>
+        <small>Illustration : pseudonymes uniquement, pas de chat privé.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="facts" aria-label="L'essentiel">
+  <div class="wrap">
+    <div><b>5</b><span>élèves au maximum par classe</span></div>
+    <div><b>FLE</b><span>professeurs diplômés, basés en France</span></div>
+    <div><b>45 + 15</b><span>minutes de cours, puis devoirs et questions</span></div>
+    <div><b>3</b><span>cours par semaine, horaires fixes</span></div>
+  </div>
+</div>
+
+<section id="methode">
+  <div class="wrap">
+    <div class="head" data-reveal>
+      <span class="eyebrow">Méthode</span>
+      <h2>Quatre étapes, du test à la classe.</h2>
+      <p class="lead">Les classes sont formées par niveau de français (CECRL), pas par âge, après un test de placement.</p>
+    </div>
+    <div class="grid" data-reveal>
+      <div class="card"><span class="step-num">1</span><h3>Test de niveau</h3><p>Gratuit, fait avec un parent. Il situe l'enfant sur l'échelle CECRL et donne un conseil de classe.</p></div>
+      <div class="card"><span class="step-num">2</span><h3>3 cours d'essai</h3><p>Offerts, dans une vraie classe. L'élève en essai écoute, le professeur l'invite à parler.</p></div>
+      <div class="card"><span class="step-num">3</span><h3>Choix de la classe</h3><p>Une classe ouvre à partir de 3 élèves et en compte 5 au plus. Chaque demande est validée par l'équipe.</p></div>
+      <div class="card"><span class="step-num red">4</span><h3>Suivi et bilans</h3><p>Commentaires du professeur, devoirs, replay en cas d'absence signalée 24 h à l'avance.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="parcours" class="soft">
+  <div class="wrap split">
+    <div data-reveal>
+      <span class="eyebrow">Parcours</span>
+      <h2>De A1 à B2, au rythme du DELF.</h2>
+      <p class="lead">Durées estimées à partir des heures de formation indicatives du DELF, à raison de 3 séances de 45 minutes par semaine. Chiffres arrondis, à confirmer.</p>
+    </div>
+    <div class="table-box" data-reveal>
+      <table>
+        <thead><tr><th scope="col">Niveau</th><th scope="col">Séances (45 min)</th><th scope="col">Durée</th><th scope="col">Examen visé</th></tr></thead>
+        <tbody>
+        {% for l in levels %}
+          <tr><td>{{ l.code }}</td><td>≈ {{ l.sessions }}</td><td>≈ {{ l.weeks }} semaines</td><td>{{ l.exam }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="professeurs">
+  <div class="wrap">
+    <div class="head" data-reveal>
+      <span class="eyebrow">Professeurs</span>
+      <h2>Des enseignants FLE diplômés, en France.</h2>
+      <p class="lead">Chaque profil et chaque vidéo de présentation sont vérifiés par l'équipe avant publication.</p>
+    </div>
+    <div class="empty" data-reveal>
+      <p>Les premiers professeurs seront présentés ici très bientôt.</p>
+      <a class="btn btn-navy btn-small" href="#enseigner">Vous êtes professeur de FLE ?</a>
+    </div>
+  </div>
+</section>
+
+<section class="soft">
+  <div class="wrap">
+    <div class="head" data-reveal>
+      <span class="eyebrow">Pour les parents</span>
+      <h2>Une classe sûre, que vous pouvez observer.</h2>
+    </div>
+    <div class="grid" data-reveal>
+      <div class="card">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <h3>Parents auditeurs</h3><p>Vous pouvez suivre le cours, caméra et micro coupés.</p>
+      </div>
+      <div class="card">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <h3>Pas de contact privé</h3><p>Pas de chat privé, pseudonymes uniquement, aucun échange hors de la plateforme.</p>
+      </div>
+      <div class="card">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        <h3>Replays réservés</h3><p>Enregistrement avec votre accord, visible par la seule classe.</p>
+      </div>
+      <div class="card">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+        <h3>Bilans réguliers</h3><p>Commentaire du professeur sur l'oral et les devoirs de votre enfant.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="atelier">
+  <div class="wrap">
+    <div class="banner" data-reveal>
+      <div>
+        <span class="eyebrow">Atelier Paris</span>
+        <h2>Le français en direct d'un café ou d'un musée parisien.</h2>
+        <p>Des séances spéciales pendant les vacances scolaires, filmées depuis Paris.</p>
+        <a class="btn" href="#contact">Être prévenu des dates</a>
+      </div>
+      <div class="banner-art" aria-hidden="true">
+        <svg viewBox="0 0 200 220" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M100 10 L100 40"/><path d="M92 40 H108 L120 110 H80 Z"/><path d="M80 110 L60 200"/><path d="M120 110 L140 200"/><path d="M70 150 H130"/><path d="M84 200 Q100 168 116 200"/><path d="M40 200 H160"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="enseigner" class="soft">
+  <div class="wrap split">
+    <div data-reveal>
+      <span class="eyebrow">Enseigner chez nous</span>
+      <h2>Vous êtes professeur de FLE en France ?</h2>
+      <p class="lead">Enseignez à de petits groupes de 5 élèves, sur des créneaux adaptés au décalage avec l'Asie. Statut indépendant, supports pédagogiques fournis.</p>
+    </div>
+    <form class="form" method="post" action="/enseigner#enseigner" data-reveal novalidate>
+      {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      <input type="hidden" name="csrf" value="{{ csrf() }}">
+      <div class="hp" aria-hidden="true"><label>Site web <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <label>Nom et prénom<input type="text" name="full_name" required maxlength="120" autocomplete="name" value="{{ form.full_name if form }}"></label>
+      <label>E-mail<input type="email" name="email" required maxlength="200" autocomplete="email" value="{{ form.email if form }}"></label>
+      <label>Diplôme FLE<input type="text" name="diploma" required maxlength="200" placeholder="Master FLE, DAEFLE…" value="{{ form.diploma if form }}"></label>
+      <label>Message (facultatif)<textarea name="message" maxlength="3000" placeholder="Expérience, publics, disponibilités…">{{ form.message if form }}</textarea></label>
+      <label class="check"><input type="checkbox" name="consent" value="1" required><span>J'accepte que mes données soient utilisées pour étudier ma candidature et me recontacter (<a href="/confidentialite">confidentialité</a>).</span></label>
+      <button class="btn btn-navy" type="submit">Envoyer ma candidature</button>
+    </form>
+  </div>
+</section>
+
+{% endblock %}

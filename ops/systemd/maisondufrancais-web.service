@@ -1,0 +1,21 @@
+[Unit]
+Description=maisondufrancais.fr (gunicorn)
+After=network.target postgresql.service
+
+[Service]
+User=maisondufrancais
+Group=www-data
+WorkingDirectory=/var/www/maisondufrancais/app
+RuntimeDirectory=maisondufrancais
+RuntimeDirectoryMode=0750
+ExecStart=/var/www/maisondufrancais/app/venv/bin/gunicorn --workers 3 --umask 007 --control-socket /run/maisondufrancais/control.sock --bind unix:/run/maisondufrancais/gunicorn.sock web:app
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/maisondufrancais/uploads
+MemoryMax=1G
+
+[Install]
+WantedBy=multi-user.target

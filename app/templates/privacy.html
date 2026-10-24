@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Confidentialité · Maison du français{% endblock %}
+{% block content %}
+<div class="prose">
+  <h1>Confidentialité</h1>
+
+  <p>Ce site ne crée aucun compte, ne dépose aucun cookie publicitaire ni de mesure d'audience, et ne collecte aucune donnée sur les élèves ou leurs parents.</p>
+
+  <h2>Candidatures des professeurs</h2>
+  <p>Le formulaire « Enseigner chez nous » recueille votre nom, votre e-mail, votre diplôme et votre message.</p>
+  <ul>
+    <li><b>Responsable du traitement :</b> {% if pub.name %}{{ pub.name }}{% else %}<span class="todo">éditeur du site à compléter</span>{% endif %}.</li>
+    <li><b>Finalité :</b> étudier votre candidature et vous recontacter.</li>
+    <li><b>Base légale :</b> votre consentement, donné en cochant la case du formulaire.</li>
+    <li><b>Destinataires :</b> l'équipe de recrutement uniquement. Les données sont hébergées en France (OVH) et ne sont ni vendues ni transmises.</li>
+    <li><b>Durée de conservation :</b> <span class="todo">à définir (proposition : 2 ans après le dernier contact)</span>.</li>
+  </ul>
+  <p>Pour limiter les envois abusifs, nous conservons une empreinte de votre adresse IP, chiffrée avec un sel qui change chaque jour. Elle ne permet pas de vous identifier.</p>
+
+  <h2>Cookie technique</h2>
+  <p>Un seul cookie de session sert à sécuriser l'envoi du formulaire. Il est supprimé à la fermeture du navigateur.</p>
+
+  <h2>Polices</h2>
+  <p>Les polices sont hébergées sur notre serveur : aucune requête n'est envoyée à un service tiers.</p>
+
+  <h2>Vos droits</h2>
+  <p>Vous pouvez accéder à vos données, les faire rectifier ou effacer, et retirer votre consentement à tout moment en écrivant à
+  {% if pub.email or contact_email %}<a href="mailto:{{ pub.email or contact_email }}">{{ pub.email or contact_email }}</a>{% else %}<span class="todo">e-mail à compléter</span>{% endif %}.
+  Vous pouvez aussi saisir la CNIL (<a href="https://www.cnil.fr/fr/plaintes">cnil.fr</a>).</p>
+</div>
+{% endblock %}
