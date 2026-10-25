@@ -349,6 +349,8 @@ def account_delete():
     with connect() as c:
         if u["role"] == "admin" and c.execute("SELECT count(*) AS n FROM users WHERE role='admin' AND active").fetchone()["n"] <= 1:
             abort(403)
+        import placement
+        placement.delete_user_recordings(u["id"])
         c.execute("DELETE FROM users WHERE id=%s", (u["id"],))  # la fiche professeur éventuelle reste, sans compte
     session.pop("user_id", None)
     if u["role"] == "professeur" and u["teacher_id"]:

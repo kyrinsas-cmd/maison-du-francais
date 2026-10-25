@@ -115,6 +115,8 @@ def users_admin():
             elif action in ("disable", "enable"):
                 c.execute("UPDATE users SET active=%s WHERE id=%s", (action == "enable", uid)); msg = "Compte mis à jour."
             elif action == "delete":
+                import placement
+                placement.delete_user_recordings(uid)  # fichiers audio des tests de niveau
                 c.execute("DELETE FROM users WHERE id=%s", (uid,)); msg = "Compte supprimé."
             else:
                 abort(400)

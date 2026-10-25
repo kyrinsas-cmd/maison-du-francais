@@ -128,7 +128,23 @@ def purge_recordings():
         for r in rows:
             _rm(REC_DIR, r["file_name"])
             c.execute("DELETE FROM placement_recordings WHERE id=%s", (r["id"],))
-    return len(rows)
+        known = {r["file_name"] for r in c.execute("SELECT file_name FROM placement_recordings").fetchall()}
+    # Fichiers orphelins (compte ou test supprimé) : effacés aussi, la base ne doit pas être la seule à oublier
+    orphans = 0
+    if os.path.isdir(REC_DIR):
+        for name in os.listdir(REC_DIR):
+            if name not in known and re.fullmatch(r"p\d+-[0-9a-f]{12}\.(webm|ogg|m4a)", name):
+                _rm(REC_DIR, name)
+                orphans += 1
+    return len(rows) + orphans
+
+
+def delete_user_recordings(user_id):
+    """À appeler AVANT de supprimer un compte : efface les fichiers audio de ses tests."""
+    with connect() as c:
+        tids = [r["id"] for r in c.execute("SELECT id FROM placement_tests WHERE user_id=%s", (user_id,)).fetchall()]
+    for tid in tids:
+        delete_recordings(tid)
 
 
 def _rm(d, name):
