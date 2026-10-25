@@ -21,10 +21,15 @@
         </div>
         <h2 class="h3">{{ r.title }}{% if r.is_demo %} <span class="demo-tag">{{ t.demo_tag }}</span>{% endif %}</h2>
         {% if r.desc %}<p class="pre">{{ r.desc }}</p>{% endif %}
-        <p class="note" style="margin:0">{% if r.theme %}{{ r.theme }} · {% endif %}{% if r.ages_min or r.ages_max %}{{ t.lib_ages.format(a=(r.ages_min ~ '–' ~ r.ages_max) if r.ages_min and r.ages_max else (r.ages_min or r.ages_max)) }} · {% endif %}{{ r.size }}</p>
+        <p class="note" style="margin:0">{% if r.theme %}{{ r.theme }} · {% endif %}{% if r.ages_min or r.ages_max %}{{ t.lib_ages.format(a=(r.ages_min ~ '–' ~ r.ages_max) if r.ages_min and r.ages_max else (r.ages_min or r.ages_max)) }} · {% endif %}{{ r.size if r.file_name }}</p>
+        {% if r.origin == 'tiers' and r.tp_source %}<p class="note" style="margin:0">{{ t.lib_source }}{{ ' :' if g.lang == 'fr' else '：' }} {{ r.tp_source.split('（')[0] if g.lang == 'fr' else r.tp_source }}</p>{% endif %}
         {% if r.allowed %}
+          {% if r.file_kind == 'link' and not r.file_name %}
+          <a class="btn btn-navy btn-small" href="{{ url_for('resource_link', rid=r.id) }}" target="_blank" rel="noopener">{{ t.lib_visit }} ↗</a>
+          {% else %}
           {% if r.file_kind == 'audio' %}<audio controls preload="none" src="{{ url_for('resource_file', rid=r.id) }}"></audio>{% endif %}
           <a class="btn btn-navy btn-small" href="{{ url_for('resource_file', rid=r.id) }}" {% if r.file_kind != 'doc' %}target="_blank" rel="noopener"{% endif %}>{{ t.lib_download if r.file_kind == 'doc' else t.lib_open }}</a>
+          {% endif %}
         {% else %}
           <p class="lib-lock">{{ t.lib_locked_teachers if r.visibility == 'teachers' else t.lib_locked_members }}</p>
           {% if not logged %}<a class="btn btn-line btn-small" href="{{ url_for('account_login', next=request.full_path) }}">{{ t.lib_login }}</a>{% endif %}

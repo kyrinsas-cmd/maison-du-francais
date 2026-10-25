@@ -296,3 +296,4 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
 -- 2026-10-25 : questions générées (placement_gen.py, 250 par niveau) — à relire par un professeur ; filtrables dans l'admin
 ALTER TABLE placement_items ADD COLUMN IF NOT EXISTS generated boolean NOT NULL DEFAULT false;
 CREATE INDEX IF NOT EXISTS placement_items_level ON placement_items (level, section, active);
+ALTER TABLE resources ADD COLUMN IF NOT EXISTS url text;  -- lien vers un site officiel (file_kind = 'link', rien n'est hébergé)

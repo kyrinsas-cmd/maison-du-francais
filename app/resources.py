@@ -23,7 +23,7 @@ UPLOADS = os.path.join(os.environ.get("UPLOADS_DIR", "/var/www/maisondufrancais/
 FILE_MAX = 60 * 1024 * 1024
 SKILLS = ("co", "eo", "ce", "ee", "mixte")
 VIS = ("public", "members", "teachers")
-KINDS = {"pdf": "PDF", "audio": "Audio", "image": "Image", "doc": "Document"}
+KINDS = {"pdf": "PDF", "audio": "Audio", "image": "Image", "doc": "Document", "link": "Lien (site officiel)"}
 
 
 def _detect(head, filename):
@@ -129,6 +129,22 @@ def resource_file(rid):
     return resp
 
 
+@web.route("/ressources/<int:rid>/ouvrir")
+def resource_link(rid):
+    """Lien vers un site officiel : compté comme une ouverture, puis redirection (le contenu n'est pas hébergé chez nous)."""
+    with connect() as c:
+        r = c.execute("SELECT * FROM resources WHERE id=%s AND published", (rid,)).fetchone()
+        if not r or not r["url"] or not r["url"].startswith("https://"):
+            abort(404)
+        if not can_see(r["visibility"]):
+            return redirect(url_for("account_login", next=request.path))
+        c.execute("UPDATE resources SET downloads=downloads+1 WHERE id=%s", (rid,))
+        c.execute("INSERT INTO resource_hits (resource_id, role) VALUES (%s,%s)", (rid, U.role() or "visiteur"))
+    resp = redirect(r["url"])
+    resp.headers["X-Robots-Tag"] = "noindex"
+    return resp
+
+
 def sitemap_paths():
     with connect() as c:
         return ["/ressources"] if c.execute("SELECT 1 FROM resources WHERE published LIMIT 1").fetchone() else []
@@ -160,7 +176,10 @@ def _values(f):
         "tp_license": (f.get("tp_license") or "").strip()[:300] or None,
         "sort": int(f["sort"]) if (f.get("sort") or "").lstrip("-").isdigit() else 0,
         "published": bool(f.get("published")),
+        "url": (f.get("url") or "").strip()[:500] or None,
     }
+    if v["url"] and not re.fullmatch(r"https://[^\s<>\"]+", v["url"]):
+        errors.append("Le lien doit commencer par https:// (sans espace).")
     if not v["title_zh"]:
         errors.append("Indiquez le titre en chinois.")
     return v, errors
@@ -168,8 +187,8 @@ def _values(f):
 
 def _publish_problems(v, file_name):
     p = []
-    if not file_name:
-        p.append("le fichier")
+    if not file_name and not v.get("url"):
+        p.append("le fichier ou le lien")
     if v["origin"] == "tiers" and not (v["tp_source"] and v["tp_license"]):
         p.append("la source et l'autorisation de l'élément tiers (§9)")
     return p
@@ -224,6 +243,8 @@ def resource(rid):
                         file_name, kind, size = save_file(rid, up)
                     except ValueError as e:
                         errors.append(str(e)); old = None
+                if not file_name:
+                    kind, size = ("link", None) if v["url"] else (None, None)
                 problems = _publish_problems(v, file_name)
                 if v["published"] and problems:
                     errors.append("Impossible de publier : il manque " + ", ".join(problems) + ".")
@@ -231,7 +252,7 @@ def resource(rid):
                 c.execute("""UPDATE resources SET title_zh=%(title_zh)s, title_fr=%(title_fr)s, desc_zh=%(desc_zh)s, desc_fr=%(desc_fr)s,
                                level=%(level)s, skill=%(skill)s, theme=%(theme)s, ages_min=%(ages_min)s, ages_max=%(ages_max)s,
                                visibility=%(visibility)s, origin=%(origin)s, tp_source=%(tp_source)s, tp_license=%(tp_license)s,
-                               sort=%(sort)s, published=%(published)s, file_name=%(fn)s, file_kind=%(kind)s, file_size=%(size)s, updated_at=now()
+                               sort=%(sort)s, published=%(published)s, url=%(url)s, file_name=%(fn)s, file_kind=%(kind)s, file_size=%(size)s, updated_at=now()
                              WHERE id=%(id)s""", dict(v, fn=file_name, kind=kind, size=size, id=rid))
             if old:
                 remove_file(old)

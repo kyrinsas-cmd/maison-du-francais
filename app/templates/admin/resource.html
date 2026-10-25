@@ -32,6 +32,7 @@
   <fieldset>
     <legend>Fichier</legend>
     {% if v.file_name %}<p style="margin:0">Fichier actuel : {{ kinds.get(v.file_kind) }} · {{ size_label(v.file_size) }} — <a href="{{ url_for('resource_file', rid=v.id) }}" target="_blank" rel="noopener">ouvrir</a> (visible seulement si la ressource est publiée)</p>{% endif %}
+    <label>Ou lien vers un site officiel (https://…) — rien n'est copié chez nous ; laissé vide si un fichier est envoyé<input type="url" name="url" maxlength="500" placeholder="https://" value="{{ v.url or '' }}"></label>
     <label>{{ 'Remplacer le fichier' if v.file_name else 'Fichier' }} (PDF, MP3/M4A, PNG/JPEG, .docx, .pptx — 60 Mo au plus)<input type="file" name="file" accept=".pdf,.mp3,.m4a,.png,.jpg,.jpeg,.docx,.pptx"></label>
   </fieldset>
   <fieldset>

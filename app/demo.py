@@ -98,7 +98,7 @@ def add():
                                                    note_zh, note_fr, published, sort, is_demo)
                          VALUES (%s,%s,%s,%s,%s,%s,%s,5,%s,%s,'示例班级','Classe d''exemple',true,%s,true)""",
                       (lv, amin, amax, tids[ti], days, start, d0, taken, status, 100 + i))
-        for i, (tzh, tfr, lv, sk, kind, vis) in enumerate(RESOURCES):
+        for i, (tzh, tfr, lv, sk, kind, vis) in enumerate([]):  # 2026-10-26 : plus de faux supports (demande de l'utilisateur), vraies ressources officielles : resources_seed.py
             rid = c.execute("""INSERT INTO resources (title_zh, title_fr, desc_zh, desc_fr, level, skill, visibility, origin, published, sort, is_demo)
                                VALUES (%s,%s,'示例教材，仅用于展示效果。','Ressource d''exemple, pour voir le rendu.',%s,%s,%s,'maison',true,%s,true) RETURNING id""",
                             (tzh, tfr, lv, sk, vis, 100 + i)).fetchone()["id"]
@@ -107,7 +107,7 @@ def add():
             path = os.path.join(R.UPLOADS, name)
             doc_image(tfr, lv).save(path, "PDF" if ext == "pdf" else "PNG")
             c.execute("UPDATE resources SET file_name=%s, file_kind=%s, file_size=%s WHERE id=%s", (name, kind, os.path.getsize(path), rid))
-    print(f"ajouté : {len(TEACHERS)} professeurs, {len(CLASSES)} classes, {len(RESOURCES)} ressources (toutes marquées « exemple »)")
+    print(f"ajouté : {len(TEACHERS)} professeurs, {len(CLASSES)} classes (tous marqués « exemple »)")
 
 
 def remove():
