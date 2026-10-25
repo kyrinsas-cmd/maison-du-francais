@@ -24,7 +24,7 @@
              data-l-rec="{{ p.rec }}" data-l-stop="{{ p.stop }}" data-l-redo="{{ p.redo }}" data-l-saved="{{ p.saved }}" data-l-up="{{ p.uploading }}" data-l-err="{{ p.upload_err }}">
           <p class="errors pt-nomic" hidden>{{ p.no_mic }}</p>
           {% for task, title, body in [(1, p.task1, p.task1_p), (2, p.task2, read), (3, p.task3, question)] %}
-          <div class="pt-task" data-task="{{ task }}" data-url="{{ url_for('placement_record', tid=t.id, task=task) }}">
+          <div class="pt-task" data-task="{{ task }}" data-url="{{ url_for('placement_record', tid=t.id, task=task) }}" {% if task in recs %}data-saved="1"{% endif %}>
             <h3>{{ title }}</h3>
             <p {% if task > 1 %}lang="fr" class="pt-say"{% endif %}>{{ body }}</p>
             <div class="pt-rec-row">
@@ -37,20 +37,17 @@
         </div>
         <form method="post" style="margin-top:16px">
           <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="mode" value="record">
-          <button class="btn btn-red" type="submit">{{ p.submit }}</button>
+          <button class="btn btn-red" type="submit" data-submit {% if recs|length < 3 %}disabled{% endif %}>{{ p.submit }}</button>
         </form>
         {% endif %}
       </div>
-      <div class="card pt-mode">
-        <h2 class="h3">{{ p.oral_live }}</h2>
-        <p>{{ p.oral_live_p }}</p>
-        <form method="post">
-          <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="mode" value="live">
-          <button class="btn btn-line" type="submit">{{ p.submit }}</button>
-        </form>
+      <div class="card pt-mode pt-help">
+        <h2 class="h3">{{ p.help_h }}</h2>
+        <p>{{ p.help_p }}</p>
+        <a class="btn btn-line btn-small" href="{{ url_for('contact') }}" style="align-self:flex-start">{{ t.nav_contact }}</a>
       </div>
     </div>
   </div>
 </section>
-<script src="{{ url_for('static', filename='recorder.js') }}?v=1" defer></script>
+<script src="{{ url_for('static', filename='recorder.js') }}?v=2" defer></script>
 {% endblock %}

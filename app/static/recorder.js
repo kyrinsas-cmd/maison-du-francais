@@ -6,7 +6,12 @@
   var types = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"];
   var mime = window.MediaRecorder ? types.filter(function (t) { return MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t); })[0] : null;
   if (!navigator.mediaDevices || !window.MediaRecorder) { box.querySelector(".pt-nomic").hidden = false; box.querySelectorAll(".pt-rec-btn").forEach(function (b) { b.disabled = true; }); return; }
-  var current = null;
+  var current = null, submit = document.querySelector("[data-submit]");
+  function refresh() {
+    if (!submit) return;
+    var n = box.querySelectorAll('.pt-task[data-saved="1"]').length;
+    submit.disabled = n < 3;
+  }
   box.querySelectorAll(".pt-task").forEach(function (task) {
     var btn = task.querySelector(".pt-rec-btn"), timer = task.querySelector(".pt-timer"), play = task.querySelector(".pt-play");
     btn.addEventListener("click", function () {
@@ -27,7 +32,7 @@
           timer.textContent = L.lUp;
           var fd = new FormData(); fd.append("csrf", L.csrf); fd.append("audio", blob, "rec");
           fetch(task.dataset.url, { method: "POST", body: fd, credentials: "same-origin" })
-            .then(function (r) { timer.textContent = r.ok ? "✓ " + L.lSaved : L.lErr; })
+            .then(function (r) { timer.textContent = r.ok ? "✓ " + L.lSaved : L.lErr; if (r.ok) { task.dataset.saved = "1"; refresh(); } })
             .catch(function () { timer.textContent = L.lErr; });
         };
         rec.start();

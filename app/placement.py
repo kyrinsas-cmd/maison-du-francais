@@ -59,7 +59,7 @@ PT = {
         "h1": "免费法语水平测试", "lead": "笔试约20分钟，口语约5分钟。低龄孩子请家长陪同完成。测试结束后，老师会给出欧标级别和分班建议。",
         "how1": "笔试：选择题", "how1_p": "词汇、语法、阅读（和听力），从A1开始，难度逐级提高，答错较多时会自动结束。",
         "how2": "笔试：写作", "how2_p": "根据孩子的水平写几句话或一小段文字。",
-        "how3": "口语", "how3_p": "在线录音回答3个问题（每个最多1分钟，需家长同意），或预约与老师的视频面谈。",
+        "how3": "口语", "how3_p": "在线录音回答3个问题（每个最多1分钟），需要家长同意录音，并使用可以录音的浏览器。",
         "how4": "结果", "how4_p": "老师评估后，结果会显示在“我的账户”中，并通过邮件通知您。",
         "login_needed": "请先登录家长或学生账户，测试结果会保存在您的账户中。", "start": "开始测试", "continue": "继续测试",
         "who_h": "谁来参加测试？", "child_label": "孩子的昵称（不要填写全名）", "age": "年龄", "me": "我自己（学生账户）",
@@ -67,15 +67,15 @@ PT = {
         "qcm_h": "第{n}部分 · {lv}", "qcm_lead": "每道题都要选择一个答案，全部回答后才能进入下一步。",
         "listen": "听录音", "read_text": "阅读短文", "next": "下一步", "err_all": "还有{n}道题没有回答，请回答所有问题后再进入下一步。", "answered": "已回答", "unanswered": "这道题还没有回答",
         "writing_h": "写作", "writing_lead": "请用法语完成下面的写作（不要用翻译软件）。", "words": "法语词数", "need_words": "至少{n}个法语单词", "err_writing": "写作至少需要{n}个法语单词（现在：{got}个）。", "err_writing_repeat": "请写真正的句子，不要重复同一个词。",
-        "oral_h": "口语", "oral_lead": "请选择口语测试的方式。",
+        "oral_h": "口语", "oral_lead": "口语部分需要录音回答3个问题，3段录音都完成后才能提交测试。",
         "oral_rec": "在线录音", "oral_rec_p": "回答3个问题，每个最多1分钟。录音只用于本次测试，仅我们的老师可听，评估后30天自动删除（最长保存60天）。",
         "oral_live": "与老师视频面谈", "oral_live_p": "不录音：提交笔试后，通过微信和我们预约一次约10分钟的视频面谈。",
         "consent": "我是孩子的家长或监护人（或我本人已满15岁），同意录制孩子（或我）的声音，仅用于本次水平测试。",
-        "err_consent": "请勾选同意后再录音，或选择“与老师视频面谈”。",
+        "err_consent": "请先勾选同意录音。",
         "task1": "1. 用法语介绍自己", "task1_p": "说说你的名字、年龄、喜欢做什么。", "task2": "2. 朗读下面的句子", "task3": "3. 回答问题",
         "rec": "开始录音", "stop": "停止", "redo": "重新录", "saved": "已保存", "uploading": "正在上传…", "upload_err": "上传失败，请重试。",
-        "no_mic": "您的浏览器无法录音（或没有允许使用麦克风）。请换用手机微信以外的浏览器，或选择“与老师视频面谈”。",
-        "submit": "提交测试", "err_rec": "请完成3段录音，或选择“与老师视频面谈”。",
+        "no_mic": "您的浏览器无法录音（或没有允许使用麦克风）。请允许使用麦克风，或用手机自带的浏览器（Safari、Chrome 等，不要在微信里打开）重新打开本页。仍有问题请联系我们。",
+        "submit": "提交测试", "err_rec": "请完成全部3段录音后再提交测试。", "help_h": "无法录音？", "help_p": "如果不同意录音，或尝试后仍无法录音，测试无法在线完成。请联系我们，我们会帮您安排。",
         "done_h": "测试已提交", "done_p": "谢谢！老师会尽快评估，结果会显示在“我的账户”中，并通过邮件通知您。",
         "done_live": "请通过微信联系我们，预约口语视频面谈（二维码在“联系我们”页面）。",
         "my_tests": "水平测试", "status_qcm": "进行中", "status_writing": "进行中", "status_oral": "进行中", "status_submitted": "等待老师评估", "status_evaluated": "已出结果",
@@ -87,7 +87,7 @@ PT = {
         "h1": "Test de niveau de français gratuit", "lead": "Environ 20 minutes d'écrit et 5 minutes d'oral. Les plus jeunes le passent avec un parent. Un professeur donne ensuite le niveau CECRL et conseille une classe.",
         "how1": "Écrit : QCM", "how1_p": "Vocabulaire, grammaire, lecture (et écoute), de plus en plus difficile à partir de A1 ; le QCM s'arrête quand les erreurs deviennent nombreuses.",
         "how2": "Écrit : rédaction", "how2_p": "Quelques phrases ou un petit texte, selon le niveau.",
-        "how3": "Oral", "how3_p": "3 réponses enregistrées en ligne (1 minute au plus chacune, avec l'accord du parent), ou un entretien en visio avec un professeur.",
+        "how3": "Oral", "how3_p": "3 réponses enregistrées en ligne (1 minute au plus chacune) : il faut l'accord du parent pour l'enregistrement et un navigateur qui permet d'enregistrer.",
         "how4": "Résultat", "how4_p": "Après l'évaluation, le résultat apparaît dans « Mon compte » et vous recevez un e-mail.",
         "login_needed": "Connectez-vous avec un compte parent ou élève : le résultat est enregistré dans votre compte.", "start": "Commencer le test", "continue": "Reprendre le test",
         "who_h": "Qui passe le test ?", "child_label": "Pseudo de l'enfant (pas de nom complet)", "age": "Âge", "me": "Moi-même (compte élève)",
@@ -95,15 +95,15 @@ PT = {
         "qcm_h": "Partie {n} · {lv}", "qcm_lead": "Choisissez une réponse pour chaque question : il faut répondre à toutes les questions pour continuer.",
         "listen": "Écouter", "read_text": "Lisez le texte", "next": "Suivant", "err_all": "Il reste {n} question(s) sans réponse : répondez à toutes les questions pour continuer.", "answered": "Réponses", "unanswered": "Question sans réponse",
         "writing_h": "Rédaction", "writing_lead": "Écrivez en français (sans traducteur automatique).", "words": "Mots en français", "need_words": "{n} mots au minimum", "err_writing": "La rédaction doit compter au moins {n} mots en français (actuellement : {got}).", "err_writing_repeat": "Écrivez de vraies phrases, sans répéter le même mot.",
-        "oral_h": "Oral", "oral_lead": "Choisissez comment passer l'oral.",
+        "oral_h": "Oral", "oral_lead": "L'oral se fait en enregistrant 3 réponses : le test ne peut être envoyé qu'une fois les 3 enregistrements faits.",
         "oral_rec": "Enregistrement en ligne", "oral_rec_p": "3 réponses d'1 minute au plus. L'enregistrement ne sert qu'à ce test, seuls nos professeurs l'écoutent, il est supprimé 30 jours après l'évaluation (60 jours au plus).",
         "oral_live": "Entretien avec un professeur", "oral_live_p": "Rien n'est enregistré : après l'écrit, réservez sur WeChat un entretien en visio d'environ 10 minutes.",
         "consent": "Je suis le parent ou le représentant légal de l'enfant (ou j'ai moi-même 15 ans ou plus) et j'accepte l'enregistrement de sa voix (ou de la mienne), uniquement pour ce test de niveau.",
-        "err_consent": "Cochez la case d'accord pour enregistrer, ou choisissez l'entretien avec un professeur.",
+        "err_consent": "Cochez d'abord la case d'accord pour l'enregistrement.",
         "task1": "1. Présente-toi en français", "task1_p": "Ton prénom, ton âge, ce que tu aimes faire.", "task2": "2. Lis cette phrase à voix haute", "task3": "3. Réponds à la question",
         "rec": "Enregistrer", "stop": "Arrêter", "redo": "Recommencer", "saved": "Enregistré", "uploading": "Envoi…", "upload_err": "Échec de l'envoi, réessayez.",
-        "no_mic": "Votre navigateur ne peut pas enregistrer (ou le micro n'est pas autorisé). Essayez un autre navigateur, ou choisissez l'entretien avec un professeur.",
-        "submit": "Envoyer le test", "err_rec": "Faites les 3 enregistrements, ou choisissez l'entretien avec un professeur.",
+        "no_mic": "Votre navigateur ne peut pas enregistrer (ou le micro n'est pas autorisé). Autorisez le micro, ou rouvrez cette page dans le navigateur du téléphone (Safari, Chrome…, pas dans WeChat). Si le problème continue, contactez-nous.",
+        "submit": "Envoyer le test", "err_rec": "Faites les 3 enregistrements avant d'envoyer le test.", "help_h": "Impossible d'enregistrer ?", "help_p": "Sans accord pour l'enregistrement, ou si l'enregistrement ne fonctionne pas, le test ne peut pas être terminé en ligne. Contactez-nous : nous trouverons une solution avec vous.",
         "done_h": "Test envoyé", "done_p": "Merci ! Un professeur l'évalue au plus vite ; le résultat apparaîtra dans « Mon compte » et vous recevrez un e-mail.",
         "done_live": "Contactez-nous sur WeChat pour réserver l'entretien oral en visio (QR code sur la page Contact).",
         "my_tests": "Tests de niveau", "status_qcm": "En cours", "status_writing": "En cours", "status_oral": "En cours", "status_submitted": "En attente d'évaluation", "status_evaluated": "Résultat disponible",
@@ -306,16 +306,16 @@ def placement_step(tid):
         if request.method == "POST":
             U.check_csrf()
             mode = request.form.get("mode")
-            if mode == "live":
-                c.execute("UPDATE placement_tests SET oral_mode='live', step='submitted', submitted_at=now(), updated_at=now() WHERE id=%s", (tid,))
-            elif mode == "record":
+            if mode != "record":  # l'oral se fait uniquement par les 3 enregistrements (décision du 2026-10-25)
+                errors.append(p["err_rec"])
+            else:
                 if not t["oral_consent_at"]:
                     errors.append(p["err_consent"])
                 elif len(recs) < 3:
                     errors.append(p["err_rec"])
                 else:
                     c.execute("UPDATE placement_tests SET oral_mode='record', step='submitted', submitted_at=now(), updated_at=now() WHERE id=%s", (tid,))
-            if not errors and mode in ("live", "record"):
+            if not errors:
                 import mailer
                 mailer.notify_team("Nouveau test de niveau à évaluer", f"Un test de niveau vient d'être envoyé (estimation du QCM : {t['est_level']}).\n{web.SITE_URL}/admin/tests/{tid}" + mailer.SIGN)
                 return redirect(url_for("placement_done", tid=tid))
