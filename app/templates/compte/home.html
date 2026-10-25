@@ -19,9 +19,11 @@
       {% if x.step == 'evaluated' %}
       <dl class="account-dl">
         <dt>{{ p.result_level }}</dt><dd><b>{{ x.final_level }}</b></dd>
+        <dt>{{ p.res_qcm }}</dt><dd>{{ p.res_summary.format(good=x.qcm_good, total=x.qcm_total, w=x.writing_level or '—', o=x.oral_level or '—') }}</dd>
         {% if x.c_level %}<dt>{{ p.result_class }}</dt><dd><a href="{{ url_for('live', niveau=x.c_level) }}">{{ x.c_level }} · {% for d in x.c_days %}{{ t['day_' ~ d] }} {% endfor %}· {{ t.lc_bj }} {{ x.c_start.strftime('%H:%M') }}</a></dd>{% endif %}
         {% if x.family_msg %}<dt>{{ p.result_msg }}</dt><dd class="pre">{{ x.family_msg }}</dd>{% endif %}
       </dl>
+      <a class="btn btn-navy btn-small" href="{{ url_for('placement_result', tid=x.id) }}" style="align-self:flex-start">{{ p.res_view }} →</a>
       {% endif %}
       {% if x.n_rec %}<form method="post" action="{{ url_for('placement_delete_recordings', tid=x.id) }}"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small" type="submit">{{ p.del_rec }}</button></form>{% endif %}
     </div>

@@ -5,7 +5,7 @@
   <div class="wrap pt-wrap">
     <h1 class="pt-h1">{{ p.done_h }}</h1>
     <p class="flash">{{ p.done_p }}</p>
-    {% if t.oral_mode == 'live' %}<p class="card note-card">{{ p.done_live }} <a href="{{ url_for('contact') }}">{{ t.nav_contact }}</a></p>{% endif %}
+    {% if x.oral_mode == 'live' %}<p class="card note-card">{{ p.done_live }} <a href="{{ url_for('contact') }}">{{ t.nav_contact }}</a></p>{% endif %}
     <div class="actions"><a class="btn btn-navy" href="{{ url_for('account_home') }}">{{ t.ac_home_title }}</a></div>
   </div>
 </section>

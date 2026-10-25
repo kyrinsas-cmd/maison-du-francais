@@ -500,3 +500,19 @@ section.list-page { padding: 56px 0 96px; }
 .pt-count { font-size: 15px; color: var(--muted); }
 .pt-count b { color: var(--navy); }
 .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+/* Résultat du test de niveau */
+.res-top { display: flex; flex-wrap: wrap; gap: 16px; margin: 24px 0; }
+.res-level { flex: 0 0 auto; min-width: 180px; background: var(--navy); color: #fff; border-radius: var(--radius); padding: 22px 26px; display: flex; flex-direction: column; gap: 4px; }
+.res-level span { font-size: 14px; color: var(--pale); font-weight: 700; }
+.res-level b { font-size: 56px; line-height: 1; font-weight: 900; }
+.res-sub { flex: 1 1 320px; display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.res-sub > div { border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; background: #fff; }
+.res-sub span { font-size: 13px; color: var(--muted); font-weight: 700; }
+.res-sub b { font-size: 26px; font-weight: 900; }
+.res-msg { border: 1px solid var(--line); background: var(--soft); margin-bottom: 8px; }
+.res-msg p { margin: 0; }
+.res-bar { display: inline-block; vertical-align: middle; width: 120px; height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; margin-right: 8px; }
+.res-bar span { display: block; height: 100%; background: var(--red); }
+.res-bar span.pass { background: #1F7A5A; }
+@media (max-width: 560px) { .res-sub { grid-template-columns: 1fr 1fr; } }

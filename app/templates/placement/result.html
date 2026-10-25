@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ p.res_title }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<section class="list-page">
+  <div class="wrap pt-wrap">
+    <p><a href="{{ url_for('account_home') }}">← {{ p.res_back }}</a></p>
+    <span class="eyebrow">{{ p.res_title }}</span>
+    <h1 class="pt-h1">{{ p.res_for.format(who=(x.child_label or current_user().name)) }}</h1>
+    <p class="note">{{ p.res_date }} {{ x.evaluated_at.astimezone(paris).strftime('%Y-%m-%d') }}</p>
+
+    <div class="res-top">
+      <div class="res-level"><span>{{ p.res_final }}</span><b>{{ x.final_level }}</b></div>
+      <div class="res-sub">
+        <div><span>{{ p.res_written }}</span><b>{{ x.writing_level or '—' }}</b></div>
+        <div><span>{{ p.res_oral }}</span><b>{{ x.oral_level or '—' }}</b></div>
+        <div><span>{{ p.res_total }}</span><b>{{ good }} / {{ total }}</b></div>
+      </div>
+    </div>
+
+    {% if x.family_msg %}
+    <div class="card res-msg"><h2 class="h3">{{ p.result_msg }}</h2><p class="pre">{{ x.family_msg }}</p></div>
+    {% endif %}
+
+    <h2 class="fle-h2">{{ p.res_qcm }}</h2>
+    <div class="table-box fle-table">
+      <table>
+        <thead><tr><th scope="col">{{ p.res_level }}</th><th scope="col">{{ p.res_score }}</th><th scope="col">{{ p.res_rate }}</th></tr></thead>
+        <tbody>
+        {% for lv, good_, total_, pct in rows %}
+        <tr>
+          <td>{{ lv }}</td>
+          {% if pct is none %}<td colspan="2" class="note">{{ p.res_not_reached }}</td>
+          {% else %}<td>{{ good_ }} / {{ total_ }}</td>
+          <td><div class="res-bar" role="img" aria-label="{{ pct }} %"><span style="width: {{ pct }}%" class="{{ 'pass' if pct >= 60 else '' }}"></span></div> <b>{{ pct }} %</b></td>{% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">{{ p.res_how }}</p>
+
+    {% if cls %}
+    <div class="card fle-cta" style="margin-top:32px">
+      <div><h2 class="h3">{{ p.result_class }}</h2>
+        <p>{{ cls.level }} · {% for d in cls.days %}{{ t['day_' ~ d] }} {% endfor %}· {{ t.lc_bj }} {{ cls.start_bj.strftime('%H:%M') }}{% if cls.ages_min and cls.ages_max %} · {{ t.lib_ages.format(a=cls.ages_min ~ '–' ~ cls.ages_max) }}{% endif %}</p></div>
+      <div class="actions"><a class="btn btn-navy btn-small" href="{{ url_for('live', niveau=cls.level) }}">{{ p.res_class_link }}</a><a class="btn btn-red btn-small" href="{{ url_for('contact') }}">{{ t.lc_book }}</a></div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

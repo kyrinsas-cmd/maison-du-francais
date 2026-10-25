@@ -81,6 +81,10 @@ PT = {
         "my_tests": "水平测试", "status_qcm": "进行中", "status_writing": "进行中", "status_oral": "进行中", "status_submitted": "等待老师评估", "status_evaluated": "已出结果",
         "result_level": "建议级别", "result_class": "建议班级", "result_msg": "老师的话", "del_rec": "删除录音", "rec_deleted": "录音已删除。",
         "new_test": "为另一个孩子测试", "est": "选择题估计级别",
+        "res_title": "水平测试结果", "res_for": "{who}的水平测试结果", "res_date": "评估日期", "res_final": "建议级别", "res_written": "写作级别", "res_oral": "口语级别",
+        "res_qcm": "选择题得分", "res_level": "级别", "res_score": "答对题数", "res_rate": "正确率", "res_not_reached": "未进入",
+        "res_total": "选择题总分", "res_how": "选择题从A1开始，每个级别答对60%以上才会进入下一级；最终级别由老师根据选择题、写作和口语综合评定。",
+        "res_view": "查看完整结果", "res_summary": "选择题 {good}/{total} 题 · 写作 {w} · 口语 {o}", "res_class_link": "查看班级", "res_back": "返回我的账户",
     },
     "fr": {
         "title": "Test de niveau gratuit", "desc": "Test de niveau de français gratuit : écrit (QCM et rédaction) et oral, évalués par un professeur en France, avec un niveau CECRL et un conseil de classe.",
@@ -109,6 +113,10 @@ PT = {
         "my_tests": "Tests de niveau", "status_qcm": "En cours", "status_writing": "En cours", "status_oral": "En cours", "status_submitted": "En attente d'évaluation", "status_evaluated": "Résultat disponible",
         "result_level": "Niveau conseillé", "result_class": "Classe proposée", "result_msg": "Le mot du professeur", "del_rec": "Supprimer les enregistrements", "rec_deleted": "Enregistrements supprimés.",
         "new_test": "Tester un autre enfant", "est": "Estimation du QCM",
+        "res_title": "Résultat du test de niveau", "res_for": "Résultat du test de niveau de {who}", "res_date": "Évalué le", "res_final": "Niveau conseillé", "res_written": "Niveau à l'écrit", "res_oral": "Niveau à l'oral",
+        "res_qcm": "Score au QCM", "res_level": "Niveau", "res_score": "Bonnes réponses", "res_rate": "Réussite", "res_not_reached": "Non atteint",
+        "res_total": "Total du QCM", "res_how": "Le QCM commence au niveau A1 ; il faut 60 % de bonnes réponses pour passer au niveau suivant. Le niveau final est fixé par le professeur à partir du QCM, de la rédaction et de l'oral.",
+        "res_view": "Voir le résultat complet", "res_summary": "QCM {good}/{total} · écrit {w} · oral {o}", "res_class_link": "Voir la classe", "res_back": "Retour à mon compte",
     },
 }
 
@@ -297,7 +305,7 @@ def placement_step(tid):
                 it["show_passage"] = bool(it["passage"]) and it["passage"] not in passages
                 if it["passage"]:
                     passages.append(it["passage"])
-            return _nocache(render_template("placement/qcm.html", p=p, t=t, lv=lv, n=t["qcm_level_idx"] + 1, items=view, errors=errors,
+            return _nocache(render_template("placement/qcm.html", p=p, x=t, lv=lv, n=t["qcm_level_idx"] + 1, items=view, errors=errors,
                                             chosen=chosen, missing=missing))
         if t["step"] == "writing":
             prompt = WRITING[t["est_level"] or "A1.1"]
@@ -314,7 +322,7 @@ def placement_step(tid):
                 else:
                     c.execute("UPDATE placement_tests SET writing_text=%s, step='oral', updated_at=now() WHERE id=%s", (txt, tid))
                     return redirect(url_for("placement_step", tid=tid))
-            return _nocache(render_template("placement/writing.html", p=p, t=t, prompt=prompt, errors=errors, text=request.form.get("writing", ""),
+            return _nocache(render_template("placement/writing.html", p=p, x=t, prompt=prompt, errors=errors, text=request.form.get("writing", ""),
                                             need=MIN_WORDS[t["est_level"] or "A1.1"]))
         # oral
         recs = {r["task"]: r for r in c.execute("SELECT * FROM placement_recordings WHERE test_id=%s", (tid,)).fetchall()}
@@ -335,7 +343,7 @@ def placement_step(tid):
                 import mailer
                 mailer.notify_team("Nouveau test de niveau à évaluer", f"Un test de niveau vient d'être envoyé (estimation du QCM : {t['est_level']}).\n{web.SITE_URL}/admin/tests/{tid}" + mailer.SIGN)
                 return redirect(url_for("placement_done", tid=tid))
-        return _nocache(render_template("placement/oral.html", p=p, t=t, recs=recs, read=ORAL_READ[lv], question=ORAL_QUESTION[lv], errors=errors))
+        return _nocache(render_template("placement/oral.html", p=p, x=t, recs=recs, read=ORAL_READ[lv], question=ORAL_QUESTION[lv], errors=errors))
 
 
 @web.route("/test-de-niveau/<int:tid>/consentement", methods=["POST"])
@@ -384,7 +392,33 @@ def placement_record(tid, task):
 @web.route("/test-de-niveau/<int:tid>/termine")
 def placement_done(tid):
     t = _own_test(tid)
-    return _nocache(render_template("placement/done.html", p=pt(g.lang), t=t))
+    return _nocache(render_template("placement/done.html", p=pt(g.lang), x=t))
+
+
+def score_rows(t):
+    """Scores du QCM par niveau pour l'affichage : [(niveau, bonnes, total, % ou None)]."""
+    rows = []
+    for lv in LEVELS:
+        s = (t["scores"] or {}).get(lv)
+        rows.append((lv, s[0], s[1], round(100 * s[0] / s[1]) if s and s[1] else None) if s else (lv, None, None, None))
+    return rows
+
+
+def qcm_total(t):
+    good = sum(s[0] for s in (t["scores"] or {}).values())
+    total = sum(s[1] for s in (t["scores"] or {}).values())
+    return good, total
+
+
+@web.route("/test-de-niveau/<int:tid>/resultat")
+def placement_result(tid):
+    t = _own_test(tid)
+    if t["step"] != "evaluated":  # les scores ne sont montrés qu'après l'évaluation par le professeur
+        return redirect(url_for("account_home"))
+    with connect() as c:
+        cls = c.execute("SELECT * FROM live_classes WHERE id=%s", (t["class_id"],)).fetchone() if t["class_id"] else None
+    good, total = qcm_total(t)
+    return _nocache(render_template("placement/result.html", p=pt(g.lang), x=t, rows=score_rows(t), good=good, total=total, cls=cls))
 
 
 @web.route("/test-de-niveau/<int:tid>/supprimer-enregistrements", methods=["POST"])
@@ -409,7 +443,11 @@ def tests_for_account(uid, lang):
                                    (SELECT count(*) FROM placement_recordings r WHERE r.test_id=t.id) AS n_rec
                             FROM placement_tests t LEFT JOIN live_classes l ON l.id=t.class_id
                             WHERE t.user_id=%s ORDER BY t.created_at DESC""", (uid,)).fetchall()
-    return rows
+    out = []
+    for r in rows:
+        good, total = qcm_total(r)
+        out.append(dict(r, qcm_good=good, qcm_total=total))
+    return out
 
 
 # ---------- admin ----------

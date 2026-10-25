@@ -13,18 +13,18 @@
       <div class="card pt-mode">
         <h2 class="h3">{{ p.oral_rec }}</h2>
         <p>{{ p.oral_rec_p }}</p>
-        {% if not t.oral_consent_at %}
-        <form method="post" action="{{ url_for('placement_consent', tid=t.id) }}" class="form" style="padding:0;border:0">
+        {% if not x.oral_consent_at %}
+        <form method="post" action="{{ url_for('placement_consent', tid=x.id) }}" class="form" style="padding:0;border:0">
           <input type="hidden" name="csrf" value="{{ csrf() }}">
           <label class="check"><input type="checkbox" name="consent" value="1" required><span>{{ p.consent }}</span></label>
           <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">{{ p.oral_rec }} →</button>
         </form>
         {% else %}
-        <div id="recorder" data-csrf="{{ csrf() }}" data-tid="{{ t.id }}"
+        <div id="recorder" data-csrf="{{ csrf() }}" data-tid="{{ x.id }}"
              data-l-rec="{{ p.rec }}" data-l-stop="{{ p.stop }}" data-l-redo="{{ p.redo }}" data-l-saved="{{ p.saved }}" data-l-up="{{ p.uploading }}" data-l-err="{{ p.upload_err }}">
           <p class="errors pt-nomic" hidden>{{ p.no_mic }}</p>
           {% for task, title, body in [(1, p.task1, p.task1_p), (2, p.task2, read), (3, p.task3, question)] %}
-          <div class="pt-task" data-task="{{ task }}" data-url="{{ url_for('placement_record', tid=t.id, task=task) }}" {% if task in recs %}data-saved="1"{% endif %}>
+          <div class="pt-task" data-task="{{ task }}" data-url="{{ url_for('placement_record', tid=x.id, task=task) }}" {% if task in recs %}data-saved="1"{% endif %}>
             <h3>{{ title }}</h3>
             <p {% if task > 1 %}lang="fr" class="pt-say"{% endif %}>{{ body }}</p>
             <div class="pt-rec-row">
