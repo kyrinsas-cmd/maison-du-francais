@@ -18,7 +18,7 @@
           {% if it.id in missing %}<p class="pt-miss-msg" role="alert">{{ p.unanswered }}</p>{% endif %}
           {% if it.audio %}<audio controls preload="none" src="{{ it.audio }}" aria-label="{{ p.listen }}"></audio>{% endif %}
           {% for idx, label in it.choices %}
-          <label class="pt-choice" lang="fr"><input type="radio" name="q{{ it.id }}" value="{{ idx }}" required {% if chosen.get(it.id) == idx %}checked{% endif %}>{{ label }}</label>
+          <label class="pt-choice" lang="fr"><input type="radio" name="q{{ it.id }}" value="{{ loop.index0 }}" required {% if chosen.get(it.id) == idx %}checked{% endif %}>{{ label }}</label>
           {% endfor %}
         </fieldset>
       {% endfor %}

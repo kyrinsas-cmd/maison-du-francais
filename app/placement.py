@@ -56,7 +56,7 @@ ORAL_QUESTION = {
 PT = {
     "zh": {
         "title": "免费水平测试", "desc": "法语之家免费法语水平测试：笔试（选择题和写作）和口语，由法国老师评估，给出欧标级别和分班建议。",
-        "h1": "免费法语水平测试", "lead": "笔试约20分钟，口语约5分钟。低龄孩子请家长陪同完成。测试结束后，老师会给出欧标级别和分班建议。",
+        "h1": "免费法语水平测试", "lead": "笔试每级20题，约30–45分钟（视水平而定），口语约5分钟。低龄孩子请家长陪同完成。测试结束后，老师会给出欧标级别和分班建议。",
         "how1": "笔试：选择题", "how1_p": "词汇、语法、阅读（和听力），从A1开始，难度逐级提高，答错较多时会自动结束。",
         "how2": "笔试：写作", "how2_p": "根据孩子的水平写几句话或一小段文字。",
         "how3": "口语", "how3_p": "在线录音回答3个问题（每个最多1分钟），需要家长同意录音，并使用可以录音的浏览器。",
@@ -88,7 +88,7 @@ PT = {
     },
     "fr": {
         "title": "Test de niveau gratuit", "desc": "Test de niveau de français gratuit : écrit (QCM et rédaction) et oral, évalués par un professeur en France, avec un niveau CECRL et un conseil de classe.",
-        "h1": "Test de niveau de français gratuit", "lead": "Environ 20 minutes d'écrit et 5 minutes d'oral. Les plus jeunes le passent avec un parent. Un professeur donne ensuite le niveau CECRL et conseille une classe.",
+        "h1": "Test de niveau de français gratuit", "lead": "20 questions par niveau à l'écrit (30 à 45 minutes selon le niveau), environ 5 minutes d'oral. Les plus jeunes le passent avec un parent. Un professeur donne ensuite le niveau CECRL et conseille une classe.",
         "how1": "Écrit : QCM", "how1_p": "Vocabulaire, grammaire, lecture (et écoute), de plus en plus difficile à partir de A1 ; le QCM s'arrête quand les erreurs deviennent nombreuses.",
         "how2": "Écrit : rédaction", "how2_p": "Quelques phrases ou un petit texte, selon le niveau.",
         "how3": "Oral", "how3_p": "3 réponses enregistrées en ligne (1 minute au plus chacune) : il faut l'accord du parent pour l'enregistrement et un navigateur qui permet d'enregistrer.",
@@ -170,7 +170,9 @@ def delete_recordings(test_id):
         c.execute("DELETE FROM placement_recordings WHERE test_id=%s", (test_id,))
 
 
-PICK = {"vocab": 2, "grammar": 2, "listening": 1}  # + 1 texte de lecture avec toutes ses questions
+# Par niveau : 20 questions = 7 vocabulaire + 7 grammaire + 3 textes de lecture (2 questions chacun) ;
+# s'il existe des questions d'écoute avec audio : 2 écoutes, et 6 + 6 en vocabulaire / grammaire (toujours 20).
+PER_LEVEL, PASSAGES = 20, 3
 
 
 def items_for(c, level, test_id):
@@ -178,14 +180,17 @@ def items_for(c, level, test_id):
     pool = c.execute("""SELECT * FROM placement_items WHERE level=%s AND active AND (section <> 'listening' OR audio_file IS NOT NULL)
                         ORDER BY sort, id""", (level,)).fetchall()
     rnd = random.Random(f"tirage-{test_id}-{level}")
+    by = {sec: [it for it in pool if it["section"] == sec] for sec in ("vocab", "grammar", "reading", "listening")}
     chosen = []
-    for sec, n in PICK.items():
-        items = [it for it in pool if it["section"] == sec]
-        chosen += rnd.sample(items, min(n, len(items)))
-    passages = sorted({it["passage"] for it in pool if it["section"] == "reading" and it["passage"]})
-    if passages:
-        p = rnd.choice(passages)
-        chosen += [it for it in pool if it["section"] == "reading" and it["passage"] == p]
+    passages = sorted({it["passage"] for it in by["reading"] if it["passage"]})
+    for p in rnd.sample(passages, min(PASSAGES, len(passages))):
+        chosen += [it for it in by["reading"] if it["passage"] == p][:2]
+    listening = rnd.sample(by["listening"], min(2, len(by["listening"])))
+    chosen += listening
+    left = PER_LEVEL - len(chosen)
+    n_vocab = min(len(by["vocab"]), (left + 1) // 2)
+    chosen += rnd.sample(by["vocab"], n_vocab)
+    chosen += rnd.sample(by["grammar"], min(len(by["grammar"]), PER_LEVEL - len(chosen)))
     order = {"vocab": 0, "grammar": 1, "reading": 2, "listening": 3}
     return sorted(chosen, key=lambda it: (order[it["section"]], it["sort"], it["id"]))
 
@@ -283,9 +288,10 @@ def placement_step(tid):
                     if v is None or not v.isdigit() or int(v) >= len(it["options"]):
                         missing.add(it["id"])
                         continue
-                    chosen[it["id"]] = int(v)
-                    answers[str(it["id"])] = int(v)
-                    good += int(v) == it["answer"]
+                    orig = shuffled(tid, it)[int(v)][0]  # le formulaire envoie la position affichée, jamais l'index d'origine
+                    chosen[it["id"]] = orig
+                    answers[str(it["id"])] = orig
+                    good += orig == it["answer"]
                 if missing:
                     errors.append(p["err_all"].format(n=len(missing)))
                 if not errors:
@@ -535,6 +541,10 @@ def test_recording(name):
     return resp
 
 
+SECTIONS = {"vocab": "Vocabulaire", "grammar": "Grammaire", "reading": "Lecture", "listening": "Écoute"}
+ITEMS_PAGE = 50
+
+
 @bp.route("/tests/questions", methods=["GET", "POST"])
 def test_items():
     msg = None
@@ -561,9 +571,28 @@ def test_items():
                     c.execute("UPDATE placement_items SET audio_file=%s WHERE id=%s", (name, iid))
                     _rm(AUDIO_DIR, it["audio_file"])
                     msg = "Audio enregistré : la question d'écoute est maintenant posée."
+    f = {"niveau": request.args.get("niveau") if request.args.get("niveau") in LEVELS else "",
+         "type": request.args.get("type") if request.args.get("type") in SECTIONS else "",
+         "origine": request.args.get("origine") if request.args.get("origine") in ("manuelle", "generee") else "",
+         "q": (request.args.get("q") or "").strip()[:100]}
+    where, args = ["true"], []
+    if f["niveau"]:
+        where.append("level=%s"); args.append(f["niveau"])
+    if f["type"]:
+        where.append("section=%s"); args.append(f["type"])
+    if f["origine"]:
+        where.append("generated" if f["origine"] == "generee" else "NOT generated")
+    if f["q"]:
+        where.append("(question ILIKE %s OR passage ILIKE %s OR options::text ILIKE %s)"); args += [f"%{f['q']}%"] * 3
+    page = max(1, request.args.get("page", 1, type=int) or 1)
     with connect() as c:
-        items = c.execute("SELECT * FROM placement_items ORDER BY level, sort").fetchall()
-    return render_template("admin/test_items.html", items=items, msg=msg)
+        total = c.execute(f"SELECT count(*) AS n FROM placement_items WHERE {' AND '.join(where)}", args).fetchone()["n"]
+        items = c.execute(f"SELECT * FROM placement_items WHERE {' AND '.join(where)} ORDER BY level, sort, id LIMIT %s OFFSET %s",
+                          args + [ITEMS_PAGE, (page - 1) * ITEMS_PAGE]).fetchall()
+        counts = c.execute("""SELECT level, count(*) FILTER (WHERE active AND (section <> 'listening' OR audio_file IS NOT NULL)) AS asked, count(*) AS n
+                              FROM placement_items GROUP BY level ORDER BY level""").fetchall()
+    return render_template("admin/test_items.html", items=items, msg=msg, f=f, page=page, pages=max(1, -(-total // ITEMS_PAGE)), total=total,
+                           counts=counts, levels=LEVELS, sections=SECTIONS)
 
 
 @bp.before_request

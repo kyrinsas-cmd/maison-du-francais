@@ -4,15 +4,30 @@
 <p><a href="{{ url_for('admin.tests_admin') }}">← Tests de niveau</a></p>
 <h1>Banque de questions</h1>
 {% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
-<p class="note">Questions originales (pas d'extraits du DELF), mises à jour par <code>placement_seed.py</code>. Une question d'écoute n'est posée qu'une fois son audio envoyé : enregistrez la transcription lue clairement (MP3, M4A ou OGG). La bonne réponse est la première de la liste ; l'ordre est mélangé à l'affichage.</p>
+<p class="note">Questions originales (pas d'extraits du DELF), mises à jour par <code>placement_seed.py</code> (rédigées à la main) et <code>placement_gen.py</code> (générées). Une question d'écoute n'est posée qu'une fois son audio envoyé : enregistrez la transcription lue clairement (MP3, M4A ou OGG). La bonne réponse est la première de la liste ; l'ordre est mélangé à l'affichage.</p>
+<p class="note">Questions posées par niveau (tirage de 20 par niveau) :{% for r in counts %} <b>{{ r.level }}</b> {{ r.asked }}{% if r.asked != r.n %} sur {{ r.n }}{% endif %}{{ ' ·' if not loop.last }}{% endfor %}.
+Les questions « générées » (<code>placement_gen.py</code>) sont à faire relire par un professeur FLE ; désactivez celles qui posent problème.</p>
+<form class="search-admin" method="get" role="search" style="flex-wrap:wrap">
+  <label class="visually-hidden" for="f-niveau">Niveau</label>
+  <select id="f-niveau" name="niveau"><option value="">Tous les niveaux</option>{% for lv in levels %}<option {% if f.niveau == lv %}selected{% endif %}>{{ lv }}</option>{% endfor %}</select>
+  <label class="visually-hidden" for="f-type">Type</label>
+  <select id="f-type" name="type"><option value="">Tous les types</option>{% for k, label in sections.items() %}<option value="{{ k }}" {% if f.type == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+  <label class="visually-hidden" for="f-origine">Origine</label>
+  <select id="f-origine" name="origine"><option value="">Toutes les origines</option><option value="manuelle" {% if f.origine == 'manuelle' %}selected{% endif %}>Rédigées à la main</option><option value="generee" {% if f.origine == 'generee' %}selected{% endif %}>Générées</option></select>
+  <label class="visually-hidden" for="f-q">Rechercher</label>
+  <input id="f-q" type="search" name="q" value="{{ f.q }}" placeholder="Mot dans la question">
+  <button class="btn btn-navy btn-small" type="submit">Filtrer</button>
+</form>
+<p class="note">{{ total }} question(s){% if pages > 1 %} · page {{ page }} / {{ pages }}{% endif %}</p>
+{% set qs = {'niveau': f.niveau or None, 'type': f.type or None, 'origine': f.origine or None, 'q': f.q or None} %}
 <div class="table-box admin-table"><table>
   <thead><tr><th scope="col">Niveau</th><th scope="col">Type</th><th scope="col">Question</th><th scope="col">État</th><th scope="col">Actions</th></tr></thead>
   <tbody>
   {% for it in items %}
   <tr {% if it.section == 'listening' and not it.audio_file %}class="low"{% endif %}>
     <td><b>{{ it.level }}</b></td>
-    <td>{{ {'vocab': 'Vocabulaire', 'grammar': 'Grammaire', 'reading': 'Lecture', 'listening': 'Écoute'}[it.section] }}</td>
-    <td lang="fr">{{ it.question }}<br><span class="note">✓ {{ it.options[it.answer] }}</span>{% if it.transcript %}<br><span class="note">Audio à enregistrer : « {{ it.transcript }} »</span>{% endif %}</td>
+    <td>{{ sections[it.section] }}{% if it.generated %}<br><span class="note">générée</span>{% endif %}</td>
+    <td lang="fr">{% if it.passage %}<details><summary class="note">Texte</summary>{{ it.passage }}</details>{% endif %}{{ it.question }}<br><span class="note">✓ {{ it.options[it.answer] }}{% for o in it.options %}{% if loop.index0 != it.answer %} · ✗ {{ o }}{% endif %}{% endfor %}</span>{% if it.transcript %}<br><span class="note">Audio à enregistrer : « {{ it.transcript }} »</span>{% endif %}</td>
     <td>{% if not it.active %}Désactivée{% elif it.section == 'listening' and not it.audio_file %}<b>Audio manquant</b>{% else %}Posée{% endif %}</td>
     <td>
       <div class="actions" style="gap:6px">
@@ -28,4 +43,11 @@
   {% endfor %}
   </tbody>
 </table></div>
+{% if pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if page > 1 %}<a href="{{ url_for('admin.test_items', page=page-1, **qs) }}">← Précédentes</a>{% endif %}
+  <span>Page {{ page }} / {{ pages }}</span>
+  {% if page < pages %}<a href="{{ url_for('admin.test_items', page=page+1, **qs) }}">Suivantes →</a>{% endif %}
+</nav>
+{% endif %}
 {% endblock %}
