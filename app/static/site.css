@@ -493,3 +493,10 @@ section.list-page { padding: 56px 0 96px; }
 .centre p { margin: 0; font-size: 14px; }
 .centre h3 { font-size: 17px; }
 .centre-city { align-self: flex-start; font-weight: 900; font-size: 13px; color: #fff; background: var(--navy); border-radius: 999px; padding: 3px 12px; }
+
+.pt-missing { border: 2px solid var(--red) !important; background: #FFF7F7; }
+.pt-miss-msg { margin: 0; color: var(--red-text); font-weight: 800; font-size: 14px; }
+.pt-next { position: sticky; bottom: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; background: linear-gradient(transparent, #fff 30%); }
+.pt-count { font-size: 15px; color: var(--muted); }
+.pt-count b { color: var(--navy); }
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }

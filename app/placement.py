@@ -39,6 +39,8 @@ WRITING = {  # sujet de rédaction selon le niveau atteint
     "B1": ("Écris un message à un(e) ami(e) pour lui raconter un voyage ou une sortie, et dis ce que tu en as pensé. (80 à 120 mots)", "给朋友写一段话，讲一次旅行或出游，并说说你的感受（80–120词）。"),
     "B2": ("Faut-il apprendre une langue étrangère dès l'école primaire ? Donne ton avis avec des arguments et des exemples. (150 à 200 mots)", "是否应该从小学开始学外语？请给出你的观点、理由和例子（150–200词）。"),
 }
+MIN_WORDS = {"A1.1": 4, "A1": 12, "A2": 30, "B1": 60, "B2": 100}  # rédaction : nombre minimum de mots en français
+
 ORAL_READ = {
     "A1.1": "J'ai un chat. Il est noir.", "A1": "J'ai un chat noir. Il s'appelle Minou. Il aime dormir sur mon lit.",
     "A2": "Le week-end, je vais au parc avec mes amis. Nous jouons au ballon et nous mangeons une glace.",
@@ -62,9 +64,9 @@ PT = {
         "login_needed": "请先登录家长或学生账户，测试结果会保存在您的账户中。", "start": "开始测试", "continue": "继续测试",
         "who_h": "谁来参加测试？", "child_label": "孩子的昵称（不要填写全名）", "age": "年龄", "me": "我自己（学生账户）",
         "err_child": "请填写孩子的昵称。", "err_age": "请填写正确的年龄。",
-        "qcm_h": "第{n}部分 · {lv}", "qcm_lead": "选择正确的答案。不知道的话可以选“我不知道”。", "dunno": "我不知道",
-        "listen": "听录音", "read_text": "阅读短文", "next": "下一步", "err_all": "请回答所有问题。",
-        "writing_h": "写作", "writing_lead": "请用法语完成下面的写作（不要用翻译软件）。", "words": "词数", "err_writing": "请写几句话。",
+        "qcm_h": "第{n}部分 · {lv}", "qcm_lead": "每道题都要选择一个答案，全部回答后才能进入下一步。",
+        "listen": "听录音", "read_text": "阅读短文", "next": "下一步", "err_all": "还有{n}道题没有回答，请回答所有问题后再进入下一步。", "answered": "已回答", "unanswered": "这道题还没有回答",
+        "writing_h": "写作", "writing_lead": "请用法语完成下面的写作（不要用翻译软件）。", "words": "法语词数", "need_words": "至少{n}个法语单词", "err_writing": "写作至少需要{n}个法语单词（现在：{got}个）。", "err_writing_repeat": "请写真正的句子，不要重复同一个词。",
         "oral_h": "口语", "oral_lead": "请选择口语测试的方式。",
         "oral_rec": "在线录音", "oral_rec_p": "回答3个问题，每个最多1分钟。录音只用于本次测试，仅我们的老师可听，评估后30天自动删除（最长保存60天）。",
         "oral_live": "与老师视频面谈", "oral_live_p": "不录音：提交笔试后，通过微信和我们预约一次约10分钟的视频面谈。",
@@ -90,9 +92,9 @@ PT = {
         "login_needed": "Connectez-vous avec un compte parent ou élève : le résultat est enregistré dans votre compte.", "start": "Commencer le test", "continue": "Reprendre le test",
         "who_h": "Qui passe le test ?", "child_label": "Pseudo de l'enfant (pas de nom complet)", "age": "Âge", "me": "Moi-même (compte élève)",
         "err_child": "Indiquez le pseudo de l'enfant.", "err_age": "Indiquez un âge valide.",
-        "qcm_h": "Partie {n} · {lv}", "qcm_lead": "Choisissez la bonne réponse. Si vous ne savez pas, choisissez « Je ne sais pas ».", "dunno": "Je ne sais pas",
-        "listen": "Écouter", "read_text": "Lisez le texte", "next": "Suivant", "err_all": "Répondez à toutes les questions.",
-        "writing_h": "Rédaction", "writing_lead": "Écrivez en français (sans traducteur automatique).", "words": "Mots", "err_writing": "Écrivez quelques phrases.",
+        "qcm_h": "Partie {n} · {lv}", "qcm_lead": "Choisissez une réponse pour chaque question : il faut répondre à toutes les questions pour continuer.",
+        "listen": "Écouter", "read_text": "Lisez le texte", "next": "Suivant", "err_all": "Il reste {n} question(s) sans réponse : répondez à toutes les questions pour continuer.", "answered": "Réponses", "unanswered": "Question sans réponse",
+        "writing_h": "Rédaction", "writing_lead": "Écrivez en français (sans traducteur automatique).", "words": "Mots en français", "need_words": "{n} mots au minimum", "err_writing": "La rédaction doit compter au moins {n} mots en français (actuellement : {got}).", "err_writing_repeat": "Écrivez de vraies phrases, sans répéter le même mot.",
         "oral_h": "Oral", "oral_lead": "Choisissez comment passer l'oral.",
         "oral_rec": "Enregistrement en ligne", "oral_rec_p": "3 réponses d'1 minute au plus. L'enregistrement ne sert qu'à ce test, seuls nos professeurs l'écoutent, il est supprimé 30 jours après l'évaluation (60 jours au plus).",
         "oral_live": "Entretien avec un professeur", "oral_live_p": "Rien n'est enregistré : après l'écrit, réservez sur WeChat un entretien en visio d'environ 10 minutes.",
@@ -248,15 +250,20 @@ def placement_step(tid):
         if t["step"] == "qcm":
             lv = LEVELS[t["qcm_level_idx"]]
             items = items_for(c, lv, tid)
+            chosen, missing = {}, set()
             if request.method == "POST":
                 U.check_csrf()
                 answers, good = dict(t["answers"] or {}), 0
                 for it in items:
                     v = request.form.get(f"q{it['id']}")
-                    if v is None or not (v == "-1" or v.isdigit()):
-                        errors.append(p["err_all"]); break
+                    if v is None or not v.isdigit() or int(v) >= len(it["options"]):
+                        missing.add(it["id"])
+                        continue
+                    chosen[it["id"]] = int(v)
                     answers[str(it["id"])] = int(v)
                     good += int(v) == it["answer"]
+                if missing:
+                    errors.append(p["err_all"].format(n=len(missing)))
                 if not errors:
                     scores = dict(t["scores"] or {}); scores[lv] = [good, len(items)]
                     ok = items and good / len(items) >= PASS
@@ -274,18 +281,25 @@ def placement_step(tid):
                 it["show_passage"] = bool(it["passage"]) and it["passage"] not in passages
                 if it["passage"]:
                     passages.append(it["passage"])
-            return _nocache(render_template("placement/qcm.html", p=p, t=t, lv=lv, n=t["qcm_level_idx"] + 1, items=view, errors=errors))
+            return _nocache(render_template("placement/qcm.html", p=p, t=t, lv=lv, n=t["qcm_level_idx"] + 1, items=view, errors=errors,
+                                            chosen=chosen, missing=missing))
         if t["step"] == "writing":
             prompt = WRITING[t["est_level"] or "A1.1"]
             if request.method == "POST":
                 U.check_csrf()
                 txt = (request.form.get("writing") or "").strip()[:4000]
-                if len(txt) < 5:
-                    errors.append(p["err_writing"])
+                need = MIN_WORDS[t["est_level"] or "A1.1"]
+                words = [w for w in re.findall(r"[A-Za-zÀ-ÖØ-öø-ÿŒœ'’-]+", txt) if re.search(r"[A-Za-zÀ-ÿ]", w)]
+                real = [w for w in words if len(set(w.lower())) > 1 or len(w) == 1]  # écarte « aaaa »
+                if len(real) < need:
+                    errors.append(p["err_writing"].format(n=need, got=len(real)))
+                elif len(set(w.lower() for w in real)) < max(3, need // 3):
+                    errors.append(p["err_writing_repeat"])
                 else:
                     c.execute("UPDATE placement_tests SET writing_text=%s, step='oral', updated_at=now() WHERE id=%s", (txt, tid))
                     return redirect(url_for("placement_step", tid=tid))
-            return _nocache(render_template("placement/writing.html", p=p, t=t, prompt=prompt, errors=errors, text=request.form.get("writing", "")))
+            return _nocache(render_template("placement/writing.html", p=p, t=t, prompt=prompt, errors=errors, text=request.form.get("writing", ""),
+                                            need=MIN_WORDS[t["est_level"] or "A1.1"]))
         # oral
         recs = {r["task"]: r for r in c.execute("SELECT * FROM placement_recordings WHERE test_id=%s", (tid,)).fetchall()}
         lv = t["est_level"] or "A1.1"

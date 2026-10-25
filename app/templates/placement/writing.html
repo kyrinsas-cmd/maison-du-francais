@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% block title %}{{ p.title }} · {{ t.brand_main }}{% endblock %}
+{% block title %}{{ p.title }} · {{ t.brand_main }}<script src="{{ url_for('static', filename='placement.js') }}?v=1" defer></script>
+{% endblock %}
 {% block content %}
 <section class="list-page">
   <div class="wrap pt-wrap">
@@ -12,10 +13,11 @@
       <input type="hidden" name="csrf" value="{{ csrf() }}">
       <div class="pt-passage"><p lang="fr" style="font-weight:700">{{ prompt[0] }}</p>{% if lang == 'zh' %}<p class="note" style="margin:6px 0 0">{{ prompt[1] }}</p>{% endif %}</div>
       <label class="visually-hidden" for="w">{{ p.writing_h }}</label>
-      <textarea id="w" name="writing" lang="fr" maxlength="4000" rows="10" required spellcheck="false" autocorrect="off" autocapitalize="sentences" oninput="document.getElementById('wc').textContent=(this.value.trim().match(/\S+/g)||[]).length">{{ text }}</textarea>
-      <p class="note" style="margin:0">{{ p.words }} : <span id="wc">0</span></p>
-      <button class="btn btn-red" type="submit">{{ p.next }} →</button>
+      <textarea id="w" name="writing" lang="fr" maxlength="4000" rows="10" required spellcheck="false" autocorrect="off" autocapitalize="sentences">{{ text }}</textarea>
+      <p class="note pt-wc" style="margin:0" data-need="{{ need }}">{{ p.words }} : <b id="wc">0</b> · {{ p.need_words.format(n=need) }}</p>
+      <button class="btn btn-red" type="submit" data-next>{{ p.next }} →</button>
     </form>
   </div>
 </section>
+<script src="{{ url_for('static', filename='placement.js') }}?v=1" defer></script>
 {% endblock %}
