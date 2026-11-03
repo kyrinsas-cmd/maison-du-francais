@@ -87,8 +87,8 @@ PT = {
         "res_view": "查看完整结果", "res_summary": "选择题 {good}/{total} 题 · 写作 {w} · 口语 {o}", "res_class_link": "查看班级", "res_back": "返回我的账户",
     },
     "fr": {
-        "title": "Test de niveau gratuit", "desc": "Test de niveau de français gratuit : écrit (QCM et rédaction) et oral, évalués par un professeur en France, avec un niveau CECRL et un conseil de classe.",
-        "h1": "Test de niveau de français gratuit", "lead": "20 questions par niveau à l'écrit (30 à 45 minutes selon le niveau), environ 5 minutes d'oral. Les plus jeunes le passent avec un parent. Un professeur donne ensuite le niveau CECRL et conseille une classe.",
+        "title": "Test de niveau", "desc": "Test de niveau de français : écrit (QCM et rédaction) et oral, évalués par un professeur en France, avec un niveau CECRL et un conseil de classe.",
+        "h1": "Test de niveau de français", "lead": "20 questions par niveau à l'écrit (30 à 45 minutes selon le niveau), environ 5 minutes d'oral. Les plus jeunes le passent avec un parent. Un professeur donne ensuite le niveau CECRL et conseille une classe.",
         "how1": "Écrit : QCM", "how1_p": "Vocabulaire, grammaire, lecture (et écoute), de plus en plus difficile à partir de A1 ; le QCM s'arrête quand les erreurs deviennent nombreuses.",
         "how2": "Écrit : rédaction", "how2_p": "Quelques phrases ou un petit texte, selon le niveau.",
         "how3": "Oral", "how3_p": "3 réponses enregistrées en ligne (1 minute au plus chacune) : il faut l'accord du parent pour l'enregistrement et un navigateur qui permet d'enregistrer.",
