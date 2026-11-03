@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ p.title }} · {{ t.brand_main }}<script src="{{ url_for('static', filename='placement.js') }}?v=1" defer></script>
-{% endblock %}
+{% block title %}{{ p.title }} · {{ t.brand_main }}{% endblock %}
 {% block content %}
 <section class="list-page">
   <div class="wrap pt-wrap">
@@ -19,5 +18,5 @@
     </form>
   </div>
 </section>
-<script src="{{ url_for('static', filename='placement.js') }}?v=1" defer></script>
+<script src="{{ url_for('static', filename='placement.js') }}?v=2" defer></script>
 {% endblock %}
