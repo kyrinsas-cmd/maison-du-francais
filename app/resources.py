@@ -70,6 +70,12 @@ def remove_file(name):
             pass
 
 
+def _closed():
+    """教材库 masqué (LIBRARY_OPEN absent) : 404 pour le public ; l'équipe garde l'accès pour préparer la réouverture."""
+    if not web.LIBRARY_OPEN and not U.is_staff():
+        abort(404)
+
+
 def can_see(vis):
     r = U.role()
     return vis == "public" or (vis == "members" and r is not None) or (vis == "teachers" and r in ("professeur", "moderateur", "admin"))
@@ -83,6 +89,7 @@ def size_label(n):
 
 @web.route("/ressources")
 def resources_page():
+    _closed()
     import liveclasses as L
     from i18n import texts
     t = texts(g.lang)
@@ -112,6 +119,7 @@ def resources_page():
 
 @web.route("/ressources/<int:rid>/fichier")
 def resource_file(rid):
+    _closed()
     with connect() as c:
         r = c.execute("SELECT * FROM resources WHERE id=%s AND published", (rid,)).fetchone()
         if not r or not r["file_name"]:
@@ -132,6 +140,7 @@ def resource_file(rid):
 @web.route("/ressources/<int:rid>/ouvrir")
 def resource_link(rid):
     """Lien vers un site officiel : compté comme une ouverture, puis redirection (le contenu n'est pas hébergé chez nous)."""
+    _closed()
     with connect() as c:
         r = c.execute("SELECT * FROM resources WHERE id=%s AND published", (rid,)).fetchone()
         if not r or not r["url"] or not r["url"].startswith("https://"):
@@ -146,6 +155,8 @@ def resource_link(rid):
 
 
 def sitemap_paths():
+    if not web.LIBRARY_OPEN:
+        return []
     with connect() as c:
         return ["/ressources"] if c.execute("SELECT 1 FROM resources WHERE published LIMIT 1").fetchone() else []
 

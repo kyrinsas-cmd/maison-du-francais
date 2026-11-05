@@ -29,6 +29,7 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 7 * 24 * 3600
 SITE_URL = os.environ.get("SITE_URL", "https://maisondufrancais.fr")
 # Le site reste en noindex tant que SITE_INDEXABLE=1 n'est pas mis dans le .env (contenu provisoire).
 INDEXABLE = os.environ.get("SITE_INDEXABLE") == "1"
+LIBRARY_OPEN = os.environ.get("LIBRARY_OPEN") == "1"  # 教材库 masqué depuis le 2026-11-05 (demande de l'utilisateur) ; LIBRARY_OPEN=1 dans .env + restart pour le rouvrir
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 # Parcours (cahier des charges §16) : heures guidées indicatives DELF ÷ 0,75 h, 3 séances/semaine. Approximatif, à confirmer.
@@ -90,6 +91,7 @@ def inject():
         "t": texts(lang),
         "alternates": alternates,
         "indexable": INDEXABLE,
+        "library_open": LIBRARY_OPEN,
         "site_url": SITE_URL,
         "year": date.today().year,
         "contact_email": os.environ.get("CONTACT_EMAIL"),

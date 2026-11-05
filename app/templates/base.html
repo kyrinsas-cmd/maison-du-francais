@@ -50,7 +50,7 @@
         </div>
       </div>
       <a href="{{ url_for('live') }}" {% if ep == 'live' %}aria-current="page"{% endif %}>{{ t.nav_live }}</a>
-      <a href="{{ url_for('resources_page') }}" {% if ep == 'resources_page' %}aria-current="page"{% endif %}>{{ t.nav_library }}</a>
+      {% if library_open %}<a href="{{ url_for('resources_page') }}" {% if ep == 'resources_page' %}aria-current="page"{% endif %}>{{ t.nav_library }}</a>{% endif %}
       <a href="{{ url_for('teachers_page') }}" {% if ep in ('teachers_page', 'teacher_page') %}aria-current="page"{% endif %}>{{ t.nav_teachers }}</a>
       <a href="{{ url_for('atelier') }}" {% if ep == 'atelier' %}aria-current="page"{% endif %}>{{ t.nav_atelier }}</a>
       {% if reviews_live() %}<a href="{{ url_for('reviews_page') }}" {% if ep == 'reviews_page' %}aria-current="page"{% endif %}>{{ t.nav_reviews }}</a>{% endif %}
