@@ -171,3 +171,9 @@ body.bo.lang-zh { font-family: "Nunito", "PingFang SC", "Noto Sans SC", "Microso
 .bo-shell { background: linear-gradient(to right, var(--surface) 248px, var(--page) 248px); }
 body.bo.space .acct-test .btn, body.bo.space .acct-test form { align-self: flex-start; }
 @media (max-width: 900px) { .bo-shell { background: var(--page); } }
+/* espace famille : cartes des enfants */
+.kid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-bottom: 8px; }
+body.bo .kid-card { text-decoration: none; gap: 4px; }
+body.bo .kid-card:hover { border-color: var(--ink); }
+.kid-name { font-size: 20px; }
+.kid-more { margin-top: 6px; font-weight: 700; font-size: 14px; }

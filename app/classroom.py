@@ -198,7 +198,7 @@ def display(role, u, m, teacher_name):
     return child
 
 
-def my_sessions(u, limit=8):
+def my_sessions(u, limit=8, student_id=None):
     """Prochaines séances d'un compte (famille, élève ou professeur), pour « Mon compte » et l'espace professeur."""
     if not u:
         return []
@@ -210,7 +210,7 @@ def my_sessions(u, limit=8):
                                 AND s.starts_at + make_interval(mins => s.duration_min) + interval '30 minutes' > %s
                                 ORDER BY s.starts_at LIMIT %s""", (u["teacher_id"], now, limit)).fetchall()
         elif u["role"] in ("parent", "eleve"):
-            rows = c.execute("""SELECT s.*, l.level, l.teacher_id, CASE WHEN m.kind='trial' THEN 'trial' ELSE 'student' END AS my_role, m.child_label,
+            rows = c.execute("""SELECT s.*, l.level, l.teacher_id, CASE WHEN m.kind='trial' THEN 'trial' ELSE 'student' END AS my_role, m.child_label, m.student_id,
                                 m.id AS member_id, EXISTS (SELECT 1 FROM session_absences a WHERE a.session_id=s.id AND a.member_id=m.id) AS absent
                                 FROM class_sessions s JOIN live_classes l ON l.id=s.class_id
                                 JOIN class_members m ON m.class_id=s.class_id AND m.user_id=%s AND m.status='active'
@@ -219,18 +219,18 @@ def my_sessions(u, limit=8):
         else:
             return []
     return [dict(r, open=is_open(r, r["my_role"], now), bj=r["starts_at"].astimezone(BJ), paris=r["starts_at"].astimezone(PARIS),
-                 can_excuse=r["starts_at"] - now >= ABSENCE_NOTICE) for r in rows]
+                 can_excuse=r["starts_at"] - now >= ABSENCE_NOTICE) for r in rows if student_id is None or r.get("student_id") == student_id]
 
 
-def my_reports(u, limit=6):
+def my_reports(u, limit=6, student_id=None):
     """Bilans des derniers cours d'une famille ou d'un élève (appel + mot du professeur)."""
     if not u or u["role"] not in ("parent", "eleve"):
         return []
     with connect() as c:
-        rows = c.execute("""SELECT s.starts_at, l.level, m.child_label, r.status, r.comment FROM session_reports r
+        rows = c.execute("""SELECT s.starts_at, l.level, m.child_label, m.student_id, r.status, r.comment FROM session_reports r
                             JOIN class_sessions s ON s.id=r.session_id JOIN live_classes l ON l.id=s.class_id
                             JOIN class_members m ON m.id=r.member_id WHERE m.user_id=%s ORDER BY s.starts_at DESC LIMIT %s""", (u["id"], limit)).fetchall()
-    return [dict(r, bj=r["starts_at"].astimezone(BJ)) for r in rows]
+    return [dict(r, bj=r["starts_at"].astimezone(BJ)) for r in rows if student_id is None or r["student_id"] == student_id]
 
 
 def teacher_reports_todo(u):

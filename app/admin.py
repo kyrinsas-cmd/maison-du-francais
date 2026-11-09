@@ -124,7 +124,10 @@ def users_admin():
     with connect() as c:
         counts = {r["role"]: r["n"] for r in c.execute("SELECT role, count(*) AS n FROM users GROUP BY role").fetchall()}
         pending = c.execute("SELECT count(*) AS n FROM users WHERE role='professeur' AND teacher_id IS NULL AND email_verified_at IS NOT NULL").fetchone()["n"]
-        rows = c.execute("""SELECT u.*, t.first_name AS t_first, t.last_initial AS t_last FROM users u LEFT JOIN teachers t ON t.id=u.teacher_id
+        rows = c.execute("""SELECT u.*, t.first_name AS t_first, t.last_initial AS t_last,
+                            (SELECT json_agg(json_build_object('id', s.id, 'name', s.first_name) ORDER BY s.first_name) FROM students s
+                              WHERE s.user_id=u.id AND s.status='active') AS kids
+                            FROM users u LEFT JOIN teachers t ON t.id=u.teacher_id
                             """ + ("WHERE u.role=%s " if role in U.ROLES else "") +
                          "ORDER BY (u.role='professeur' AND u.teacher_id IS NULL) DESC, u.created_at DESC LIMIT 500",
                          (role,) if role in U.ROLES else ()).fetchall()

@@ -97,3 +97,10 @@ Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquet
 - Admin **Classes** : vue d'ensemble (élèves x/5 + essais, prochain cours, nombre de séances prévues) ; page « Élèves et séances » : inscription depuis les fiches élèves (même niveau proposé en premier), **déplacer une séance** (seulement les séances prévues ; les familles voient la nouvelle heure dans leur compte, à prévenir par WeChat).
 - Professeur : **Mes classes** (`/espace/classes`) et page de classe en lecture seule : élèves (prénom, âge, niveau, présence, dernier mot aux parents), cours (démarrer, appel et bilan).
 - Données de test encore en place : compte `prof.test@example.test` (fiche « Prof Test » démo non publiée), classe 18 « TEST VISIO (manuel) » avec l'élève « 测试学生 » du compte parent de test. À supprimer avant le lancement.
+
+## Lien comptes parents ↔ élèves (2026-11-09)
+- **Mes enfants / 我的孩子** (`family.py`, `/compte/enfants`, page par enfant `/compte/enfants/<id>`) : le parent déclare ses enfants (prénom ou pseudo, âge), les modifie, supprime un enfant sans test ni classe. Page enfant : niveau et classes (fixés par l'équipe), prochains cours (entrer, 请假), bilans, tests de niveau, « passer le test de niveau ». Compte élève : une seule fiche, la sienne (我的学习).
+- **Mon compte** : une carte par enfant (prochain cours et entrée en classe, dernier bilan, test de niveau, lien « voir ») ; « ajouter un enfant ».
+- **Test de niveau** : le parent choisit l'enfant dans sa liste (`?enfant=<id>` pré-coche) ou « un autre enfant » (pseudo + âge, ajouté à Mes enfants) : plus de doublons de prénom.
+- **Admin** : fiche élève → « fusionner dans une autre fiche du même compte » (tests, inscriptions, présence, bilans) et « rattacher à un autre compte » (tests et classes suivent) ; la liste des comptes montre les enfants de chaque compte. Les 3 « xinhui » du compte de test ont été fusionnés le 2026-11-09.
+- Plus tard, si des familles le demandent : 2e parent sur la même famille (invitation), lien entre le compte d'un ado (15 ans et plus) et celui de ses parents.

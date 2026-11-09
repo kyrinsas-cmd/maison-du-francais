@@ -1,0 +1,70 @@
+{% extends "space/layout.html" %}
+{% block title %}{{ s.first_name }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+{% if u.role == 'parent' %}<p><a href="{{ url_for('family_kids') }}">← {{ fam.back }}</a></p>{% endif %}
+<h1>{{ s.first_name if u.role == 'parent' else fam.me }}</h1>
+{% if ok == 'saved' %}<p class="flash">{{ fam.saved }}</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<dl class="account-dl card">
+  {% if s.age %}<dt>{{ fam.age }}</dt><dd>{{ fam.age_unit.format(a=s.age) }}</dd>{% endif %}
+  <dt>{{ fam.level }}</dt><dd><b>{{ s.level or fam.level_none }}</b></dd>
+  <dt>{{ fam.classes }}</dt><dd>{% if kid.classes %}{% for cl in kid.classes %}{{ cl.level }}{% if cl.teacher %} · {{ cl.teacher }}{% endif %} · {% for d in cl.days %}{{ t['day_' ~ d] }} {% endfor %}{{ fam.bj }} {{ cl.start }}{% if cl.kind == 'trial' %}（{{ fam.trial }}）{% endif %}{% if not loop.last %}<br>{% endif %}{% endfor %}{% else %}{{ fam.no_class }}{% endif %}</dd>
+</dl>
+
+<h2>{{ fam.courses }}</h2>
+{% if sessions %}
+<div class="card account-tests">
+  {% for x in sessions %}
+  <div class="acct-test">
+    <p style="margin:0"><b>{{ x.level }}</b> — {{ t.lc_bj }} {{ x.bj.strftime('%m/%d %H:%M') }}{% if x.my_role == 'trial' %} · {{ t.cr_trial }}{% endif %}</p>
+    {% if x.absent %}<p class="note" style="margin:0"><span class="status status-contacted">{{ t.cr_excused }}</span></p>
+    {% elif x.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=x.id) }}">{{ t.cr_enter }}</a>
+    {% else %}<p class="note" style="margin:0">{{ t.cr_opens }}</p>
+      {% if x.can_excuse %}<form method="post" action="{{ url_for('classroom_absence', sid=x.id) }}" onsubmit="return confirm('{{ t.cr_excuse_confirm }}');"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small" type="submit">{{ t.cr_excuse }}</button></form>
+      {% else %}<p class="note" style="margin:0">{{ t.cr_excuse_late }}</p>{% endif %}
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">{{ fam.no_class if not kid.classes else '—' }}</p>{% endif %}
+
+<h2>{{ fam.reports }}</h2>
+{% if reports %}
+<div class="card account-tests">
+  {% for r in reports %}
+  <div class="acct-test">
+    <p style="margin:0"><b>{{ r.level }}</b> — {{ r.bj.strftime('%m/%d %H:%M') }} · <span class="status {{ 'status-accepted' if r.status in ('present', 'late') else 'status-contacted' }}">{{ t['cr_st_' ~ r.status] }}</span></p>
+    {% if r.comment %}<p class="pre" style="margin:0">{{ r.comment }}</p>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">—</p>{% endif %}
+
+<h2>{{ fam.tests }}</h2>
+{% if tests %}
+<div class="card account-tests">
+  {% for x in tests %}
+  <div class="acct-test">
+    <p style="margin:0">{{ x.created_at.strftime('%Y-%m-%d') }} — <span class="status {{ 'status-accepted' if x.step == 'evaluated' else 'status-contacted' }}">{{ p['status_' ~ x.step] }}</span>{% if x.final_level %} · <b>{{ x.final_level }}</b>{% endif %}</p>
+    {% if x.step in ('qcm', 'writing', 'oral') %}<a class="btn btn-red btn-small" href="{{ url_for('placement_step', tid=x.id) }}">{{ p.continue }}</a>{% endif %}
+    {% if x.step == 'evaluated' %}<a class="btn btn-navy btn-small" href="{{ url_for('placement_result', tid=x.id) }}">{{ p.res_view }} →</a>{% endif %}
+    {% if x.n_rec %}<form method="post" action="{{ url_for('placement_delete_recordings', tid=x.id) }}"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small" type="submit">{{ p.del_rec }}</button></form>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">{{ fam.no_tests }}</p>{% endif %}
+<p><a class="btn btn-navy btn-small" href="{{ url_for('placement_home', enfant=s.id) }}">{{ fam.take_test }}</a></p>
+
+<h2>{{ fam.edit }}</h2>
+<form class="form" method="post" style="max-width:560px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <div class="row2">
+    {% if u.role == 'parent' %}<label>{{ fam.name }}<input type="text" name="name" maxlength="40" required value="{{ s.first_name }}"></label>{% endif %}
+    <label>{{ fam.age }}<input type="number" name="age" min="3" max="99" required value="{{ s.age or '' }}"></label>
+  </div>
+  <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">{{ fam.save }}</button>
+</form>
+{% if u.role == 'parent' and not used %}
+<form method="post" style="margin-top:12px" onsubmit="return confirm('{{ fam.remove_confirm }}');"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="remove"><button class="btn btn-line btn-small" type="submit">{{ fam.remove }}</button></form>
+{% endif %}
+{% endblock %}

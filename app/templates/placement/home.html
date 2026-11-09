@@ -26,9 +26,23 @@
           {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
           <input type="hidden" name="csrf" value="{{ csrf() }}">
           {% if u.role == 'parent' %}
+          {% if kids %}
+          <fieldset class="pt-kids"><legend>{{ p.which_child }}</legend>
+            {% for k in kids %}<label class="check"><input type="radio" name="student" value="{{ k.id }}" {% if form.student == k.id|string or (not form.student and loop.first) %}checked{% endif %}><span><b>{{ k.first_name }}</b>{% if k.age %} · {{ t.lib_ages.format(a=k.age) }}{% endif %}</span></label>{% endfor %}
+            <label class="check"><input type="radio" name="student" value="new" {% if form.student == 'new' %}checked{% endif %}><span>{{ p.new_child }}</span></label>
+          </fieldset>
+          <div class="pt-newkid">
+            <label>{{ p.child_label }}<input type="text" name="child_label" maxlength="40" value="{{ form.child_label if form.student == 'new' else '' }}"></label>
+            <label>{{ p.age }}<input type="number" name="age" min="3" max="99" value="{{ form.age if form.student == 'new' else '' }}"></label>
+          </div>
+          <p class="note" style="margin:0">{{ p.new_child_note }}</p>
+          {% else %}
+          <input type="hidden" name="student" value="new">
           <label>{{ p.child_label }}<input type="text" name="child_label" maxlength="40" required value="{{ form.child_label or '' }}"></label>
-          {% else %}<p style="margin:0">{{ p.me }} : <b>{{ u.name }}</b></p>{% endif %}
-          <label>{{ p.age }}<input type="number" name="age" min="3" max="99" {% if u.role == 'parent' %}required{% endif %} value="{{ form.age or '' }}"></label>
+          <label>{{ p.age }}<input type="number" name="age" min="3" max="99" required value="{{ form.age or '' }}"></label>
+          {% endif %}
+          {% else %}<p style="margin:0">{{ p.me }} : <b>{{ u.name }}</b></p>
+          <label>{{ p.age }}<input type="number" name="age" min="3" max="99" value="{{ form.age or '' }}"></label>{% endif %}
           <button class="btn btn-red" type="submit">{{ p.start }}</button>
         </form>
       {% endif %}

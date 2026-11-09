@@ -77,4 +77,21 @@
   <label>Notes internes (visibles par l'équipe seulement)<textarea name="notes" rows="3" maxlength="2000">{{ s.notes or '' }}</textarea></label>
   <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">Enregistrer</button>
 </form>
+
+<h2>Compte de la famille</h2>
+<div class="actions" style="gap:16px;align-items:flex-start;flex-wrap:wrap">
+  {% if siblings %}
+  <form class="form" method="post" style="max-width:420px" onsubmit="return confirm('Fusionner cette fiche dans l\'autre ? Ses tests, classes et bilans y passeront et cette fiche sera supprimée.');">
+    <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="merge">
+    <label>Fiche en double : fusionner « {{ s.first_name }} » dans<select name="into">{% for b in siblings %}<option value="{{ b.id }}">{{ b.first_name }}</option>{% endfor %}</select></label>
+    <button class="btn btn-line btn-small" type="submit" style="align-self:flex-start">Fusionner</button>
+  </form>
+  {% endif %}
+  <form class="form" method="post" style="max-width:420px">
+    <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="reassign">
+    <label>Rattacher à un autre compte (e-mail du compte parent ou élève)<input type="email" name="email" required></label>
+    <p class="note" style="margin:0">Ses tests de niveau et ses classes le suivent.</p>
+    <button class="btn btn-line btn-small" type="submit" style="align-self:flex-start">Rattacher</button>
+  </form>
+</div>
 {% endblock %}

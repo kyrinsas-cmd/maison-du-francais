@@ -63,7 +63,7 @@ PT = {
         "how4": "结果", "how4_p": "老师评估后，结果会显示在“我的账户”中，并通过邮件通知您。",
         "login_needed": "请先登录家长或学生账户，测试结果会保存在您的账户中。", "start": "开始测试", "continue": "继续测试",
         "who_h": "谁来参加测试？", "child_label": "孩子的昵称（不要填写全名）", "age": "年龄", "me": "我自己（学生账户）",
-        "err_child": "请填写孩子的昵称。", "err_age": "请填写正确的年龄。",
+        "err_child": "请填写孩子的昵称。", "which_child": "为哪个孩子测试？", "new_child": "新的孩子", "new_child_note": "选择「新的孩子」时，请填写昵称和年龄；孩子会自动加入「我的孩子」。", "err_age": "请填写正确的年龄。",
         "qcm_h": "第{n}部分 · {lv}", "qcm_lead": "每道题都要选择一个答案，全部回答后才能进入下一步。",
         "listen": "听录音", "read_text": "阅读短文", "next": "下一步", "err_all": "还有{n}道题没有回答，请回答所有问题后再进入下一步。", "answered": "已回答", "unanswered": "这道题还没有回答",
         "writing_h": "写作", "writing_lead": "请用法语完成下面的写作（不要用翻译软件）。", "words": "法语词数", "need_words": "至少{n}个法语单词", "err_writing": "写作至少需要{n}个法语单词（现在：{got}个）。", "err_writing_repeat": "请写真正的句子，不要重复同一个词。",
@@ -95,7 +95,7 @@ PT = {
         "how4": "Résultat", "how4_p": "Après l'évaluation, le résultat apparaît dans « Mon compte » et vous recevez un e-mail.",
         "login_needed": "Connectez-vous avec un compte parent ou élève : le résultat est enregistré dans votre compte.", "start": "Commencer le test", "continue": "Reprendre le test",
         "who_h": "Qui passe le test ?", "child_label": "Pseudo de l'enfant (pas de nom complet)", "age": "Âge", "me": "Moi-même (compte élève)",
-        "err_child": "Indiquez le pseudo de l'enfant.", "err_age": "Indiquez un âge valide.",
+        "err_child": "Indiquez le pseudo de l'enfant.", "which_child": "Pour quel enfant ?", "new_child": "Un autre enfant", "new_child_note": "Pour « Un autre enfant », indiquez son pseudo et son âge : il sera ajouté à « Mes enfants ».", "err_age": "Indiquez un âge valide.",
         "qcm_h": "Partie {n} · {lv}", "qcm_lead": "Choisissez une réponse pour chaque question : il faut répondre à toutes les questions pour continuer.",
         "listen": "Écouter", "read_text": "Lisez le texte", "next": "Suivant", "err_all": "Il reste {n} question(s) sans réponse : répondez à toutes les questions pour continuer.", "answered": "Réponses", "unanswered": "Question sans réponse",
         "writing_h": "Rédaction", "writing_lead": "Écrivez en français (sans traducteur automatique).", "words": "Mots en français", "need_words": "{n} mots au minimum", "err_writing": "La rédaction doit compter au moins {n} mots en français (actuellement : {got}).", "err_writing_repeat": "Écrivez de vraies phrases, sans répéter le même mot.",
@@ -255,20 +255,36 @@ def placement_home():
         U.check_csrf()
         if not can_take(u):
             abort(403)
-        form = {"child_label": (request.form.get("child_label") or "").strip()[:40], "age": (request.form.get("age") or "").strip()}
+        form = {"child_label": (request.form.get("child_label") or "").strip()[:40], "age": (request.form.get("age") or "").strip(),
+                "student": request.form.get("student", "new")}
         age = int(form["age"]) if form["age"].isdigit() and 3 <= int(form["age"]) <= 99 else None
+        chosen = None
+        if u["role"] == "parent" and form["student"].isdigit():     # enfant déjà déclaré (我的孩子)
+            with connect() as c:
+                chosen = c.execute("SELECT * FROM students WHERE id=%s AND user_id=%s AND status='active'", (int(form["student"]), u["id"])).fetchone()
+            if chosen:
+                form["child_label"], age = chosen["first_name"], age or chosen["age"]
+                form["age"] = str(age or "")
         if u["role"] == "parent" and not form["child_label"]:
             errors.append(p["err_child"])
+        elif u["role"] == "parent" and not chosen and not age:
+            errors.append(p["err_age"])
         if form["age"] and not age:
             errors.append(p["err_age"])
         if not errors:
             with connect() as c:
                 import students as ST   # fiche élève (gestion des élèves) : retrouvée ou créée au premier test
-                st = ST.ensure_student(c, u["id"], form["child_label"] if u["role"] == "parent" else u["name"], age)
+                st = chosen["id"] if chosen else ST.ensure_student(c, u["id"], form["child_label"] if u["role"] == "parent" else u["name"], age)
                 tid = c.execute("INSERT INTO placement_tests (user_id, child_label, age, student_id) VALUES (%s,%s,%s,%s) RETURNING id",
                                 (u["id"], form["child_label"] if u["role"] == "parent" else None, age, st)).fetchone()["id"]
             return redirect(url_for("placement_step", tid=tid))
-    return _nocache(render_template("placement/home.html", p=p, u=u, tests=tests, errors=errors, form=form, can_take=can_take(u)))
+    kids = []
+    if u and u["role"] == "parent":
+        import family
+        kids = family.kids_of(u)
+    if not form and request.args.get("enfant", "").isdigit():
+        form = {"student": request.args["enfant"]}
+    return _nocache(render_template("placement/home.html", p=p, u=u, tests=tests, errors=errors, form=form, can_take=can_take(u), kids=kids))
 
 
 @web.route("/test-de-niveau/<int:tid>", methods=["GET", "POST"])

@@ -40,9 +40,7 @@
       <p class="bo-group">{{ t.sp_learning }}</p>
       {{ item(url_for('account_home'), t.sp_overview, ep == 'account_home') }}
       {% if me.role in ('parent', 'eleve') %}
-      {{ item(url_for('account_home') ~ '#cours', t.cr_my_classes) }}
-      {{ item(url_for('account_home') ~ '#bilans', t.cr_reports) }}
-      {{ item(url_for('account_home') ~ '#tests', t.sp_tests, ep in ('placement_result',)) }}
+      {{ item(url_for('family_kids'), fam.kids if me.role == 'parent' else fam.me, ep in ('family_kids', 'family_kid', 'placement_result')) }}
       {{ item(url_for('placement_home'), t.sp_new_test) }}
       {% endif %}
       <p class="bo-group">{{ t.sp_account }}</p>

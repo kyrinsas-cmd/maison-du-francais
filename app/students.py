@@ -60,6 +60,30 @@ def class_label(r):
     return f"{r['level']}{who} · {when}".strip()
 
 
+def merge(c, src, dst):
+    """Fusionne la fiche src dans dst (même compte) : tests, inscriptions, présence et bilans passent sur dst ; src est supprimée."""
+    c.execute("UPDATE placement_tests SET student_id=%s WHERE student_id=%s", (dst, src))
+    for m in c.execute("SELECT * FROM class_members WHERE student_id=%s", (src,)).fetchall():
+        other = c.execute("SELECT * FROM class_members WHERE student_id=%s AND class_id=%s", (dst, m["class_id"])).fetchone()
+        if not other:
+            c.execute("UPDATE class_members SET student_id=%s WHERE id=%s", (dst, m["id"]))
+            continue
+        for table in ("session_reports", "session_absences"):     # même classe des deux côtés : on garde la ligne de dst
+            c.execute(f"""UPDATE {table} SET member_id=%s WHERE member_id=%s
+                          AND NOT EXISTS (SELECT 1 FROM {table} x WHERE x.member_id=%s AND x.session_id={table}.session_id)""", (other["id"], m["id"], other["id"]))
+        c.execute("UPDATE session_attendance SET member_id=%s WHERE member_id=%s", (other["id"], m["id"]))
+        if m["status"] == "active":
+            c.execute("UPDATE class_members SET status='active', kind=CASE WHEN %s='student' THEN 'student' ELSE kind END WHERE id=%s", (m["kind"], other["id"]))
+        c.execute("DELETE FROM class_members WHERE id=%s", (m["id"],))
+        sync_seats(c, m["class_id"])
+    d = c.execute("SELECT * FROM students WHERE id=%s", (dst,)).fetchone()
+    s = c.execute("SELECT * FROM students WHERE id=%s", (src,)).fetchone()
+    c.execute("UPDATE students SET age=coalesce(age, %s::int), level=coalesce(level, %s::text), notes=nullif(concat_ws(E'\n', notes, %s::text), ''), updated_at=now() WHERE id=%s",
+              (s["age"], s["level"], s["notes"], dst))
+    c.execute("DELETE FROM students WHERE id=%s", (src,))
+    c.execute("UPDATE class_members SET child_label=%s WHERE student_id=%s", (d["first_name"], dst))
+
+
 # ---------- liste ----------
 
 @bp.route("/eleves")
@@ -170,6 +194,27 @@ def student(sid):
                     errors.append(err)
                 else:
                     msg = "Type d'inscription modifié."
+            elif act == "merge":                                 # fiche en double : tout passe sur l'autre fiche du même compte
+                target = request.form.get("into", type=int)
+                t = c.execute("SELECT * FROM students WHERE id=%s AND user_id=%s AND id<>%s", (target, s["user_id"], sid)).fetchone()
+                if not t:
+                    errors.append("Choisissez l'autre fiche du même compte.")
+                else:
+                    merge(c, sid, t["id"])
+                    return redirect(url_for("admin.student", sid=t["id"], ok=f"Fiche « {s['first_name']} » fusionnée dans celle-ci."))
+            elif act == "reassign":                              # erreur de compte : l'élève (tests, classes) passe sur un autre compte
+                acc = c.execute("SELECT * FROM users WHERE lower(email)=lower(%s)", ((request.form.get("email") or "").strip(),)).fetchone()
+                if not acc or acc["role"] not in ("parent", "eleve"):
+                    errors.append("Aucun compte parent ou élève avec cette adresse.")
+                elif acc["id"] == s["user_id"]:
+                    errors.append("L'élève est déjà rattaché à ce compte.")
+                elif c.execute("SELECT 1 FROM students WHERE user_id=%s AND lower(first_name)=lower(%s)", (acc["id"], s["first_name"])).fetchone():
+                    errors.append("Ce compte a déjà un élève avec ce prénom : fusionnez plutôt les fiches après le rattachement, ou renommez l'élève.")
+                else:
+                    c.execute("UPDATE students SET user_id=%s, updated_at=now() WHERE id=%s", (acc["id"], sid))
+                    c.execute("UPDATE class_members SET user_id=%s WHERE student_id=%s", (acc["id"], sid))
+                    c.execute("UPDATE placement_tests SET user_id=%s WHERE student_id=%s", (acc["id"], sid))
+                    msg = f"Élève rattaché au compte {acc['email']}."
             if msg and not errors:
                 return redirect(url_for("admin.student", sid=sid, ok=msg))
         memberships = c.execute("""SELECT m.*, l.level, l.days, l.start_bj, l.capacity, l.seats_taken, t.first_name,

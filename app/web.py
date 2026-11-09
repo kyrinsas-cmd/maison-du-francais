@@ -259,6 +259,7 @@ import placement  # noqa: E402,F401  (test de niveau)
 import examcentres  # noqa: E402,F401  (centres d'examen DELF-DALF)
 import classroom  # noqa: E402,F401  (salle de classe en direct, moteur LiveKit)
 import students  # noqa: E402,F401  (gestion des élèves, admin)
+import family  # noqa: E402,F401  (espace famille : mes enfants)
 
 admin.init_app(app)
 accounts.init_app(app)

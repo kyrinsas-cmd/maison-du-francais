@@ -18,7 +18,7 @@
   <tr {% if u.role == 'professeur' and not u.teacher_id and u.email_verified_at %}class="low"{% endif %}>
     <td>{{ u.name }}{% if u.id == me.id %} <span class="tag">vous</span>{% endif %}</td>
     <td>{{ u.email }}{% if not u.email_verified_at %} <span class="tag">non confirmé</span>{% endif %}{% if not u.active %} <span class="tag">désactivé</span>{% endif %}</td>
-    <td>{{ role_label(u.role) }}{% if u.role == 'professeur' %}<br>{% if u.teacher_id %}<a href="{{ url_for('admin.teacher', tid=u.teacher_id) }}">fiche {{ u.t_first }}</a>{% else %}<span class="note">sans fiche</span>{% endif %}{% endif %}</td>
+    <td>{{ role_label(u.role) }}{% if u.kids %}<br><span class="note">{% for k in u.kids %}<a href="{{ url_for('admin.student', sid=k.id) }}">{{ k.name }}</a>{{ ', ' if not loop.last }}{% endfor %}</span>{% endif %}{% if u.role == 'professeur' %}<br>{% if u.teacher_id %}<a href="{{ url_for('admin.teacher', tid=u.teacher_id) }}">fiche {{ u.t_first }}</a>{% else %}<span class="note">sans fiche</span>{% endif %}{% endif %}</td>
     <td>{{ u.created_at.astimezone(paris).strftime('%d/%m/%Y') }}</td>
     <td>{{ u.last_login_at.astimezone(paris).strftime('%d/%m/%Y %H:%M') if u.last_login_at else '—' }}</td>
     <td>

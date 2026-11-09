@@ -1,0 +1,29 @@
+{% extends "space/layout.html" %}
+{% block title %}{{ fam.kids }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<h1>{{ fam.kids }}</h1>
+{% if ok == 'added' %}<p class="flash">{{ fam.added }}</p>{% elif ok == 'removed' %}<p class="flash">{{ fam.removed }}</p>{% endif %}
+{% if kids %}
+<div class="kid-grid">
+  {% for k in kids %}
+  <a class="card kid-card" href="{{ url_for('family_kid', sid=k.id) }}">
+    <b class="kid-name">{{ k.first_name }}</b>
+    <span class="note">{% if k.age %}{{ fam.age_unit.format(a=k.age) }} · {% endif %}{{ fam.level }} {{ k.level or fam.level_none }}</span>
+    <span class="note">{% if k.classes %}{% for cl in k.classes %}{{ cl.level }}{% if cl.kind == 'trial' %}（{{ fam.trial }}）{% endif %}{{ '、' if not loop.last }}{% endfor %}{% else %}{{ fam.no_class }}{% endif %}</span>
+    <span class="kid-more">{{ fam.view }} →</span>
+  </a>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">{{ fam.empty }}</p>{% endif %}
+
+<h2>{{ fam.add }}</h2>
+<form class="form" method="post" style="max-width:560px">
+  {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <div class="row2">
+    <label>{{ fam.name }}<input type="text" name="name" maxlength="40" required value="{{ form.name or '' }}"></label>
+    <label>{{ fam.age }}<input type="number" name="age" min="3" max="99" required value="{{ form.age or '' }}"></label>
+  </div>
+  <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">{{ fam.add }}</button>
+</form>
+{% endblock %}

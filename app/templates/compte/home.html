@@ -10,56 +10,40 @@
     <dt>{{ t.ac_email }}</dt><dd>{{ u.email }}</dd>
   </dl>
   {% if rec_deleted %}<p class="flash">{{ p.rec_deleted }}</p>{% endif %}
-  {% set sess = my_sessions(u) %}
-  {% if sess %}
-  <div class="card account-tests" id="cours">
-    <h2 class="h3">{{ t.cr_my_classes }}</h2>
-    {% for s in sess %}
-    <div class="acct-test">
-      <p style="margin:0"><b>{{ s.level }}</b>{% if s.child_label %} · {{ s.child_label }}{% endif %} — {{ t.lc_bj }} {{ s.bj.strftime('%m/%d %H:%M') }}{% if s.my_role == 'trial' %} · {{ t.cr_trial }}{% endif %}</p>
-      {% if s.absent %}<p class="note" style="margin:0"><span class="status status-contacted">{{ t.cr_excused }}</span></p>
-      {% elif s.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=s.id) }}" style="align-self:flex-start">{{ t.cr_enter }}</a>
-      {% else %}<p class="note" style="margin:0">{{ t.cr_opens }}</p>
-        {% if s.can_excuse %}<form method="post" action="{{ url_for('classroom_absence', sid=s.id) }}" onsubmit="return confirm('{{ t.cr_excuse_confirm }}');"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small" type="submit">{{ t.cr_excuse }}</button></form>
-        {% else %}<p class="note" style="margin:0">{{ t.cr_excuse_late }}</p>{% endif %}
-      {% endif %}
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-  {% set reps = my_reports(u) %}
-  {% if reps %}
-  <div class="card account-tests" id="bilans">
-    <h2 class="h3">{{ t.cr_reports }}</h2>
-    {% for r in reps %}
-    <div class="acct-test">
-      <p style="margin:0"><b>{{ r.level }}</b>{% if r.child_label %} · {{ r.child_label }}{% endif %} — {{ r.bj.strftime('%m/%d %H:%M') }} · <span class="status {{ 'status-accepted' if r.status in ('present', 'late') else 'status-contacted' }}">{{ t['cr_st_' ~ r.status] }}</span></p>
-      {% if r.comment %}<p class="pre" style="margin:0">{{ r.comment }}</p>{% endif %}
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
   {% if u.role in ('parent', 'eleve') %}
-  <div class="card account-tests" id="tests">
-    <h2 class="h3">{{ p.my_tests }}</h2>
-    {% for x in tests %}
+  {% set kids = kids_of(u) %}
+  {% set sess = my_sessions(u, 60) %}
+  {% set reps = my_reports(u, 60) %}
+  <h2 class="h3" style="margin:6px 0 0">{{ fam.kids if u.role == 'parent' else fam.me }}</h2>
+  {% for k in kids %}
+  {% set ks = sess|selectattr('student_id', 'equalto', k.id)|list %}
+  {% set kr = reps|selectattr('student_id', 'equalto', k.id)|list %}
+  {% set kt = tests|selectattr('student_id', 'equalto', k.id)|list %}
+  <div class="card account-tests kid-home">
+    <p style="margin:0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b class="kid-name">{{ k.first_name if u.role == 'parent' else u.name }}</b>
+      <span class="note">{% if k.age %}{{ fam.age_unit.format(a=k.age) }} · {% endif %}{{ fam.level }} <b>{{ k.level or fam.level_none }}</b></span></p>
     <div class="acct-test">
-      <p style="margin:0"><b>{{ x.child_label or u.name }}</b>{% if x.age %} · {{ t.lib_ages.format(a=x.age) }}{% endif %} — <span class="status {{ 'status-accepted' if x.step == 'evaluated' else 'status-contacted' }}">{{ p['status_' ~ x.step] }}</span></p>
-      {% if x.step in ('qcm', 'writing', 'oral') %}<a class="btn btn-red btn-small" href="{{ url_for('placement_step', tid=x.id) }}">{{ p.continue }}</a>{% endif %}
-      {% if x.step == 'evaluated' %}
-      <dl class="account-dl">
-        <dt>{{ p.result_level }}</dt><dd><b>{{ x.final_level }}</b></dd>
-        <dt>{{ p.res_qcm }}</dt><dd>{{ p.res_summary.format(good=x.qcm_good, total=x.qcm_total, w=x.writing_level or '—', o=x.oral_level or '—') }}</dd>
-        {% if x.c_level %}<dt>{{ p.result_class }}</dt><dd><a href="{{ url_for('live', niveau=x.c_level) }}">{{ x.c_level }} · {% for d in x.c_days %}{{ t['day_' ~ d] }} {% endfor %}· {{ t.lc_bj }} {{ x.c_start.strftime('%H:%M') }}</a></dd>{% endif %}
-        {% if x.family_msg %}<dt>{{ p.result_msg }}</dt><dd class="pre">{{ x.family_msg }}</dd>{% endif %}
-      </dl>
-      <a class="btn btn-navy btn-small" href="{{ url_for('placement_result', tid=x.id) }}" style="align-self:flex-start">{{ p.res_view }} →</a>
-      {% endif %}
-      {% if x.n_rec %}<form method="post" action="{{ url_for('placement_delete_recordings', tid=x.id) }}"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small" type="submit">{{ p.del_rec }}</button></form>{% endif %}
+      {% if ks %}{% set x = ks[0] %}
+      <p style="margin:0">{{ fam.next }} : <b>{{ x.level }}</b> — {{ t.lc_bj }} {{ x.bj.strftime('%m/%d %H:%M') }}{% if x.my_role == 'trial' %} · {{ t.cr_trial }}{% endif %}{% if x.absent %} · <span class="status status-contacted">{{ t.cr_excused }}</span>{% endif %}</p>
+      {% if x.open and not x.absent %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=x.id) }}">{{ t.cr_enter }}</a>{% endif %}
+      {% elif k.classes %}<p class="note" style="margin:0">{% for cl in k.classes %}{{ cl.level }}{{ '、' if not loop.last }}{% endfor %}</p>
+      {% else %}<p class="note" style="margin:0">{{ fam.no_class }}</p>{% endif %}
     </div>
-    {% endfor %}
-    <a class="btn btn-navy btn-small" href="{{ url_for('placement_home') }}" style="align-self:flex-start">{{ p.new_test if tests and u.role == 'parent' else p.start }}</a>
+    {% if kr %}<div class="acct-test"><p style="margin:0">{{ fam.reports }} · {{ kr[0].bj.strftime('%m/%d') }} · <span class="status {{ 'status-accepted' if kr[0].status in ('present', 'late') else 'status-contacted' }}">{{ t['cr_st_' ~ kr[0].status] }}</span></p>
+      {% if kr[0].comment %}<p class="pre" style="margin:0">{{ kr[0].comment }}</p>{% endif %}</div>{% endif %}
+    <div class="acct-test">
+      {% if kt %}{% set x = kt[0] %}
+      <p style="margin:0">{{ fam.tests }} : <span class="status {{ 'status-accepted' if x.step == 'evaluated' else 'status-contacted' }}">{{ p['status_' ~ x.step] }}</span>{% if x.final_level %} · <b>{{ x.final_level }}</b>{% endif %}</p>
+      {% if x.step in ('qcm', 'writing', 'oral') %}<a class="btn btn-red btn-small" href="{{ url_for('placement_step', tid=x.id) }}">{{ p.continue }}</a>
+      {% elif x.step == 'evaluated' %}<a class="btn btn-navy btn-small" href="{{ url_for('placement_result', tid=x.id) }}">{{ p.res_view }} →</a>{% endif %}
+      {% else %}<p class="note" style="margin:0">{{ fam.no_tests }}</p><a class="btn btn-navy btn-small" href="{{ url_for('placement_home', enfant=k.id) }}">{{ fam.take_test }}</a>{% endif %}
+    </div>
+    <a class="kid-more" href="{{ url_for('family_kid', sid=k.id) }}">{{ fam.view }} →</a>
   </div>
+  {% else %}
+  <p class="empty">{{ fam.empty }}</p>
+  {% endfor %}
+  {% if u.role == 'parent' %}<p style="margin:0"><a class="btn btn-line btn-small" href="{{ url_for('family_kids') }}">{{ fam.add }}</a></p>{% endif %}
   {% endif %}
   {% if u.role == 'professeur' %}<p class="card note-card">{{ t.ac_teacher_pending }}</p>
   {% else %}<p class="card note-card">{{ t.ac_next_family }} <a href="{{ url_for('contact') }}">{{ t.nav_contact }}</a></p>{% endif %}
