@@ -1,0 +1,160 @@
+/* Administration — présentation reprise de la charte Avocatnet.fr (sobre, « étude ») :
+   fond ivoire, encre navy, l'or comme signal, titres Playfair Display, texte Inter, aucune ombre, filets fins.
+   Chargée après site.css et limitée à body.bo : le site public ne change pas. */
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("fonts/inter-latin.woff2") format("woff2"); }
+@font-face { font-family: "Playfair Display"; font-style: normal; font-weight: 400 900; font-display: swap; src: url("fonts/playfair-latin.woff2") format("woff2"); }
+
+body.bo {
+  --page: #faf9f6; --surface: #f1efe8; --ink: #081422; --ink-soft: #5e666f; --line: #e4e0d6; --line-strong: #8a8579;
+  --accent: #081422; --accent-ink: #ffffff; --gold: #b7873f; --gold-tint: #f4ead8; --danger: #a1382a; --danger-tint: #f7e6e2;
+  --ok: #2f6b45; --ok-tint: #e3efe6; --radius-md: 10px;
+  --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --sans: Inter, system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* jetons du site réutilisés par les pages existantes */
+  --navy: var(--ink); --muted: var(--ink-soft); --soft: var(--surface); --tile: var(--surface); --radius: var(--radius-md); --font: var(--sans);
+  background: var(--page); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5;
+}
+body.bo a { color: var(--ink); text-underline-offset: 3px; text-decoration-color: var(--line-strong); }
+body.bo a:hover { color: var(--ink); text-decoration-color: var(--gold); }
+body.bo :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* ---------- coque : barre latérale + contenu ---------- */
+.bo-shell { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+.bo-side { background: var(--surface); border-right: 1px solid var(--line); padding: 22px 16px; display: flex; flex-direction: column; gap: 20px;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.bo-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 0 8px; }
+.bo-brand img { width: 32px; height: 32px; }
+.bo-brand b { display: block; font-family: var(--serif); font-weight: 600; font-size: 17px; line-height: 1.2; }
+.bo-brand small { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft); }
+.bo-nav { display: flex; flex-direction: column; gap: 1px; }
+.bo-group { margin: 14px 8px 6px; font-family: var(--mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft); }
+.bo-group:first-child { margin-top: 0; }
+.bo-nav a { display: block; padding: 7px 10px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 14px; color: var(--ink); border-left: 2px solid transparent; }
+.bo-nav a:hover { background: var(--page); }
+.bo-nav a[aria-current="page"] { background: var(--page); border-left-color: var(--gold); font-weight: 600; }
+.bo-me { margin-top: auto; border-top: 1px solid var(--line); padding: 14px 8px 0; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.bo-me span { font-weight: 600; }
+.bo-me small { color: var(--ink-soft); }
+.bo-me form { margin: 4px 0 0; }
+.bo-me button { background: none; border: 0; padding: 0; font: inherit; color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; cursor: pointer; }
+.bo-body { min-width: 0; }
+.bo-alert { background: var(--danger-tint); border-left: 3px solid var(--danger); color: var(--ink); padding: 12px 24px; font-size: 14px; }
+.bo-alert a { color: var(--danger); font-weight: 600; }
+body.bo .wrap.admin-main, body.bo .bo-main { max-width: 1120px; margin: 0; padding: 32px 40px 80px; }
+
+/* ---------- typographie ---------- */
+body.bo h1 { font-family: var(--serif); font-weight: 600; font-size: 30px; line-height: 36px; letter-spacing: -.025em; margin: 0 0 24px; color: var(--ink); }
+body.bo h2, body.bo .h3, body.bo h3 { font-family: var(--serif); font-weight: 600; font-size: 18px; line-height: 28px; letter-spacing: 0; color: var(--ink); }
+body.bo main > h2, body.bo main > .h3 { border-bottom: 1px solid var(--line); padding-bottom: 6px; margin: 36px 0 14px; }
+body.bo p { color: var(--ink); }
+body.bo .note { color: var(--ink-soft); font-size: 14px; }
+body.bo code { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; font-family: var(--mono); font-size: 13px; padding: 1px 6px; }
+body.bo main > p:first-child > a:only-child { font-size: 14px; color: var(--ink-soft); }   /* fil d'Ariane « ← … » */
+.bo-eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 6px; }
+.bo-eyebrow::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin-right: 8px; vertical-align: 2px; }
+
+/* ---------- boutons : plein = action principale, discret = le reste ; pas d'effet de survol en mouvement ---------- */
+body.bo .btn { font-family: var(--sans); font-weight: 500; font-size: 14px; line-height: 20px; padding: 9px 16px; border-radius: var(--radius-md); border: 1px solid transparent; transition: none; }
+body.bo .btn:hover { transform: none; }
+body.bo .btn-small { font-size: 14px; padding: 7px 12px; }
+body.bo .btn-navy, body.bo .btn-red { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+body.bo .btn-navy:hover, body.bo .btn-red:hover { background: #1a2b40; color: var(--accent-ink); }
+body.bo .btn-line { background: var(--page); color: var(--ink); border-color: var(--line-strong); }
+body.bo .btn-line:hover { background: var(--surface); color: var(--ink); }
+body.bo button:disabled, body.bo .btn[disabled] { opacity: .6; cursor: not-allowed; }
+
+/* ---------- blocs : filets et fonds, pas d'ombre ---------- */
+body.bo .card { background: var(--page); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 20px; box-shadow: none; }
+body.bo .card p { font-size: 15px; color: var(--ink); }
+body.bo .flash { background: var(--ok-tint); color: var(--ink); border-left: 3px solid var(--ok); border-radius: var(--radius-md); padding: 10px 14px; font-size: 14px; }
+body.bo .errors { background: var(--danger-tint); color: var(--ink); border-left: 3px solid var(--danger); border-radius: var(--radius-md); padding: 12px 16px; font-size: 14px; }
+body.bo .alert-grave { display: none; }   /* remplacé par .bo-alert */
+
+/* ---------- formulaires ---------- */
+body.bo .form { background: var(--page); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 24px; gap: 16px; box-shadow: none; }
+body.bo .form label { font-weight: 500; font-size: 14px; color: var(--ink); gap: 4px; }
+body.bo .form fieldset { border: 0; border-top: 1px solid var(--line); padding: 16px 0 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+body.bo .form fieldset:first-of-type { border-top: 0; padding-top: 0; }
+body.bo .form legend { font-family: var(--serif); font-weight: 600; font-size: 18px; padding: 0 0 4px; color: var(--ink); }
+body.bo input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]):not([type=submit]),
+body.bo select, body.bo textarea {
+  font: 400 15px/22px var(--sans); color: var(--ink); background: var(--page); border: 1px solid var(--line-strong); border-radius: var(--radius-md); padding: 8px 12px;
+}
+body.bo input:focus, body.bo select:focus, body.bo textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+body.bo input[type=checkbox], body.bo input[type=radio] { accent-color: var(--accent); }
+body.bo .form .check { font-size: 14px; color: var(--ink); }
+body.bo .form.danger { border-color: var(--danger); }
+
+/* ---------- tableaux : en-têtes sobres, filets, numéros en chasse fixe ---------- */
+body.bo .table-box, body.bo .admin-table { background: var(--page); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 0; box-shadow: none; }
+body.bo table { border-collapse: collapse; width: 100%; font-size: 14px; }
+body.bo th { text-align: left; font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft);
+  background: var(--surface); border-bottom: 1px solid var(--line); padding: 10px 14px; }
+body.bo td { padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink); }
+body.bo tr:last-child td { border-bottom: 0; }
+body.bo tbody tr:hover td { background: #f6f4ef; }
+body.bo tr.low td { color: var(--ink-soft); }
+body.bo .admin-table td:first-child { font-size: 14px; }
+
+/* ---------- pastilles d'état : fond teinté, texte en encre ---------- */
+body.bo .status { font-family: var(--sans); font-size: 12px; line-height: 16px; font-weight: 500; padding: 3px 10px; border-radius: 9999px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+body.bo .status-new { background: var(--danger-tint); border-color: #e9c9c2; }
+body.bo .status-contacted { background: var(--gold-tint); border-color: #e3cfa9; }
+body.bo .status-accepted { background: var(--ok-tint); border-color: #c4dccb; }
+body.bo .status-rejected { background: var(--surface); color: var(--ink-soft); }
+
+/* ---------- onglets, recherche, pagination ---------- */
+body.bo .tabs-admin { gap: 0; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+body.bo .tabs-admin a { border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 8px 14px; font-weight: 500; font-size: 14px; color: var(--ink-soft); }
+body.bo .tabs-admin a[aria-current] { background: none; color: var(--ink); border-bottom-color: var(--gold); }
+body.bo .tabs-admin span { font-family: var(--mono); font-size: 12px; }
+body.bo .search-admin input { border-radius: var(--radius-md); }
+body.bo .pager { font-weight: 500; font-size: 14px; }
+
+/* ---------- tableau de bord ---------- */
+.bo-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 28px; }
+.bo-head h1 { margin: 0 !important; }
+.bo-date { color: var(--ink-soft); font-size: 14px; }
+.bo-todo { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--page); }
+.bo-todo li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.bo-todo li:last-child { border-bottom: 0; }
+.bo-todo .n { font-family: var(--mono); font-size: 14px; min-width: 2.5em; text-align: right; }
+.bo-todo li.zero { color: var(--ink-soft); }
+.bo-todo li.zero a { color: var(--ink-soft); }
+.bo-todo li:not(.zero) .n { background: var(--gold-tint); border: 1px solid #e3cfa9; border-radius: 9999px; padding: 1px 10px; }
+.bo-figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--page); }
+.bo-figures div { padding: 14px 16px; border-right: 1px solid var(--line); }
+.bo-figures div:last-child { border-right: 0; }
+.bo-figures b { display: block; font-family: var(--serif); font-weight: 600; font-size: 28px; line-height: 34px; font-variant-numeric: tabular-nums; }
+.bo-figures span { font-size: 13px; color: var(--ink-soft); }
+.bo-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; margin-top: 8px; }
+.bo-cols > section > h2 { border-bottom: 1px solid var(--line); padding-bottom: 6px; margin: 28px 0 12px; }
+.bo-ref { font-family: var(--mono); font-size: 13px; }
+.bo-empty { color: var(--ink-soft); font-size: 14px; margin: 0; padding: 12px 0; }
+
+/* ---------- petits écrans : la navigation devient une ligne qui défile ---------- */
+@media (max-width: 900px) {
+  .bo-shell { grid-template-columns: 1fr; }
+  .bo-side { position: static; height: auto; flex-direction: column; gap: 10px; padding: 12px 16px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .bo-nav { flex-direction: row; overflow-x: auto; gap: 4px; padding-bottom: 4px; }
+  .bo-group { display: none; }
+  .bo-nav a { white-space: nowrap; border-left: 0; border-bottom: 2px solid transparent; border-radius: 0; }
+  .bo-nav a[aria-current="page"] { border-bottom-color: var(--gold); }
+  .bo-me { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0; padding-top: 8px; }
+  body.bo .wrap.admin-main, body.bo .bo-main { padding: 24px 16px 60px; }
+  .bo-cols { grid-template-columns: 1fr; gap: 0; }
+  .bo-figures div { border-right: 0; border-bottom: 1px solid var(--line); }
+}
+
+/* ---------- corrections des règles du site public dans l'administration ---------- */
+body.bo section { padding: 0; }
+body.bo td:first-child { font-weight: 400; font-size: 14px; }
+body.bo table { font-size: 14px; min-width: 0; }
+body.bo .table-box { flex: none; align-self: flex-start; width: 100%; overflow-x: auto; }
+body.bo .admin-table table { min-width: 640px; }
+body.bo td b { font-weight: 600; }
+body.bo .empty { border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); padding: 20px; text-align: left; color: var(--ink-soft); }
+body.bo .empty p { margin: 0; font-size: 14px; color: var(--ink-soft); }
+body.bo h1, body.bo h2, body.bo h3, body.bo .bo-figures b { font-variant-numeric: lining-nums tabular-nums; }
+.bo-cols > section { min-width: 0; }

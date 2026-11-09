@@ -82,3 +82,9 @@ Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquet
 - **Appel et bilan** (§6) : `/espace/seance/<id>` (lien « Appel et bilan à faire » dans l'espace prof) ; présence proposée d'après l'entrée en salle (retard au-delà de 5 min) et les absences signalées ; mot court par enfant ; table `session_reports`. Les familles voient « 课后报告 » dans Mon compte.
 - **Absences** (§17) : bouton « 请假 » dans Mon compte jusqu'à 24 h avant le cours (table `session_absences`) ; en dessous, message « prévenez-nous par WeChat ». Règle pour l'absence non signalée : toujours à définir.
 - Pas encore fait : enregistrement et replay (accord parental, conservation ≥ 6 mois, §9/§17), supports de cours projetés sur le tableau, décompte des heures du prof, demande d'inscription en ligne, webhooks LiveKit (heure de sortie), test sur téléphone et depuis la Chine.
+
+## Administration : présentation (2026-11-09)
+- Style repris de la charte **Avocatnet.fr** (artifact « Charte graphique Avocatnet », demande de l'utilisateur) : fond ivoire `#faf9f6`, encre navy `#081422`, or `#b7873f` en signal (rubrique active, pastilles « à traiter »), titres Playfair Display 600, texte Inter, numéros en chasse fixe, aucune ombre, filets `#e4e0d6`, coins 10 px. Polices servies par nous (`static/fonts/playfair-latin.woff2`, `inter-latin.woff2`, OFL).
+- `static/admin.css` (chargée après site.css, limitée à `body.bo` : le site public ne change pas) ; `templates/admin/layout.html` : barre latérale par rubriques (Pilotage, Élèves, Professeurs, Familles, Contenus, Réglages), compte et déconnexion en bas ; sous 900 px la navigation devient une ligne qui défile.
+- `/admin/` = **tableau de bord** (avant : redirection vers les candidatures) : à traiter (tests, réclamations, avis, candidatures, profils modifiés, comptes profs à relier, appels de cours), chiffres, tests à évaluer, prochains cours.
+- L'espace professeur (`/espace`) garde l'ancien style.

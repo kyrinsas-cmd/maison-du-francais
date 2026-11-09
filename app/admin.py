@@ -134,7 +134,39 @@ def users_admin():
 
 @bp.route("/")
 def index():
-    return redirect(url_for("admin.applications"))
+    """Tableau de bord : ce qui attend une action, puis les prochains cours."""
+    from datetime import datetime, timezone
+    import users
+    with connect() as c:
+        one = lambda sql, *a: c.execute(sql, a).fetchone()["n"]
+        todo = [
+            ("Tests de niveau à évaluer", one("SELECT count(*) AS n FROM placement_tests WHERE step='submitted'"), url_for("admin.tests_admin")),
+            ("Réclamations ouvertes", one("SELECT count(*) AS n FROM complaints WHERE status IN ('new','in_progress','waiting')"), url_for("admin.complaints_admin")),
+            ("Avis à modérer", one("SELECT count(*) AS n FROM reviews WHERE status='pending'"), url_for("admin.reviews_admin")),
+            ("Candidatures nouvelles", one("SELECT count(*) AS n FROM teacher_applications WHERE status='new'"), url_for("admin.applications", statut="new")),
+            ("Profils de professeurs modifiés", one("SELECT count(*) AS n FROM teachers WHERE pending IS NOT NULL"), url_for("admin.teachers_list")),
+            ("Comptes professeurs à relier", one("SELECT count(*) AS n FROM users WHERE role='professeur' AND teacher_id IS NULL AND email_verified_at IS NOT NULL"),
+             url_for("admin.users_admin", role="professeur") if users.is_admin() else None),
+            ("Appels de cours à faire", one("""SELECT count(*) AS n FROM class_sessions s WHERE s.status <> 'cancelled' AND s.starts_at < now()
+                                              AND s.starts_at > now() - interval '30 days' AND NOT EXISTS (SELECT 1 FROM session_reports r WHERE r.session_id=s.id)
+                                              AND EXISTS (SELECT 1 FROM class_members m WHERE m.class_id=s.class_id AND m.status='active')"""), url_for("admin.classes_admin")),
+        ]
+        grave = one("SELECT count(*) AS n FROM complaints WHERE severity='grave' AND status IN ('new','in_progress','waiting')")
+        figures = [
+            ("Familles", one("SELECT count(*) AS n FROM users WHERE role IN ('parent','eleve')")),
+            ("Professeurs publiés", one("SELECT count(*) AS n FROM teachers WHERE published")),
+            ("Classes ouvertes", one("SELECT count(*) AS n FROM live_classes WHERE published AND status IN ('open','soon','full')")),
+            ("Tests de niveau ce mois-ci", one("SELECT count(*) AS n FROM placement_tests WHERE created_at > date_trunc('month', now())")),
+        ]
+        sessions = c.execute("""SELECT s.*, l.level, t.first_name, (SELECT count(*) FROM class_members m WHERE m.class_id=s.class_id AND m.status='active') AS n
+                                FROM class_sessions s JOIN live_classes l ON l.id=s.class_id LEFT JOIN teachers t ON t.id=l.teacher_id
+                                WHERE s.status='scheduled' AND s.starts_at > now() - interval '1 hour' ORDER BY s.starts_at LIMIT 8""").fetchall()
+        tests = c.execute("""SELECT t.id, t.child_label, t.est_level, t.submitted_at, u.name FROM placement_tests t JOIN users u ON u.id=t.user_id
+                             WHERE t.step='submitted' ORDER BY t.submitted_at LIMIT 6""").fetchall()
+    paris, bj = ZoneInfo("Europe/Paris"), ZoneInfo("Asia/Shanghai")
+    sessions = [dict(s, paris=s["starts_at"].astimezone(paris), bj=s["starts_at"].astimezone(bj)) for s in sessions]
+    return render_template("admin/home.html", todo=todo, grave=grave, figures=figures, sessions=sessions, tests=tests,
+                           now=datetime.now(timezone.utc).astimezone(paris))
 
 
 @bp.route("/candidatures")

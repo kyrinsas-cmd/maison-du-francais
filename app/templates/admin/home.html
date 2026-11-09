@@ -1,0 +1,52 @@
+{% extends "admin/layout.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="bo-head">
+  <div><p class="bo-eyebrow">Administration</p><h1>Tableau de bord</h1></div>
+  <p class="bo-date">{{ now.strftime('%d/%m/%Y') }} · {{ now.strftime('%H:%M') }} à Paris</p>
+</div>
+
+<div class="bo-cols">
+  <section>
+    <h2 style="margin-top:0">À traiter</h2>
+    <ul class="bo-todo">
+      {% for label, n, href in todo %}
+      <li class="{{ 'zero' if not n }}">{% if href %}<a href="{{ href }}">{{ label }}</a>{% else %}<span>{{ label }}</span>{% endif %}<span class="n">{{ n }}</span></li>
+      {% endfor %}
+    </ul>
+    {% if grave %}<p class="note" style="margin-top:8px;color:var(--danger)">Dont {{ grave }} réclamation{{ 's' if grave > 1 }} grave{{ 's' if grave > 1 }}, à traiter en priorité.</p>{% endif %}
+  </section>
+  <section>
+    <h2 style="margin-top:0">En chiffres</h2>
+    <div class="bo-figures">
+      {% for label, n in figures %}<div><b>{{ n }}</b><span>{{ label }}</span></div>{% endfor %}
+    </div>
+  </section>
+</div>
+
+<div class="bo-cols">
+  <section>
+    <h2>Tests de niveau à évaluer</h2>
+    {% if tests %}
+    <div class="table-box admin-table"><table>
+      <thead><tr><th scope="col">N°</th><th scope="col">Élève</th><th scope="col">QCM</th><th scope="col">Envoyé le</th></tr></thead>
+      <tbody>{% for x in tests %}<tr>
+        <td class="bo-ref"><a href="{{ url_for('admin.test_admin', tid=x.id) }}">{{ x.id }}</a></td>
+        <td>{{ x.child_label or x.name }}</td><td>{{ x.est_level or '—' }}</td>
+        <td class="bo-ref">{{ x.submitted_at.strftime('%d/%m %H:%M') if x.submitted_at else '—' }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<p class="bo-empty">Aucun test en attente.</p>{% endif %}
+  </section>
+  <section>
+    <h2>Prochains cours</h2>
+    {% if sessions %}
+    <div class="table-box admin-table"><table>
+      <thead><tr><th scope="col">Paris</th><th scope="col">Pékin</th><th scope="col">Classe</th><th scope="col">Élèves</th></tr></thead>
+      <tbody>{% for s in sessions %}<tr>
+        <td class="bo-ref">{{ s.paris.strftime('%d/%m %H:%M') }}</td><td class="bo-ref">{{ s.bj.strftime('%H:%M') }}</td>
+        <td><a href="{{ url_for('admin.class_room_admin', cid=s.class_id) }}">{{ s.level }}{% if s.first_name %} · {{ s.first_name }}{% endif %}</a></td><td>{{ s.n }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<p class="bo-empty">Aucun cours programmé.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}
