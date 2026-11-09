@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0b1830">
 <title>{{ x.title }} · {{ cls.level }}{% if cls.first_name %} · {{ cls.first_name }}{% endif %} · {{ t.brand_main }}</title>
 <link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="stylesheet" href="{{ url_for('static', filename='classroom.css') }}?v=1">
+<link rel="stylesheet" href="{{ url_for('static', filename='classroom.css') }}?v=3">
 </head>
 <body class="cr lang-{{ lang }}" data-role="{{ role }}">
 <header class="cr-top">
@@ -51,6 +51,15 @@
 <main class="cr-room" id="cr-room" hidden>
   <section class="cr-stage" id="cr-stage" aria-label="{{ x.title }}">
     <div class="cr-main" id="cr-main"></div>
+    <div class="cr-board" id="cr-board" hidden>
+      <div class="cr-board-tools" id="cr-board-tools">
+        {% for c in ['#14213d', '#d63c46', '#1f6fd1', '#1f8a4c', '#e08a00'] %}<button type="button" class="cr-color" data-color="{{ c }}" style="--c:{{ c }}" aria-label="{{ x.pen }} {{ c }}"></button>{% endfor %}
+        <button type="button" data-tool="eraser">🧽 {{ x.eraser }}</button>
+        <button type="button" data-tool="clear" class="cr-teacher-only">🗑 {{ x.clear_all }}</button>
+        <button type="button" data-tool="allow" class="cr-teacher-only"></button>
+      </div>
+      <canvas id="cr-canvas" width="1600" height="900"></canvas>
+    </div>
     <div class="cr-grid" id="cr-grid"></div>
     <p class="cr-banner" id="cr-banner" hidden></p>
     <button class="cr-audio" id="cr-audio" type="button" hidden>🔊 {{ x.audio_blocked }}</button>
@@ -72,6 +81,7 @@
     <button type="button" id="b-cam" hidden></button>
     <button type="button" id="b-hand" hidden>✋ {{ x.hand_up }}</button>
     <button type="button" id="b-share" hidden>🖥 {{ x.share }}</button>
+    {% if role == 'teacher' %}<button type="button" id="b-board">📝 {{ x.board }}</button>{% endif %}
     <button type="button" id="b-side" class="cr-only-small">💬</button>
     <button type="button" id="b-leave" class="cr-leave">{{ x.leave }}</button>
     {% if role == 'teacher' %}<button type="button" id="b-end" class="cr-end">{{ x.end }}</button>{% endif %}
@@ -88,7 +98,7 @@
   "starts": s.starts_at.isoformat(), "teaching_min": 45, "total_min": s.duration_min
 }|tojson }}</script>
 <script src="{{ url_for('static', filename='vendor/livekit-client.umd.js') }}?v=2.23.0"></script>
-<script src="{{ url_for('static', filename='classroom.js') }}?v=1"></script>
+<script src="{{ url_for('static', filename='classroom.js') }}?v=2"></script>
 {% endif %}
 </body>
 </html>

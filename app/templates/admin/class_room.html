@@ -42,18 +42,19 @@ La salle ouvre 15 min avant le cours (30 min pour le professeur) et ferme 30 min
 </div>
 <p class="note">Planning de la classe : jours {{ cls.days|join(', ') or '—' }} (1 = lundi), {{ cls.start_bj.strftime('%H:%M') if cls.start_bj else '—' }} heure de Pékin. Séance = 45 min de cours + 15 min de devoirs.</p>
 <div class="table-box admin-table"><table>
-  <thead><tr><th scope="col">Pékin</th><th scope="col">Paris</th><th scope="col">État</th><th scope="col">Présents</th><th scope="col"></th></tr></thead>
+  <thead><tr><th scope="col">Pékin</th><th scope="col">Paris</th><th scope="col">État</th><th scope="col">Présents</th><th scope="col">Bilan</th><th scope="col"></th></tr></thead>
   <tbody>
   {% for s in sessions %}<tr {% if s.status != 'scheduled' %}class="low"{% endif %}>
     <td>{{ s.bj.strftime('%d/%m %H:%M') }}</td><td>{{ s.paris.strftime('%d/%m %H:%M') }}</td>
     <td>{{ {'scheduled': 'Prévue', 'cancelled': 'Annulée', 'done': 'Terminée'}[s.status] }}{% if s.open %} · <b>salle ouverte</b>{% endif %}</td>
-    <td>{{ s.present }}</td>
+    <td>{{ s.present }}{% if s.excused %} · {{ s.excused }} absence(s) signalée(s){% endif %}</td>
+    <td>{{ 'fait' if s.reported else ('à faire' if s.starts_at < now_utc else '—') }}</td>
     <td><div class="actions" style="gap:6px">
       <a class="btn btn-line btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr') }}" target="_blank" rel="noopener">Observer</a>
       {% if is_admin() %}<a class="btn btn-line btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr', **{'as': 'teacher'}) }}" target="_blank" rel="noopener">Entrer comme professeur</a>{% endif %}
       {% if s.status == 'scheduled' %}<form method="post" onsubmit="return confirm('Annuler cette séance ?');"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="cancel"><input type="hidden" name="session" value="{{ s.id }}"><button class="btn btn-line btn-small" type="submit">Annuler</button></form>{% endif %}
     </div></td>
-  </tr>{% else %}<tr><td colspan="5">Aucune séance. Créez-les depuis le planning ci-dessus.</td></tr>{% endfor %}
+  </tr>{% else %}<tr><td colspan="6">Aucune séance. Créez-les depuis le planning ci-dessus.</td></tr>{% endfor %}
   </tbody>
 </table></div>
 {% endblock %}

@@ -4,6 +4,7 @@
 <section class="account-page"><div class="auth-box wide">
   <h1>{{ t.ac_hello.format(name=u.name) }}</h1>
   {% if ok == 'verified' %}<p class="flash">{{ t.ac_verified }}</p>{% endif %}
+  {% if request.args.get('ok') == 'absence' %}<p class="flash">{{ t.cr_excused_ok }}</p>{% endif %}
   <dl class="account-dl card">
     <dt>{{ t.ac_type }}</dt><dd>{{ role_label }}</dd>
     <dt>{{ t.ac_email }}</dt><dd>{{ u.email }}</dd>
@@ -16,8 +17,24 @@
     {% for s in sess %}
     <div class="acct-test">
       <p style="margin:0"><b>{{ s.level }}</b>{% if s.child_label %} · {{ s.child_label }}{% endif %} — {{ t.lc_bj }} {{ s.bj.strftime('%m/%d %H:%M') }}{% if s.my_role == 'trial' %} · {{ t.cr_trial }}{% endif %}</p>
-      {% if s.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=s.id) }}" style="align-self:flex-start">{{ t.cr_enter }}</a>
-      {% else %}<p class="note" style="margin:0">{{ t.cr_opens }}</p>{% endif %}
+      {% if s.absent %}<p class="note" style="margin:0"><span class="status status-contacted">{{ t.cr_excused }}</span></p>
+      {% elif s.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=s.id) }}" style="align-self:flex-start">{{ t.cr_enter }}</a>
+      {% else %}<p class="note" style="margin:0">{{ t.cr_opens }}</p>
+        {% if s.can_excuse %}<form method="post" action="{{ url_for('classroom_absence', sid=s.id) }}" onsubmit="return confirm('{{ t.cr_excuse_confirm }}');"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small" type="submit">{{ t.cr_excuse }}</button></form>
+        {% else %}<p class="note" style="margin:0">{{ t.cr_excuse_late }}</p>{% endif %}
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% set reps = my_reports(u) %}
+  {% if reps %}
+  <div class="card account-tests">
+    <h2 class="h3">{{ t.cr_reports }}</h2>
+    {% for r in reps %}
+    <div class="acct-test">
+      <p style="margin:0"><b>{{ r.level }}</b>{% if r.child_label %} · {{ r.child_label }}{% endif %} — {{ r.bj.strftime('%m/%d %H:%M') }} · <span class="status {{ 'status-accepted' if r.status in ('present', 'late') else 'status-contacted' }}">{{ t['cr_st_' ~ r.status] }}</span></p>
+      {% if r.comment %}<p class="pre" style="margin:0">{{ r.comment }}</p>{% endif %}
     </div>
     {% endfor %}
   </div>

@@ -331,3 +331,18 @@ CREATE TABLE IF NOT EXISTS session_attendance (         -- présence : chaque en
     joins       int NOT NULL DEFAULT 1,
     PRIMARY KEY (session_id, user_id, role)
 );
+-- 2026-11-09 : appel et bilan après le cours (§6), absences signalées par les familles (§17)
+CREATE TABLE IF NOT EXISTS session_absences (           -- absence signalée par la famille, au moins 24 h avant
+    session_id  bigint NOT NULL REFERENCES class_sessions(id) ON DELETE CASCADE,
+    member_id   bigint NOT NULL REFERENCES class_members(id) ON DELETE CASCADE,
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (session_id, member_id)
+);
+CREATE TABLE IF NOT EXISTS session_reports (            -- appel et petit mot du professeur, visible par la famille
+    session_id  bigint NOT NULL REFERENCES class_sessions(id) ON DELETE CASCADE,
+    member_id   bigint NOT NULL REFERENCES class_members(id) ON DELETE CASCADE,
+    status      text NOT NULL CHECK (status IN ('present', 'late', 'absent', 'excused')),
+    comment     text,
+    updated_at  timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (session_id, member_id)
+);

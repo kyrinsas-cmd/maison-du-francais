@@ -39,6 +39,9 @@ LK_SECRET = os.environ.get("LIVEKIT_API_SECRET", "")
 LK_API = os.environ.get("LIVEKIT_API", "http://127.0.0.1:7880")
 OPEN_BEFORE, OPEN_BEFORE_TEACHER, CLOSE_AFTER = timedelta(minutes=15), timedelta(minutes=30), timedelta(minutes=30)
 SESSION_MIN = 60                     # 45 min de cours + 15 min de devoirs et questions (§16)
+ABSENCE_NOTICE = timedelta(hours=24)  # absence signalée au moins 24 h avant : accès au replay quand il existera (§17)
+LATE_AFTER = timedelta(minutes=5)     # entrée plus de 5 min après le début : « en retard » proposé à l'appel
+REPORT_STATUSES = {"present": ("Présent", "出勤"), "late": ("En retard", "迟到"), "absent": ("Absent", "缺席"), "excused": ("Absence signalée", "已请假")}
 ROLES = ("teacher", "student", "trial", "parent", "observer")
 
 # Textes de la salle (zh pour les familles, fr pour les professeurs et l'équipe ; la langue suit l'adresse /fr/)
@@ -56,7 +59,8 @@ CR = {
            "revoked": "老师结束了你的发言。", "waiting_teacher": "老师还没有进入教室，请稍等。", "time_left": "距下课 {m} 分钟", "homework": "作业与答疑时间",
            "starts_in": "{m} 分钟后开始上课", "quality": {"excellent": "网络很好", "good": "网络一般", "poor": "网络较差", "lost": "网络中断"},
            "back": "返回我的账户", "listen_only": "旁听模式：你可以看和听，但不能发言。", "trial_note": "试听模式：老师请你发言后，才能打开麦克风和摄像头。",
-           "safety": "课堂内不能私聊，聊天内容不会保存。"},
+           "safety": "课堂内不能私聊，聊天内容不会保存。", "board": "白板", "board_close": "关闭白板", "pen": "笔", "eraser": "橡皮", "clear_all": "清空",
+           "board_allow": "允许学生写", "board_forbid": "禁止学生写", "board_can": "老师允许你在白板上写字了。", "board_cannot": "现在只有老师可以写。"},
     "fr": {"title": "Salle de classe", "enter": "Entrer en classe", "enter_parent": "Assister en tant que parent", "enter_child": "Mon enfant suit le cours",
            "not_open": "La salle ouvre à {t} (heure de Paris), 30 minutes avant le cours.", "closed": "Ce cours est terminé.", "cancelled": "Ce cours est annulé.",
            "check": "Vérifiez votre caméra et votre micro avant d'entrer.", "mic": "Micro", "cam": "Caméra",
@@ -74,7 +78,9 @@ CR = {
            "starts_in": "Le cours commence dans {m} min", "quality": {"excellent": "Très bonne connexion", "good": "Connexion moyenne", "poor": "Connexion faible", "lost": "Connexion perdue"},
            "back": "Retour à mon espace", "listen_only": "Mode écoute : vous voyez et entendez, sans prendre la parole.",
            "trial_note": "Cours d'essai : micro et caméra s'activent quand le professeur vous donne la parole.",
-           "safety": "Pas de message privé dans la salle ; la discussion n'est pas conservée."},
+           "safety": "Pas de message privé dans la salle ; la discussion n'est pas conservée.", "board": "Tableau", "board_close": "Fermer le tableau",
+           "pen": "Stylo", "eraser": "Gomme", "clear_all": "Effacer tout", "board_allow": "Les élèves peuvent écrire", "board_forbid": "Seul le professeur écrit",
+           "board_can": "Le professeur vous laisse écrire au tableau.", "board_cannot": "Seul le professeur écrit au tableau."},
 }
 
 
@@ -203,19 +209,45 @@ def my_sessions(u, limit=8):
                                 AND s.starts_at + make_interval(mins => s.duration_min) + interval '30 minutes' > %s
                                 ORDER BY s.starts_at LIMIT %s""", (u["teacher_id"], now, limit)).fetchall()
         elif u["role"] in ("parent", "eleve"):
-            rows = c.execute("""SELECT s.*, l.level, l.teacher_id, CASE WHEN m.kind='trial' THEN 'trial' ELSE 'student' END AS my_role, m.child_label
+            rows = c.execute("""SELECT s.*, l.level, l.teacher_id, CASE WHEN m.kind='trial' THEN 'trial' ELSE 'student' END AS my_role, m.child_label,
+                                m.id AS member_id, EXISTS (SELECT 1 FROM session_absences a WHERE a.session_id=s.id AND a.member_id=m.id) AS absent
                                 FROM class_sessions s JOIN live_classes l ON l.id=s.class_id
                                 JOIN class_members m ON m.class_id=s.class_id AND m.user_id=%s AND m.status='active'
                                 WHERE s.status='scheduled' AND s.starts_at + make_interval(mins => s.duration_min) + interval '30 minutes' > %s
                                 ORDER BY s.starts_at LIMIT %s""", (u["id"], now, limit)).fetchall()
         else:
             return []
-    return [dict(r, open=is_open(r, r["my_role"], now), bj=r["starts_at"].astimezone(BJ), paris=r["starts_at"].astimezone(PARIS)) for r in rows]
+    return [dict(r, open=is_open(r, r["my_role"], now), bj=r["starts_at"].astimezone(BJ), paris=r["starts_at"].astimezone(PARIS),
+                 can_excuse=r["starts_at"] - now >= ABSENCE_NOTICE) for r in rows]
+
+
+def my_reports(u, limit=6):
+    """Bilans des derniers cours d'une famille ou d'un élève (appel + mot du professeur)."""
+    if not u or u["role"] not in ("parent", "eleve"):
+        return []
+    with connect() as c:
+        rows = c.execute("""SELECT s.starts_at, l.level, m.child_label, r.status, r.comment FROM session_reports r
+                            JOIN class_sessions s ON s.id=r.session_id JOIN live_classes l ON l.id=s.class_id
+                            JOIN class_members m ON m.id=r.member_id WHERE m.user_id=%s ORDER BY s.starts_at DESC LIMIT %s""", (u["id"], limit)).fetchall()
+    return [dict(r, bj=r["starts_at"].astimezone(BJ)) for r in rows]
+
+
+def teacher_reports_todo(u):
+    """Cours passés du professeur dont l'appel n'est pas fait (30 derniers jours)."""
+    if not u or u["role"] != "professeur" or not u["teacher_id"]:
+        return []
+    with connect() as c:
+        rows = c.execute("""SELECT s.*, l.level FROM class_sessions s JOIN live_classes l ON l.id=s.class_id
+                            WHERE l.teacher_id=%s AND s.status <> 'cancelled' AND s.starts_at < now() AND s.starts_at > now() - interval '30 days'
+                            AND EXISTS (SELECT 1 FROM class_members m WHERE m.class_id=s.class_id AND m.status='active')
+                            AND NOT EXISTS (SELECT 1 FROM session_reports r WHERE r.session_id=s.id)
+                            ORDER BY s.starts_at DESC""", (u["teacher_id"],)).fetchall()
+    return [dict(r, paris=r["starts_at"].astimezone(PARIS)) for r in rows]
 
 
 @web.app.context_processor
 def classroom_ctx():
-    return {"my_sessions": my_sessions, "is_admin": U.is_admin}
+    return {"my_sessions": my_sessions, "my_reports": my_reports, "teacher_reports_todo": teacher_reports_todo, "is_admin": U.is_admin}
 
 
 # ---------- salle (pages publiques, comptes connectés) ----------
@@ -316,6 +348,76 @@ def classroom_action(sid):
     return jsonify(ok=True)
 
 
+@web.route("/classe/<int:sid>/absence", methods=["POST"])
+def classroom_absence(sid):
+    """La famille signale une absence, au moins 24 h avant le cours."""
+    u = U.current()
+    if not u:
+        abort(403)
+    U.check_csrf()
+    with connect() as c:
+        s = _session(c, sid)
+        m = c.execute("SELECT * FROM class_members WHERE class_id=%s AND user_id=%s AND status='active'", (s["class_id"], u["id"])).fetchone()
+        if not m or s["status"] != "scheduled" or s["starts_at"] - datetime.now(timezone.utc) < ABSENCE_NOTICE:
+            abort(403)
+        c.execute("INSERT INTO session_absences (session_id, member_id) VALUES (%s,%s) ON CONFLICT DO NOTHING", (sid, m["id"]))
+    return redirect(url_for("account_home", ok="absence"))
+
+
+def report_rows(c, s):
+    """Élèves de la séance avec l'état proposé : bilan déjà fait, sinon absence signalée, sinon présence d'après l'entrée en salle."""
+    rows = c.execute("""SELECT m.*, r.status AS r_status, r.comment AS r_comment,
+                               EXISTS (SELECT 1 FROM session_absences a WHERE a.session_id=%(s)s AND a.member_id=m.id) AS excused,
+                               (SELECT min(first_join) FROM session_attendance t WHERE t.session_id=%(s)s AND t.member_id=m.id AND t.role IN ('student','trial')) AS joined
+                        FROM class_members m LEFT JOIN session_reports r ON r.session_id=%(s)s AND r.member_id=m.id
+                        WHERE m.class_id=%(c)s AND (m.status='active' OR r.status IS NOT NULL) ORDER BY m.kind, m.child_label""",
+                     {"s": s["id"], "c": s["class_id"]}).fetchall()
+    out = []
+    for m in rows:
+        guess = m["r_status"] or ("excused" if m["excused"] else ("late" if m["joined"] and m["joined"] > s["starts_at"] + LATE_AFTER
+                                                                   else "present" if m["joined"] else "absent"))
+        out.append(dict(m, status=guess, joined_paris=m["joined"].astimezone(PARIS) if m["joined"] else None))
+    return out
+
+
+def _teacher_session(c, sid):
+    import accounts
+    u = accounts.current()
+    s = _session(c, sid)
+    cls = c.execute("SELECT * FROM live_classes WHERE id=%s", (s["class_id"],)).fetchone()
+    if not u or not cls or cls["teacher_id"] != u["teacher_id"]:
+        abort(404)
+    return s, cls
+
+
+def _espace_routes():
+    from accounts import bp as espace_bp
+
+    @espace_bp.route("/seance/<int:sid>", methods=["GET", "POST"])
+    def session_report(sid):
+        with connect() as c:
+            s, cls = _teacher_session(c, sid)
+            if request.method == "POST":
+                U.check_csrf()
+                if s["starts_at"] > datetime.now(timezone.utc):
+                    abort(400)
+                for m in report_rows(c, s):
+                    st = request.form.get(f"st{m['id']}")
+                    if st not in REPORT_STATUSES:
+                        continue
+                    c.execute("""INSERT INTO session_reports (session_id, member_id, status, comment) VALUES (%s,%s,%s,%s)
+                                 ON CONFLICT (session_id, member_id) DO UPDATE SET status=EXCLUDED.status, comment=EXCLUDED.comment, updated_at=now()""",
+                              (sid, m["id"], st, (request.form.get(f"cm{m['id']}") or "").strip()[:600] or None))
+                return redirect(url_for("espace.session_report", sid=sid, ok=1))
+            rows = report_rows(c, s)
+        return render_template("espace/session.html", s=s, cls=cls, rows=rows, statuses=REPORT_STATUSES, ok=request.args.get("ok"),
+                               paris=s["starts_at"].astimezone(PARIS), bj=s["starts_at"].astimezone(BJ),
+                               future=s["starts_at"] > datetime.now(timezone.utc))
+
+
+_espace_routes()
+
+
 # ---------- administration : élèves de la classe et séances ----------
 
 @admin_bp.route("/classes/<int:cid>/salle", methods=["GET", "POST"])
@@ -360,9 +462,11 @@ def class_room_admin(cid):
                 return redirect(url_for("admin.class_room_admin", cid=cid, ok="Séance annulée."))
         members = c.execute("""SELECT m.*, u.email, u.name, u.role AS account_role FROM class_members m JOIN users u ON u.id=m.user_id
                                WHERE m.class_id=%s ORDER BY m.status, m.kind, m.created_at""", (cid,)).fetchall()
-        sessions = c.execute("""SELECT s.*, (SELECT count(*) FROM session_attendance a WHERE a.session_id=s.id AND a.role IN ('student','trial')) AS present
+        sessions = c.execute("""SELECT s.*, (SELECT count(*) FROM session_attendance a WHERE a.session_id=s.id AND a.role IN ('student','trial')) AS present,
+                                (SELECT count(*) FROM session_reports r WHERE r.session_id=s.id) AS reported,
+                                (SELECT count(*) FROM session_absences a WHERE a.session_id=s.id) AS excused
                                 FROM class_sessions s WHERE class_id=%s ORDER BY starts_at DESC LIMIT 60""", (cid,)).fetchall()
     now = datetime.now(timezone.utc)
     sessions = [dict(s, bj=s["starts_at"].astimezone(BJ), paris=s["starts_at"].astimezone(PARIS), open=is_open(s, "teacher", now)) for s in sessions]
-    return render_template("admin/class_room.html", cls=cls, members=members, sessions=sessions, msg=msg, errors=errors,
+    return render_template("admin/class_room.html", cls=cls, members=members, sessions=sessions, msg=msg, errors=errors, now_utc=now,
                            active=sum(1 for m in members if m["status"] == "active" and m["kind"] == "student"))
