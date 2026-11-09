@@ -1,0 +1,59 @@
+{% extends "admin/layout.html" %}
+{% block title %}Salle · classe {{ cls.level }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.class_edit', cid=cls.id) }}">← Classe {{ cls.level }}</a></p>
+<h1>Salle de classe · {{ cls.level }}{% if cls.first_name %} · {{ cls.first_name }} {{ cls.last_initial or '' }}{% endif %}</h1>
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<p class="note">Notre visio (moteur LiveKit sur le serveur). Seuls les comptes inscrits ci-dessous, le professeur de la classe et l'équipe peuvent entrer.
+La salle ouvre 15 min avant le cours (30 min pour le professeur) et ferme 30 min après. Pas d'enregistrement vidéo pour l'instant.</p>
+
+<h2 class="h3">Élèves ({{ active }} / {{ cls.capacity }} places)</h2>
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Enfant</th><th scope="col">Compte</th><th scope="col">Type</th><th scope="col">État</th><th scope="col"></th></tr></thead>
+  <tbody>
+  {% for m in members %}<tr {% if m.status != 'active' %}class="low"{% endif %}>
+    <td><b>{{ m.child_label or m.name }}</b></td><td>{{ m.name }} · {{ m.email }} ({{ m.account_role }})</td>
+    <td>{{ 'Essai (试听)' if m.kind == 'trial' else 'Élève' }}</td><td>{{ 'Actif' if m.status == 'active' else 'Retiré' }}</td>
+    <td>{% if m.status == 'active' %}<form method="post"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="remove"><input type="hidden" name="member" value="{{ m.id }}"><button class="btn btn-line btn-small" type="submit">Retirer</button></form>{% endif %}</td>
+  </tr>{% else %}<tr><td colspan="5">Aucun élève pour l'instant.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+<form class="form" method="post" style="max-width:760px;margin-top:12px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="add">
+  <fieldset><legend>Ajouter un élève</legend>
+    <div class="row2">
+      <label>E-mail du compte (parent ou élève)<input type="email" name="email" required></label>
+      <label>Prénom de l'enfant affiché en classe<input type="text" name="child_label" maxlength="40" placeholder="ex. Léa"></label>
+    </div>
+    <label>Type<select name="kind"><option value="student">Élève inscrit (caméra et micro)</option><option value="trial">Essai 试听 (écoute ; le professeur peut l'inviter à parler)</option></select></label>
+    <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">Ajouter</button>
+  </fieldset>
+</form>
+
+<h2 class="h3" style="margin-top:28px">Séances</h2>
+<div class="actions" style="gap:12px;flex-wrap:wrap">
+  <form method="post" class="actions" style="gap:6px"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="generate">
+    <label>Créer les séances des <input type="number" name="weeks" value="4" min="1" max="12" style="width:64px"> prochaines semaines</label>
+    <button class="btn btn-navy btn-small" type="submit">Créer</button></form>
+  <form method="post" class="actions" style="gap:6px"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="add_session">
+    <label>Séance ponctuelle (heure de Pékin) <input type="datetime-local" name="starts_bj" required></label>
+    <button class="btn btn-line btn-small" type="submit">Ajouter</button></form>
+</div>
+<p class="note">Planning de la classe : jours {{ cls.days|join(', ') or '—' }} (1 = lundi), {{ cls.start_bj.strftime('%H:%M') if cls.start_bj else '—' }} heure de Pékin. Séance = 45 min de cours + 15 min de devoirs.</p>
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Pékin</th><th scope="col">Paris</th><th scope="col">État</th><th scope="col">Présents</th><th scope="col"></th></tr></thead>
+  <tbody>
+  {% for s in sessions %}<tr {% if s.status != 'scheduled' %}class="low"{% endif %}>
+    <td>{{ s.bj.strftime('%d/%m %H:%M') }}</td><td>{{ s.paris.strftime('%d/%m %H:%M') }}</td>
+    <td>{{ {'scheduled': 'Prévue', 'cancelled': 'Annulée', 'done': 'Terminée'}[s.status] }}{% if s.open %} · <b>salle ouverte</b>{% endif %}</td>
+    <td>{{ s.present }}</td>
+    <td><div class="actions" style="gap:6px">
+      <a class="btn btn-line btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr') }}" target="_blank" rel="noopener">Observer</a>
+      {% if is_admin() %}<a class="btn btn-line btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr', **{'as': 'teacher'}) }}" target="_blank" rel="noopener">Entrer comme professeur</a>{% endif %}
+      {% if s.status == 'scheduled' %}<form method="post" onsubmit="return confirm('Annuler cette séance ?');"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="cancel"><input type="hidden" name="session" value="{{ s.id }}"><button class="btn btn-line btn-small" type="submit">Annuler</button></form>{% endif %}
+    </div></td>
+  </tr>{% else %}<tr><td colspan="5">Aucune séance. Créez-les depuis le planning ci-dessus.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

@@ -9,6 +9,19 @@
     <dt>{{ t.ac_email }}</dt><dd>{{ u.email }}</dd>
   </dl>
   {% if rec_deleted %}<p class="flash">{{ p.rec_deleted }}</p>{% endif %}
+  {% set sess = my_sessions(u) %}
+  {% if sess %}
+  <div class="card account-tests">
+    <h2 class="h3">{{ t.cr_my_classes }}</h2>
+    {% for s in sess %}
+    <div class="acct-test">
+      <p style="margin:0"><b>{{ s.level }}</b>{% if s.child_label %} · {{ s.child_label }}{% endif %} — {{ t.lc_bj }} {{ s.bj.strftime('%m/%d %H:%M') }}{% if s.my_role == 'trial' %} · {{ t.cr_trial }}{% endif %}</p>
+      {% if s.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=s.id) }}" style="align-self:flex-start">{{ t.cr_enter }}</a>
+      {% else %}<p class="note" style="margin:0">{{ t.cr_opens }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
   {% if u.role in ('parent', 'eleve') %}
   <div class="card account-tests">
     <h2 class="h3">{{ p.my_tests }}</h2>

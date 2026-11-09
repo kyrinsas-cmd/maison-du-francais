@@ -3,6 +3,7 @@
 {% block content %}
 <p><a href="{{ url_for('admin.classes_admin') }}">← Classes</a></p>
 <h1>{{ 'Classe ' ~ row.level if row else 'Nouvelle classe' }}</h1>
+{% if row %}<p><a class="btn btn-navy btn-small" href="{{ url_for('admin.class_room_admin', cid=row.id) }}">Élèves et séances (salle de classe) →</a></p>{% endif %}
 {% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
 {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
 <form class="form teacher-form" method="post" style="max-width:760px">

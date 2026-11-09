@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="{{ html_lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b1830">
+<title>{{ x.title }} · {{ cls.level }}{% if cls.first_name %} · {{ cls.first_name }}{% endif %} · {{ t.brand_main }}</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="{{ url_for('static', filename='classroom.css') }}?v=1">
+</head>
+<body class="cr lang-{{ lang }}" data-role="{{ role }}">
+<header class="cr-top">
+  <a class="cr-brand" href="{{ url_for('account_home') }}" title="{{ x.back }}"><img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="" width="30" height="30"><span>{{ t.brand_main }}</span></a>
+  <div class="cr-class"><b>{{ cls.level }}</b>{% if cls.first_name %} · {{ cls.first_name }}{% endif %} ·
+    {% if lang == 'zh' %}北京时间 {{ starts_bj.strftime('%m月%d日 %H:%M') }}{% else %}{{ starts_paris.strftime('%d/%m à %H:%M') }} (Paris){% endif %}</div>
+  <div class="cr-status" id="cr-status" aria-live="polite"></div>
+  <div class="cr-clock" id="cr-clock"></div>
+</header>
+
+{% if s.status == 'cancelled' or closed %}
+<main class="cr-gate"><div class="cr-card"><h1>{{ x.cancelled if s.status == 'cancelled' else x.closed }}</h1>
+  <a class="cr-btn" href="{{ url_for('account_home') }}">{{ x.back }}</a></div></main>
+{% elif not open %}
+<main class="cr-gate"><div class="cr-card"><h1>{{ x.title }}</h1>
+  <p>{{ x.not_open.format(t=(opens_bj.strftime('%H:%M') if lang == 'zh' else opens_paris.strftime('%H:%M'))) }}</p>
+  <a class="cr-btn" href="{{ request.path }}{% if as_parent %}?as=parent{% endif %}">↻</a>
+  <a class="cr-link" href="{{ url_for('account_home') }}">{{ x.back }}</a></div></main>
+{% else %}
+<main class="cr-gate" id="cr-prejoin">
+  <div class="cr-card">
+    <h1>{{ x.title }}</h1>
+    {% if role in ('teacher', 'student') %}
+    <p>{{ x.check }}</p>
+    <video id="cr-preview" class="cr-preview" autoplay muted playsinline></video>
+    <div class="cr-meter" aria-hidden="true"><span id="cr-meter"></span></div>
+    <div class="cr-devices">
+      <label>{{ x.cam }}<select id="cr-cam"></select></label>
+      <label>{{ x.mic }}<select id="cr-mic"></select></label>
+    </div>
+    <p class="cr-warn" id="cr-nodev" hidden>{{ x.no_device }}</p>
+    {% elif role == 'trial' %}<p>{{ x.trial_note }}</p>
+    {% else %}<p>{{ x.listen_only }}</p>{% endif %}
+    <button class="cr-btn" id="cr-join" type="button">{{ x.enter }}</button>
+    {% if can_parent %}<p class="cr-small">
+      {% if as_parent %}<a href="{{ request.path }}">{{ x.enter_child }}</a>{% else %}<a href="{{ request.path }}?as=parent">{{ x.enter_parent }}</a>{% endif %}</p>{% endif %}
+    <p class="cr-small">{{ x.safety }}</p>
+  </div>
+</main>
+
+<main class="cr-room" id="cr-room" hidden>
+  <section class="cr-stage" id="cr-stage" aria-label="{{ x.title }}">
+    <div class="cr-main" id="cr-main"></div>
+    <div class="cr-grid" id="cr-grid"></div>
+    <p class="cr-banner" id="cr-banner" hidden></p>
+    <button class="cr-audio" id="cr-audio" type="button" hidden>🔊 {{ x.audio_blocked }}</button>
+  </section>
+  <aside class="cr-side" id="cr-side">
+    <div class="cr-tabs" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-tab="people">{{ x.people }} <span id="cr-count"></span></button>
+      <button type="button" role="tab" aria-selected="false" data-tab="chat">{{ x.chat }} <span id="cr-unread" class="cr-dot" hidden></span></button>
+    </div>
+    <ul class="cr-people" id="cr-people" data-panel="people"></ul>
+    <div class="cr-chat" data-panel="chat" hidden>
+      <ol id="cr-msgs" aria-live="polite"></ol>
+      <form id="cr-chatform" autocomplete="off"><label class="cr-vh" for="cr-chatin">{{ x.chat }}</label>
+        <input id="cr-chatin" maxlength="300" placeholder="{{ x.chat_ph }}"><button type="submit">{{ x.send }}</button></form>
+    </div>
+  </aside>
+  <nav class="cr-bar" aria-label="{{ x.title }}">
+    <button type="button" id="b-mic" hidden></button>
+    <button type="button" id="b-cam" hidden></button>
+    <button type="button" id="b-hand" hidden>✋ {{ x.hand_up }}</button>
+    <button type="button" id="b-share" hidden>🖥 {{ x.share }}</button>
+    <button type="button" id="b-side" class="cr-only-small">💬</button>
+    <button type="button" id="b-leave" class="cr-leave">{{ x.leave }}</button>
+    {% if role == 'teacher' %}<button type="button" id="b-end" class="cr-end">{{ x.end }}</button>{% endif %}
+  </nav>
+</main>
+
+<main class="cr-gate" id="cr-after" hidden><div class="cr-card"><h1 id="cr-after-msg"></h1>
+  <button class="cr-btn" id="cr-rejoin" type="button">{{ x.rejoin }}</button>
+  <a class="cr-link" href="{{ url_for('account_home') }}">{{ x.back }}</a></div></main>
+
+<script id="cr-config" type="application/json">{{ {
+  "token_url": url_for('classroom_token', sid=s.id), "action_url": url_for('classroom_action', sid=s.id), "csrf": csrf(),
+  "as": ('parent' if as_parent else (request.args.get('as') or '')), "role": role, "x": x,
+  "starts": s.starts_at.isoformat(), "teaching_min": 45, "total_min": s.duration_min
+}|tojson }}</script>
+<script src="{{ url_for('static', filename='vendor/livekit-client.umd.js') }}?v=2.23.0"></script>
+<script src="{{ url_for('static', filename='classroom.js') }}?v=1"></script>
+{% endif %}
+</body>
+</html>

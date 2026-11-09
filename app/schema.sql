@@ -297,3 +297,37 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
 ALTER TABLE placement_items ADD COLUMN IF NOT EXISTS generated boolean NOT NULL DEFAULT false;
 CREATE INDEX IF NOT EXISTS placement_items_level ON placement_items (level, section, active);
 ALTER TABLE resources ADD COLUMN IF NOT EXISTS url text;  -- lien vers un site officiel (file_kind = 'link', rien n'est hébergé)
+
+-- 2026-11-09 : salle de classe en direct (classroom.py, moteur LiveKit sur ce serveur)
+CREATE TABLE IF NOT EXISTS class_members (              -- élèves d'une classe (compte parent ou élève) ; essai = 试听
+    id          bigserial PRIMARY KEY,
+    class_id    bigint NOT NULL REFERENCES live_classes(id) ON DELETE CASCADE,
+    user_id     bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    child_label text,                                   -- prénom ou pseudo de l'enfant affiché dans la salle
+    kind        text NOT NULL DEFAULT 'student' CHECK (kind IN ('student', 'trial')),
+    status      text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'ended')),
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (class_id, user_id)
+);
+CREATE TABLE IF NOT EXISTS class_sessions (             -- une séance = un cours d'une classe = une salle LiveKit
+    id           bigserial PRIMARY KEY,
+    class_id     bigint NOT NULL REFERENCES live_classes(id) ON DELETE CASCADE,
+    starts_at    timestamptz NOT NULL,
+    duration_min int NOT NULL DEFAULT 60,               -- 45 min de cours + 15 min de devoirs et questions
+    status       text NOT NULL DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'cancelled', 'done')),
+    started_at   timestamptz,                           -- entrée du professeur
+    ended_at     timestamptz,
+    created_at   timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (class_id, starts_at)
+);
+CREATE INDEX IF NOT EXISTS class_sessions_starts ON class_sessions (starts_at);
+CREATE TABLE IF NOT EXISTS session_attendance (         -- présence : chaque entrée dans la salle
+    session_id  bigint NOT NULL REFERENCES class_sessions(id) ON DELETE CASCADE,
+    user_id     bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    member_id   bigint REFERENCES class_members(id) ON DELETE SET NULL,
+    role        text NOT NULL,
+    first_join  timestamptz NOT NULL DEFAULT now(),
+    last_join   timestamptz NOT NULL DEFAULT now(),
+    joins       int NOT NULL DEFAULT 1,
+    PRIMARY KEY (session_id, user_id, role)
+);

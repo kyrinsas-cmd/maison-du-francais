@@ -4,6 +4,14 @@
 <h1>Bonjour {{ t.first_name }}</h1>
 {% if welcome %}<p class="flash">Votre compte est activé.</p>{% endif %}
 {% if sent %}<p class="flash">Vos modifications sont envoyées. L'équipe les vérifie avant leur mise en ligne.</p>{% endif %}
+{% set sess = my_sessions(espace_user()) %}
+<div class="card" style="margin-bottom:18px">
+  <h2 class="h3">Mes prochains cours</h2>
+  {% for s in sess %}
+  <p style="margin:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>{{ s.level }}</b> {{ s.paris.strftime('%d/%m à %H:%M') }} (Paris) · {{ s.bj.strftime('%H:%M') }} à Pékin
+    {% if s.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr') }}">Démarrer le cours</a>{% else %}<span class="note">la salle ouvre 30 min avant</span>{% endif %}</p>
+  {% else %}<p style="margin:0">Aucun cours programmé.</p>{% endfor %}
+</div>
 <div class="grid">
   <div class="card">
     <h2 class="h3">Ma fiche sur le site</h2>

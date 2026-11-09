@@ -64,3 +64,18 @@ Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquet
 ## À faire / ouvert
 - Mentions légales : quelle entité édite le site (nouvelle société ou Kyrin Services) ? Durée de conservation des candidatures à valider (proposition : 2 ans).
 - QR code WeChat, premiers profils de professeurs (avec leur accord), durée de conservation des réclamations à fixer.
+
+## Salle de classe en direct (2026-11-09) — `classroom.py`
+- **Notre propre visio**, décidée par l'utilisateur, sur le moteur libre **LiveKit 1.13.11** installé sur ce serveur (choix : serveur maison plutôt qu'Agora/TRTC payant ; accès par les comptes du site).
+  - Service `livekit` (systemd, utilisateur `livekit`), config `/etc/livekit/livekit.yaml` (clé API + secret, root:livekit 640), binaire `/usr/local/bin/livekit-server` (somme SHA-256 vérifiée).
+  - Signalisation : `wss://maisondufrancais.fr/livekit` (nginx `location /livekit/` → 127.0.0.1:7880, voir `ops/nginx/`). Clés dans `.env` : `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`.
+  - Média : UDP 50000–60000, repli TCP 7881, relais TURN UDP 3478 / TLS 5349 (relais 30000–40000) avec le certificat du site copié dans `/etc/livekit/certs` (hook certbot `/etc/letsencrypt/renewal-hooks/deploy/livekit.sh`).
+  - **⚠️ Ports à ouvrir dans ufw** (pas fait : refusé par la protection automatique de la session, à faire par l'utilisateur) :
+    `ufw allow 7881/tcp; ufw allow 50000:60000/udp; ufw allow 3478/udp; ufw allow 5349/tcp; ufw allow 30000:40000/udp`. Sans eux, la visio ne marche que depuis le serveur lui-même.
+  - Client : `static/vendor/livekit-client.umd.js` 2.23.0 (Apache-2.0, servi par nous : pas de CDN, important pour la Chine).
+- Tables `class_members` (élève inscrit ou essai 试听, compte parent/élève), `class_sessions` (une séance = une salle `mdf-s<id>`, 60 min = 45 + 15), `session_attendance` (présence à chaque entrée).
+- Rôles : teacher (prof de la classe ; un admin peut entrer « comme professeur » pour tester), student (caméra + micro), trial (rien d'activé, le prof donne la parole), parent (旁听, même compte que l'élève, `?as=parent`), observer (équipe).
+- Le prof (côté serveur, jamais de clé dans le navigateur) : couper un micro, donner/retirer la parole à un essai, exclure, terminer le cours. Main levée, discussion publique non conservée, partage d'écran (prof), indicateur de connexion, son prioritaire (simulcast, dynacast, RED/DTX).
+- Ouverture 15 min avant (30 min pour le prof), fermeture 30 min après la fin. Entrées : « Mon compte » (我的直播课 → 进入教室), espace prof (Mes prochains cours → Démarrer), admin `/admin/classes/<id>/salle` (élèves, création des séances depuis le planning, séance ponctuelle, annulation, observer).
+- Testé le 2026-11-09 avec 3 navigateurs Chromium (prof, élève, essai ; fausse caméra) : vidéo et son, main levée, parole donnée à l'essai, discussion, micro coupé par le prof, exclusion, fin du cours, présence, refus d'accès (anonyme, famille non inscrite, sans CSRF, action prof par un élève). **Pas testé depuis la Chine** ni sur téléphone réel.
+- Pas encore fait : enregistrement et replay (accord parental, conservation ≥ 6 mois, §9/§17), tableau blanc, absences signalées, bilan du prof après le cours, décompte des heures, demande d'inscription en ligne, webhooks LiveKit (heure de sortie).
