@@ -1,0 +1,37 @@
+{% extends "admin/layout.html" %}
+{% block title %}Élèves{% endblock %}
+{% block content %}
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
+  <h1 style="margin:0">Élèves</h1>
+  <a class="btn btn-navy btn-small" href="{{ url_for('admin.student_new') }}">Ajouter un élève</a>
+</div>
+<nav class="tabs-admin" aria-label="Statut">
+  <a href="{{ url_for('admin.students_admin') }}" {% if f.statut == 'active' %}aria-current="page"{% endif %}>Actifs <span>{{ counts.get('active', 0) }}</span></a>
+  <a href="{{ url_for('admin.students_admin', statut='left') }}" {% if f.statut == 'left' %}aria-current="page"{% endif %}>Partis <span>{{ counts.get('left', 0) }}</span></a>
+</nav>
+<form class="search-admin" method="get" role="search">
+  {% if f.statut == 'left' %}<input type="hidden" name="statut" value="left">{% endif %}
+  <label class="visually-hidden" for="f-q">Rechercher</label>
+  <input id="f-q" type="search" name="q" value="{{ f.q }}" placeholder="Prénom, nom ou e-mail du compte">
+  <label class="visually-hidden" for="f-niveau">Niveau</label>
+  <select id="f-niveau" name="niveau"><option value="">Tous les niveaux</option>{% for lv in levels %}<option {% if f.niveau == lv %}selected{% endif %}>{{ lv }}</option>{% endfor %}</select>
+  <label class="visually-hidden" for="f-classe">Classe</label>
+  <select id="f-classe" name="classe"><option value="">Toutes les classes</option><option value="sans" {% if f.classe == 'sans' %}selected{% endif %}>Sans classe</option>
+    {% for cl in classes %}<option value="{{ cl.id }}" {% if f.classe == cl.id|string %}selected{% endif %}>{{ class_label(cl) }}</option>{% endfor %}</select>
+  <button class="btn btn-navy btn-small" type="submit">Filtrer</button>
+</form>
+{% if rows %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Élève</th><th scope="col">Âge</th><th scope="col">Niveau</th><th scope="col">Classes</th><th scope="col">Test de niveau</th><th scope="col">Compte</th></tr></thead>
+  <tbody>{% for r in rows %}<tr>
+    <td><a href="{{ url_for('admin.student', sid=r.id) }}"><b>{{ r.first_name }}</b></a></td>
+    <td>{{ r.age or '—' }}</td>
+    <td>{{ r.level or '—' }}</td>
+    <td>{{ r.classes or 'Sans classe' }}</td>
+    <td>{% if r.test_level %}{{ r.test_level }}{% elif r.test_step == 'submitted' %}<span class="status status-contacted">À évaluer</span>{% elif r.test_step %}En cours{% else %}—{% endif %}</td>
+    <td>{{ r.account_name }} · <span class="note">{{ r.email }}</span></td>
+  </tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">Aucun élève ne correspond.</p>{% endif %}
+<p class="note" style="margin-top:12px">Un élève est créé automatiquement au premier test de niveau. Un compte parent peut avoir plusieurs enfants.</p>
+{% endblock %}

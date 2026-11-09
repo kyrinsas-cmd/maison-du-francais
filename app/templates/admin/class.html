@@ -31,7 +31,7 @@
     <legend>Places et statut</legend>
     <div class="row2">
       <label>Places dans la classe (5 au plus)<input type="number" name="capacity" min="1" max="5" value="{{ v.capacity or 5 }}"></label>
-      <label>Places occupées<input type="number" name="seats_taken" min="0" max="5" value="{{ v.seats_taken or 0 }}"></label>
+      <p class="note" style="margin:0;align-self:end">Places occupées : <b>{{ v.seats_taken or 0 }}</b>, calculées d'après les élèves inscrits (les essais ne comptent pas).</p>
     </div>
     <label>Statut<select name="status">{% for k, label in statuses.items() %}<option value="{{ k }}" {% if v.status == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
     <div class="row2">

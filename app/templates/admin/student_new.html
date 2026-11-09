@@ -1,0 +1,18 @@
+{% extends "admin/layout.html" %}
+{% block title %}Ajouter un élève{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.students_admin') }}">← Élèves</a></p>
+<h1>Ajouter un élève</h1>
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<form class="form" method="post" style="max-width:640px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <label>E-mail du compte parent ou élève<input type="email" name="email" required value="{{ v.email or '' }}"></label>
+  <p class="note" style="margin:-8px 0 0">La famille doit d'abord avoir créé son compte sur le site.</p>
+  <div class="row2">
+    <label>Prénom de l'enfant (obligatoire pour un compte parent)<input type="text" name="first_name" maxlength="40" value="{{ v.first_name or '' }}"></label>
+    <label>Âge<input type="number" name="age" min="3" max="99" value="{{ v.age or '' }}"></label>
+  </div>
+  <label>Niveau<select name="level"><option value="">Pas encore évalué</option>{% for lv in levels %}<option {% if v.level == lv %}selected{% endif %}>{{ lv }}</option>{% endfor %}</select></label>
+  <button class="btn btn-navy" type="submit" style="align-self:flex-start">Créer la fiche</button>
+</form>
+{% endblock %}

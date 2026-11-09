@@ -263,8 +263,10 @@ def placement_home():
             errors.append(p["err_age"])
         if not errors:
             with connect() as c:
-                tid = c.execute("INSERT INTO placement_tests (user_id, child_label, age) VALUES (%s,%s,%s) RETURNING id",
-                                (u["id"], form["child_label"] if u["role"] == "parent" else None, age)).fetchone()["id"]
+                import students as ST   # fiche élève (gestion des élèves) : retrouvée ou créée au premier test
+                st = ST.ensure_student(c, u["id"], form["child_label"] if u["role"] == "parent" else u["name"], age)
+                tid = c.execute("INSERT INTO placement_tests (user_id, child_label, age, student_id) VALUES (%s,%s,%s,%s) RETURNING id",
+                                (u["id"], form["child_label"] if u["role"] == "parent" else None, age, st)).fetchone()["id"]
             return redirect(url_for("placement_step", tid=tid))
     return _nocache(render_template("placement/home.html", p=p, u=u, tests=tests, errors=errors, form=form, can_take=can_take(u)))
 
@@ -510,6 +512,9 @@ def test_admin(tid):
                                class_id=%(class_id)s, family_msg=%(family_msg)s, notes=%(notes)s, updated_at=now() WHERE id=%(id)s""", dict(v, id=tid))
                 if action == "evaluate":
                     c.execute("UPDATE placement_tests SET step='evaluated', evaluated_at=COALESCE(evaluated_at, now()), evaluated_by=%s WHERE id=%s", (me["id"], tid))
+                    # le niveau retenu passe sur la fiche de l'élève (gestion des élèves)
+                    c.execute("UPDATE students SET level=%s, updated_at=now() FROM placement_tests t WHERE t.id=%s AND students.id=t.student_id",
+                              (v["final_level"], tid))
             if action == "evaluate":
                 lang = t["u_lang"] or "zh"
                 subj = "水平测试结果已出 — 法语之家" if lang == "zh" else "Résultat du test de niveau — Maison du français"

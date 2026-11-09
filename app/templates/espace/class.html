@@ -1,0 +1,33 @@
+{% extends "espace/layout.html" %}
+{% block title %}Classe {{ cls.level }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('espace.my_classes') }}">← Mes classes</a></p>
+<h1>Classe {{ cls.level }}</h1>
+<p class="note">{{ members|selectattr('kind', 'equalto', 'student')|list|length }} élève(s) sur {{ cls.capacity }} places · liste tenue par l'équipe.</p>
+
+<h2>Élèves</h2>
+{% if members %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Élève</th><th scope="col">Âge</th><th scope="col">Niveau</th><th scope="col">Présence</th><th scope="col">Dernier mot aux parents</th></tr></thead>
+  <tbody>{% for m in members %}<tr>
+    <td><b>{{ m.child_label or 'Élève' }}</b>{% if m.kind == 'trial' %} <span class="status status-contacted">Essai</span>{% endif %}</td>
+    <td>{{ m.age or '—' }}</td><td>{{ m.s_level or '—' }}</td>
+    <td>{{ m.came }} / {{ m.done }} cours</td>
+    <td>{{ m.last_comment or '—' }}</td>
+  </tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">Pas encore d'élève dans cette classe.</p>{% endif %}
+
+<h2>Cours</h2>
+{% if sessions %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Paris</th><th scope="col">Pékin</th><th scope="col">Appel</th><th scope="col"></th></tr></thead>
+  <tbody>{% for s in sessions %}<tr {% if s.past and s.reported %}class="low"{% endif %}>
+    <td>{{ s.paris.strftime('%d/%m à %H:%M') }}</td><td>{{ s.bj.strftime('%H:%M') }}</td>
+    <td>{% if s.past %}{{ 'fait' if s.reported else 'à faire' }}{% else %}—{% endif %}{% if s.excused %} · {{ s.excused }} absence(s) signalée(s){% endif %}</td>
+    <td>{% if s.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr') }}">Démarrer le cours</a>
+      {% elif s.past %}<a class="btn btn-line btn-small" href="{{ url_for('espace.session_report', sid=s.id) }}">Appel et bilan</a>{% endif %}</td>
+  </tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">Aucun cours programmé.</p>{% endif %}
+{% endblock %}

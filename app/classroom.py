@@ -25,6 +25,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 import httpx
+import psycopg
 from flask import abort, g, jsonify, redirect, render_template, request, url_for
 
 import users as U
@@ -415,6 +416,44 @@ def _espace_routes():
                                future=s["starts_at"] > datetime.now(timezone.utc))
 
 
+    @espace_bp.route("/classes")
+    def my_classes():
+        import accounts
+        u = accounts.current()
+        with connect() as c:
+            rows = c.execute("""SELECT l.*, (SELECT count(*) FROM class_members m WHERE m.class_id=l.id AND m.status='active' AND m.kind='student') AS n,
+                                  (SELECT count(*) FROM class_members m WHERE m.class_id=l.id AND m.status='active' AND m.kind='trial') AS trials,
+                                  (SELECT min(starts_at) FROM class_sessions s WHERE s.class_id=l.id AND s.status='scheduled' AND s.starts_at > now()) AS next_at
+                                FROM live_classes l WHERE l.teacher_id=%s AND l.status <> 'closed' ORDER BY l.level, l.start_bj""", (u["teacher_id"],)).fetchall()
+        return render_template("espace/classes.html", rows=[dict(r, next_paris=r["next_at"].astimezone(PARIS) if r["next_at"] else None) for r in rows],
+                               days={1: "lundi", 2: "mardi", 3: "mercredi", 4: "jeudi", 5: "vendredi", 6: "samedi", 7: "dimanche"})
+
+    @espace_bp.route("/classes/<int:cid>")
+    def my_class(cid):
+        """Lecture seule : élèves de la classe (gérés par l'équipe), présence, dernier bilan, séances."""
+        import accounts
+        u = accounts.current()
+        with connect() as c:
+            cls = c.execute("SELECT * FROM live_classes WHERE id=%s AND teacher_id=%s", (cid, u["teacher_id"])).fetchone()
+            if not cls:
+                abort(404)
+            members = c.execute("""SELECT m.*, s.age, s.level AS s_level,
+                       (SELECT count(*) FILTER (WHERE r.status IN ('present','late')) FROM session_reports r WHERE r.member_id=m.id) AS came,
+                       (SELECT count(*) FROM session_reports r WHERE r.member_id=m.id) AS done,
+                       (SELECT r.comment FROM session_reports r JOIN class_sessions x ON x.id=r.session_id WHERE r.member_id=m.id AND r.comment IS NOT NULL
+                          ORDER BY x.starts_at DESC LIMIT 1) AS last_comment
+                       FROM class_members m LEFT JOIN students s ON s.id=m.student_id
+                       WHERE m.class_id=%s AND m.status='active' ORDER BY m.kind, m.child_label""", (cid,)).fetchall()
+            sessions = c.execute("""SELECT s.*, (SELECT count(*) FROM session_reports r WHERE r.session_id=s.id) AS reported,
+                                      (SELECT count(*) FROM session_absences a WHERE a.session_id=s.id) AS excused
+                                    FROM class_sessions s WHERE s.class_id=%s AND s.status <> 'cancelled'
+                                    AND s.starts_at > now() - interval '30 days' ORDER BY s.starts_at LIMIT 40""", (cid,)).fetchall()
+        now = datetime.now(timezone.utc)
+        sessions = [dict(s, paris=s["starts_at"].astimezone(PARIS), bj=s["starts_at"].astimezone(BJ), past=s["starts_at"] < now,
+                         open=is_open(s, "teacher", now)) for s in sessions]
+        return render_template("espace/class.html", cls=cls, members=members, sessions=sessions)
+
+
 _espace_routes()
 
 
@@ -431,20 +470,34 @@ def class_room_admin(cid):
         if request.method == "POST":
             _check_csrf()
             act = request.form.get("action")
-            if act == "add":
-                email = (request.form.get("email") or "").strip().lower()
-                acc = c.execute("SELECT * FROM users WHERE lower(email)=%s", (email,)).fetchone()
-                kind = "trial" if request.form.get("kind") == "trial" else "student"
-                if not acc or acc["role"] not in ("parent", "eleve"):
-                    errors.append("Aucun compte parent ou élève avec cette adresse.")
+            if act == "add":                       # inscrire un élève existant (fiche élève, gestion des élèves)
+                import students as ST
+                sid_ = request.form.get("student_id", type=int)
+                err = ST.enroll(c, sid_, cid, "trial" if request.form.get("kind") == "trial" else "student") if sid_ else "Choisissez un élève."
+                if err:
+                    errors.append(err)
                 else:
-                    c.execute("""INSERT INTO class_members (class_id, user_id, child_label, kind) VALUES (%s,%s,%s,%s)
-                                 ON CONFLICT (class_id, user_id) DO UPDATE SET kind=EXCLUDED.kind, child_label=EXCLUDED.child_label, status='active'""",
-                              (cid, acc["id"], (request.form.get("child_label") or "").strip()[:40] or None, kind))
-                    return redirect(url_for("admin.class_room_admin", cid=cid, ok="Élève ajouté."))
+                    return redirect(url_for("admin.class_room_admin", cid=cid, ok="Élève inscrit."))
             elif act == "remove":
+                import students as ST
                 c.execute("UPDATE class_members SET status='ended' WHERE id=%s AND class_id=%s", (request.form.get("member", type=int), cid))
+                ST.sync_seats(c, cid)
                 return redirect(url_for("admin.class_room_admin", cid=cid, ok="Élève retiré de la classe."))
+            elif act == "move_session":             # déplacer une séance (nouvelle date et heure de Pékin)
+                try:
+                    starts = datetime.strptime(request.form.get("starts_bj", ""), "%Y-%m-%dT%H:%M").replace(tzinfo=BJ)
+                    with c.transaction():           # point de sauvegarde : un doublon d'horaire n'interrompt pas la page
+                        moved = c.execute("UPDATE class_sessions SET starts_at=%s WHERE id=%s AND class_id=%s AND status='scheduled'",
+                                          (starts, request.form.get("session", type=int), cid)).rowcount
+                    if not moved:
+                        raise LookupError
+                    return redirect(url_for("admin.class_room_admin", cid=cid, ok="Séance déplacée. Pensez à prévenir les familles (WeChat) : la nouvelle heure s'affiche déjà dans leur compte."))
+                except ValueError:
+                    errors.append("Date et heure invalides.")
+                except psycopg.errors.UniqueViolation:
+                    errors.append("Il y a déjà une séance à cette heure-là.")
+                except LookupError:
+                    errors.append("Seule une séance prévue (ni terminée ni annulée) peut être déplacée.")
             elif act == "generate":
                 n = generate_sessions(c, cls, max(1, min(12, request.form.get("weeks", 4, type=int) or 4)))
                 return redirect(url_for("admin.class_room_admin", cid=cid, ok=f"{n} séance(s) créée(s)."))
@@ -460,13 +513,16 @@ def class_room_admin(cid):
                 c.execute("UPDATE class_sessions SET status='cancelled' WHERE id=%s AND class_id=%s AND status='scheduled'",
                           (request.form.get("session", type=int), cid))
                 return redirect(url_for("admin.class_room_admin", cid=cid, ok="Séance annulée."))
-        members = c.execute("""SELECT m.*, u.email, u.name, u.role AS account_role FROM class_members m JOIN users u ON u.id=m.user_id
-                               WHERE m.class_id=%s ORDER BY m.status, m.kind, m.created_at""", (cid,)).fetchall()
+        members = c.execute("""SELECT m.*, u.email, u.name, u.role AS account_role, s.age, s.level AS s_level FROM class_members m JOIN users u ON u.id=m.user_id
+                               LEFT JOIN students s ON s.id=m.student_id WHERE m.class_id=%s ORDER BY m.status, m.kind, m.child_label""", (cid,)).fetchall()
+        candidates = c.execute("""SELECT s.id, s.first_name, s.age, s.level, u.name AS account_name FROM students s JOIN users u ON u.id=s.user_id
+                                  WHERE s.status='active' AND NOT EXISTS (SELECT 1 FROM class_members m WHERE m.student_id=s.id AND m.class_id=%s AND m.status='active')
+                                  ORDER BY (s.level = %s) DESC NULLS LAST, s.first_name""", (cid, cls["level"])).fetchall()
         sessions = c.execute("""SELECT s.*, (SELECT count(*) FROM session_attendance a WHERE a.session_id=s.id AND a.role IN ('student','trial')) AS present,
                                 (SELECT count(*) FROM session_reports r WHERE r.session_id=s.id) AS reported,
                                 (SELECT count(*) FROM session_absences a WHERE a.session_id=s.id) AS excused
                                 FROM class_sessions s WHERE class_id=%s ORDER BY starts_at DESC LIMIT 60""", (cid,)).fetchall()
     now = datetime.now(timezone.utc)
     sessions = [dict(s, bj=s["starts_at"].astimezone(BJ), paris=s["starts_at"].astimezone(PARIS), open=is_open(s, "teacher", now)) for s in sessions]
-    return render_template("admin/class_room.html", cls=cls, members=members, sessions=sessions, msg=msg, errors=errors, now_utc=now,
+    return render_template("admin/class_room.html", cls=cls, members=members, sessions=sessions, msg=msg, errors=errors, now_utc=now, candidates=candidates,
                            active=sum(1 for m in members if m["status"] == "active" and m["kind"] == "student"))

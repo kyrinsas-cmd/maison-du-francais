@@ -6,10 +6,10 @@
   <a class="btn btn-navy btn-small" href="{{ url_for('admin.class_new') }}">Ajouter une classe</a>
 </div>
 {% if request.args.supprimee %}<p class="flash">Classe supprimée.</p>{% endif %}
-<p class="note">Catalogue affiché sur la page 直播课 avec ses filtres. La réservation se fait par WeChat : mettez à jour les places occupées à chaque inscription. Heure saisie en heure de Pékin ; l'heure de Paris est calculée.</p>
+<p class="note">Les classes publiées s'affichent sur la page 直播课. Les places occupées se calculent d'après les élèves inscrits (gestion des élèves ou page de la classe). Heure saisie en heure de Pékin ; l'heure de Paris est calculée.</p>
 {% if rows %}
 <div class="table-box admin-table"><table>
-  <thead><tr><th scope="col">Niveau</th><th scope="col">Âges</th><th scope="col">Jours</th><th scope="col">Pékin / Paris</th><th scope="col">Professeur</th><th scope="col">Places</th><th scope="col">Statut</th><th scope="col">Site</th></tr></thead>
+  <thead><tr><th scope="col">Niveau</th><th scope="col">Âges</th><th scope="col">Jours</th><th scope="col">Pékin / Paris</th><th scope="col">Professeur</th><th scope="col">Élèves</th><th scope="col">Prochain cours</th><th scope="col">Statut</th><th scope="col">Site</th><th scope="col"></th></tr></thead>
   <tbody>
   {% for r in rows %}
   <tr>
@@ -18,9 +18,11 @@
     <td>{% for d in r.days %}{{ days[d] }} {% endfor %}</td>
     <td>{{ r.start_bj.strftime('%H:%M') }} / {{ paris_time(r.start_bj, r.start_date) }}</td>
     <td>{{ display_name(r) if r.first_name else '—' }}</td>
-    <td>{{ r.seats_taken }} / {{ r.capacity }}</td>
+    <td><a href="{{ url_for('admin.class_room_admin', cid=r.id) }}">{{ r.seats_taken }} / {{ r.capacity }}</a>{% if r.trials %} <span class="note">+ {{ r.trials }} essai{{ 's' if r.trials > 1 }}</span>{% endif %}</td>
+    <td>{% if r.next_at %}{{ r.next_at.astimezone(paris_tz).strftime('%d/%m %H:%M') }} <span class="note">({{ r.planned }} prévue{{ 's' if r.planned > 1 }})</span>{% else %}<span class="note">aucune séance</span>{% endif %}</td>
     <td>{{ statuses[r.status] }}</td>
     <td>{{ 'Publiée' if r.published else 'Brouillon' }}</td>
+    <td><a class="btn btn-line btn-small" href="{{ url_for('admin.class_room_admin', cid=r.id) }}">Élèves et séances</a></td>
   </tr>
   {% endfor %}
   </tbody>

@@ -29,7 +29,7 @@
       {% if teacher %}
       <p class="bo-group">Mes cours</p>
       {{ item(url_for('espace.home'), 'Accueil', ep == 'espace.home') }}
-      {{ item(url_for('espace.home') ~ '#cours', 'Prochains cours et appels', ep == 'espace.session_report') }}
+      {{ item(url_for('espace.my_classes'), 'Mes classes', ep in ('espace.my_classes', 'espace.my_class', 'espace.session_report')) }}
       <p class="bo-group">Mon profil</p>
       {{ item(url_for('espace.profile'), 'Ma fiche', ep == 'espace.profile') }}
       {{ item(url_for('account_password', lang='fr'), 'Mot de passe', ep == 'account_password') }}

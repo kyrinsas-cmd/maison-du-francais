@@ -346,3 +346,35 @@ CREATE TABLE IF NOT EXISTS session_reports (            -- appel et petit mot du
     updated_at  timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (session_id, member_id)
 );
+
+-- 2026-11-09 : gestion des élèves (admin). Un élève = un enfant (compte parent) ou l'élève lui-même (compte élève).
+CREATE TABLE IF NOT EXISTS students (
+    id          bigserial PRIMARY KEY,
+    user_id     bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,   -- compte parent ou élève
+    first_name  text NOT NULL,                                            -- prénom ou pseudo affiché (en classe, dans les bilans)
+    age         int,
+    level       text,                                                     -- niveau CECRL retenu par l'équipe (A1.1 … B2)
+    status      text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'left')),
+    notes       text,                                                     -- notes internes de l'équipe
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    updated_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS students_user_name ON students (user_id, lower(first_name));
+ALTER TABLE class_members ADD COLUMN IF NOT EXISTS student_id bigint REFERENCES students(id) ON DELETE CASCADE;
+ALTER TABLE placement_tests ADD COLUMN IF NOT EXISTS student_id bigint REFERENCES students(id) ON DELETE SET NULL;
+-- reprise de l'existant : un élève par (compte, prénom) trouvé dans les tests et les classes
+INSERT INTO students (user_id, first_name, age, level)
+SELECT t.user_id, coalesce(nullif(trim(t.child_label), ''), u.name), max(t.age), max(t.final_level)
+FROM placement_tests t JOIN users u ON u.id = t.user_id WHERE t.student_id IS NULL
+GROUP BY t.user_id, coalesce(nullif(trim(t.child_label), ''), u.name)
+ON CONFLICT DO NOTHING;
+INSERT INTO students (user_id, first_name)
+SELECT m.user_id, coalesce(nullif(trim(m.child_label), ''), u.name) FROM class_members m JOIN users u ON u.id = m.user_id WHERE m.student_id IS NULL
+ON CONFLICT DO NOTHING;
+UPDATE placement_tests t SET student_id = s.id FROM students s, users u
+ WHERE t.student_id IS NULL AND u.id = t.user_id AND s.user_id = t.user_id AND lower(s.first_name) = lower(coalesce(nullif(trim(t.child_label), ''), u.name));
+UPDATE class_members m SET student_id = s.id FROM students s, users u
+ WHERE m.student_id IS NULL AND u.id = m.user_id AND s.user_id = m.user_id AND lower(s.first_name) = lower(coalesce(nullif(trim(m.child_label), ''), u.name));
+-- un parent peut avoir deux enfants dans la même classe : unicité par élève, plus par compte
+ALTER TABLE class_members DROP CONSTRAINT IF EXISTS class_members_class_id_user_id_key;
+CREATE UNIQUE INDEX IF NOT EXISTS class_members_class_student ON class_members (class_id, student_id);

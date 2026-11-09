@@ -114,7 +114,6 @@ def _values(f):
         "days": [int(d) for d in f.getlist("days") if d in [str(i) for i in range(1, 8)]],
         "start_bj": start, "start_date": start_date,
         "capacity": num("capacity", 1, 5) or 5,
-        "seats_taken": num("seats_taken", 0, 5) or 0,
         "status": f.get("status") if f.get("status") in STATUSES else "open",
         "note_zh": (f.get("note_zh") or "").strip()[:500] or None,
         "note_fr": (f.get("note_fr") or "").strip()[:500] or None,
@@ -125,18 +124,20 @@ def _values(f):
         errors.append("Choisissez le niveau.")
     if not v["days"]:
         errors.append("Choisissez au moins un jour.")
-    if v["seats_taken"] > v["capacity"]:
-        errors.append("Plus de places occupées que de places dans la classe.")
     return v, errors
 
 
 @bp.route("/classes")
 def classes_admin():
     with connect() as c:
-        rows = c.execute("""SELECT l.*, t.first_name, t.last_initial FROM live_classes l LEFT JOIN teachers t ON t.id=l.teacher_id
+        rows = c.execute("""SELECT l.*, t.first_name, t.last_initial,
+                              (SELECT count(*) FROM class_members m WHERE m.class_id=l.id AND m.status='active' AND m.kind='trial') AS trials,
+                              (SELECT min(starts_at) FROM class_sessions s WHERE s.class_id=l.id AND s.status='scheduled' AND s.starts_at > now()) AS next_at,
+                              (SELECT count(*) FROM class_sessions s WHERE s.class_id=l.id AND s.status='scheduled' AND s.starts_at > now()) AS planned
+                            FROM live_classes l LEFT JOIN teachers t ON t.id=l.teacher_id
                             ORDER BY l.published DESC, l.sort, l.level, l.start_bj""").fetchall()
     days = {1: "lun", 2: "mar", 3: "mer", 4: "jeu", 5: "ven", 6: "sam", 7: "dim"}
-    return render_template("admin/classes.html", rows=rows, statuses=STATUSES, days=days, paris_time=paris_time, display_name=T.display_name)
+    return render_template("admin/classes.html", rows=rows, statuses=STATUSES, days=days, paris_time=paris_time, display_name=T.display_name, paris_tz=PARIS)
 
 
 @bp.route("/classes/nouvelle", methods=["GET", "POST"])
@@ -166,14 +167,16 @@ def class_edit(cid):
             with connect() as c:
                 if row:
                     c.execute("""UPDATE live_classes SET level=%(level)s, ages_min=%(ages_min)s, ages_max=%(ages_max)s, teacher_id=%(teacher_id)s,
-                                   days=%(days)s, start_bj=%(start_bj)s, start_date=%(start_date)s, capacity=%(capacity)s, seats_taken=%(seats_taken)s,
+                                   days=%(days)s, start_bj=%(start_bj)s, start_date=%(start_date)s, capacity=%(capacity)s,
                                    status=%(status)s, note_zh=%(note_zh)s, note_fr=%(note_fr)s, published=%(published)s, sort=%(sort)s, updated_at=now()
                                  WHERE id=%(id)s""", dict(v, id=cid))
                 else:
-                    cid = c.execute("""INSERT INTO live_classes (level, ages_min, ages_max, teacher_id, days, start_bj, start_date, capacity, seats_taken,
+                    cid = c.execute("""INSERT INTO live_classes (level, ages_min, ages_max, teacher_id, days, start_bj, start_date, capacity,
                                                                  status, note_zh, note_fr, published, sort)
                                        VALUES (%(level)s,%(ages_min)s,%(ages_max)s,%(teacher_id)s,%(days)s,%(start_bj)s,%(start_date)s,%(capacity)s,
-                                               %(seats_taken)s,%(status)s,%(note_zh)s,%(note_fr)s,%(published)s,%(sort)s) RETURNING id""", v).fetchone()["id"]
+                                               %(status)s,%(note_zh)s,%(note_fr)s,%(published)s,%(sort)s) RETURNING id""", v).fetchone()["id"]
+                import students as ST
+                ST.sync_seats(c, cid)   # places occupées = élèves inscrits (calculé, plus saisi à la main)
             return redirect(url_for("admin.class_edit", cid=cid, ok=1))
     return render_template("admin/class.html", row=row, v=v, errors=errors, teachers=teachers, levels=T.LEVELS, statuses=STATUSES,
                            display_name=T.display_name, msg=request.args.get("ok") and "Enregistré.",

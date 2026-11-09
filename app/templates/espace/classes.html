@@ -1,0 +1,17 @@
+{% extends "espace/layout.html" %}
+{% block title %}Mes classes{% endblock %}
+{% block content %}
+<h1>Mes classes</h1>
+<p class="note">Les classes et les élèves sont gérés par l'équipe de Maison du français. Pour une question sur un élève ou un horaire, écrivez-nous.</p>
+{% if rows %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Classe</th><th scope="col">Jours et heure</th><th scope="col">Élèves</th><th scope="col">Prochain cours</th></tr></thead>
+  <tbody>{% for r in rows %}<tr>
+    <td><a href="{{ url_for('espace.my_class', cid=r.id) }}"><b>{{ r.level }}</b>{% if r.ages_min and r.ages_max %} · {{ r.ages_min }}–{{ r.ages_max }} ans{% endif %}</a></td>
+    <td>{% for d in r.days %}{{ days[d] }}{{ ', ' if not loop.last }}{% endfor %} · {{ r.start_bj.strftime('%H:%M') }} à Pékin</td>
+    <td>{{ r.n }} / {{ r.capacity }}{% if r.trials %} <span class="note">+ {{ r.trials }} essai{{ 's' if r.trials > 1 }}</span>{% endif %}</td>
+    <td>{{ r.next_paris.strftime('%d/%m à %H:%M') ~ ' (Paris)' if r.next_paris else '—' }}</td>
+  </tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">Aucune classe pour l'instant. L'équipe vous préviendra quand une classe vous sera confiée.</p>{% endif %}
+{% endblock %}

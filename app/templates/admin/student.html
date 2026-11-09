@@ -1,0 +1,80 @@
+{% extends "admin/layout.html" %}
+{% block title %}{{ s.first_name }} · Élève{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.students_admin') }}">← Élèves</a></p>
+<h1>{{ s.first_name }}{% if s.age %} · {{ s.age }} ans{% endif %}{% if s.level %} · {{ s.level }}{% endif %}{% if s.status == 'left' %} <span class="status status-rejected">Parti</span>{% endif %}</h1>
+{% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<p class="note">Compte : {{ s.account_name }} ({{ role_label(s.account_role) }}) · {{ s.email }} · langue {{ s.lang or 'zh' }}
+{% if siblings %} · autres enfants : {% for b in siblings %}<a href="{{ url_for('admin.student', sid=b.id) }}">{{ b.first_name }}</a>{{ ', ' if not loop.last }}{% endfor %}{% endif %}</p>
+
+<h2>Classes</h2>
+{% if memberships %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Classe</th><th scope="col">Type</th><th scope="col">Places</th><th scope="col">Prochain cours</th><th scope="col"></th></tr></thead>
+  <tbody>{% for m in memberships %}<tr {% if m.status != 'active' %}class="low"{% endif %}>
+    <td><a href="{{ url_for('admin.class_room_admin', cid=m.class_id) }}">{{ class_label(m) }}</a></td>
+    <td>{{ kinds[m.kind] }}{% if m.status != 'active' %} · retiré{% endif %}</td>
+    <td>{{ m.seats_taken }} / {{ m.capacity }}</td>
+    <td>{{ m.next_at.strftime('%d/%m %H:%M') ~ ' (Paris)' if m.next_at and m.status == 'active' else '—' }}</td>
+    <td>{% if m.status == 'active' %}<div class="actions" style="gap:6px">
+      <form method="post"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="kind"><input type="hidden" name="class_id" value="{{ m.class_id }}">
+        <input type="hidden" name="kind" value="{{ 'student' if m.kind == 'trial' else 'trial' }}"><button class="btn btn-line btn-small" type="submit">{{ 'Passer en élève inscrit' if m.kind == 'trial' else 'Passer en essai' }}</button></form>
+      {% if classes %}<form method="post" class="actions" style="gap:4px"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="move"><input type="hidden" name="from_class" value="{{ m.class_id }}">
+        <label class="visually-hidden" for="mv{{ m.class_id }}">Nouvelle classe</label>
+        <select id="mv{{ m.class_id }}" name="class_id">{% for cl in classes %}<option value="{{ cl.id }}">{{ class_label(cl) }} ({{ cl.seats_taken }}/{{ cl.capacity }})</option>{% endfor %}</select>
+        <button class="btn btn-line btn-small" type="submit">Changer de classe</button></form>{% endif %}
+      <form method="post" onsubmit="return confirm('Retirer {{ s.first_name }} de cette classe ?');"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="remove"><input type="hidden" name="class_id" value="{{ m.class_id }}"><button class="btn btn-line btn-small" type="submit">Retirer</button></form>
+    </div>{% endif %}</td>
+  </tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">Inscrit dans aucune classe.</p>{% endif %}
+{% if classes and s.status == 'active' %}
+<form class="form" method="post" style="max-width:760px;margin-top:12px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="enroll">
+  <fieldset><legend>Inscrire dans une classe</legend>
+    <div class="row2">
+      <label>Classe<select name="class_id" required>{% for cl in classes %}<option value="{{ cl.id }}">{{ class_label(cl) }} ({{ cl.seats_taken }}/{{ cl.capacity }} places){% if not cl.published %} · brouillon{% endif %}</option>{% endfor %}</select></label>
+      <label>Type<select name="kind"><option value="student">Élève inscrit (prend une place)</option><option value="trial">Essai 试听 (ne prend pas de place)</option></select></label>
+    </div>
+    {% set proposed = tests|selectattr('class_id')|map(attribute='c_level')|first %}
+    {% if proposed %}<p class="note" style="margin:0">Classe proposée au test de niveau : {{ proposed }}.</p>{% endif %}
+    <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">Inscrire</button>
+  </fieldset>
+</form>
+{% endif %}
+
+<h2>Présence et bilans</h2>
+<p class="note">Présent {{ attendance.get('present', 0) }} · en retard {{ attendance.get('late', 0) }} · absent {{ attendance.get('absent', 0) }} · absence signalée {{ attendance.get('excused', 0) }}</p>
+{% if reports %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Cours</th><th scope="col">Classe</th><th scope="col">Présence</th><th scope="col">Mot du professeur</th></tr></thead>
+  <tbody>{% for r in reports %}<tr><td>{{ r.starts_at.strftime('%d/%m/%Y') }}</td><td>{{ r.level }}</td>
+    <td>{{ {'present': 'Présent', 'late': 'En retard', 'absent': 'Absent', 'excused': 'Absence signalée'}[r.status] }}</td><td>{{ r.comment or '—' }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">Aucun bilan de cours pour l'instant.</p>{% endif %}
+
+<h2>Tests de niveau</h2>
+{% if tests %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">N°</th><th scope="col">Date</th><th scope="col">QCM</th><th scope="col">Niveau final</th><th scope="col">Classe proposée</th></tr></thead>
+  <tbody>{% for x in tests %}<tr><td><a href="{{ url_for('admin.test_admin', tid=x.id) }}">{{ x.id }}</a></td><td>{{ x.created_at.strftime('%d/%m/%Y') }}</td>
+    <td>{{ x.est_level or '—' }}</td><td>{{ x.final_level or ('à évaluer' if x.step == 'submitted' else 'en cours' if x.step != 'evaluated' else '—') }}</td><td>{{ x.c_level or '—' }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">Aucun test de niveau.</p>{% endif %}
+
+<h2>Fiche</h2>
+<form class="form" method="post" style="max-width:760px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="save">
+  <div class="row2">
+    <label>Prénom affiché (en classe et dans les bilans)<input type="text" name="first_name" maxlength="40" required value="{{ s.first_name }}"></label>
+    <label>Âge<input type="number" name="age" min="3" max="99" value="{{ s.age or '' }}"></label>
+  </div>
+  <div class="row2">
+    <label>Niveau retenu<select name="level"><option value="">Pas encore évalué</option>{% for lv in levels %}<option {% if s.level == lv %}selected{% endif %}>{{ lv }}</option>{% endfor %}</select></label>
+    <label>Statut<select name="status"><option value="active">Actif</option><option value="left" {% if s.status == 'left' %}selected{% endif %}>Parti (le retire de ses classes)</option></select></label>
+  </div>
+  <label>Notes internes (visibles par l'équipe seulement)<textarea name="notes" rows="3" maxlength="2000">{{ s.notes or '' }}</textarea></label>
+  <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">Enregistrer</button>
+</form>
+{% endblock %}
