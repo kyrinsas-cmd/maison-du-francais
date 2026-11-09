@@ -1,0 +1,75 @@
+{# Espaces connectés (élèves, parents, professeurs) : même présentation que l'administration (static/admin.css, body.bo).
+   Le menu dépend du rôle : professeur relié à une fiche → espace professeur (en français) ; sinon élève / parent (zh ou fr). #}
+<!doctype html>
+<html lang="{{ html_lang or 'fr' }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}{{ t.brand_main }}{% endblock %}</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=25">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}?v=6">
+</head>
+<body class="admin bo space lang-{{ lang or 'fr' }}">
+{% set ep = request.endpoint or '' %}
+{% set me = current_user() %}
+{% set teacher = me and me.role == 'professeur' and me.teacher_id %}
+{% macro item(href, label, on=False) -%}
+  <a href="{{ href }}" {% if on %}aria-current="page"{% endif %}>{{ label }}</a>
+{%- endmacro %}
+<div class="bo-shell">
+  <aside class="bo-side">
+    <a class="bo-brand" href="{{ url_for('espace.home') if teacher else url_for('account_home') }}">
+      <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="" width="32" height="32">
+      <span><b>{{ 'Maison du français' if teacher or lang == 'fr' else '法语之家' }}</b><small>{{ 'Espace professeur' if teacher else t.sp_space }}</small></span>
+    </a>
+    {% if me %}
+    <nav class="bo-nav" aria-label="{{ 'Espace professeur' if teacher else t.sp_space }}">
+      {% if teacher %}
+      <p class="bo-group">Mes cours</p>
+      {{ item(url_for('espace.home'), 'Accueil', ep == 'espace.home') }}
+      {{ item(url_for('espace.home') ~ '#cours', 'Prochains cours et appels', ep == 'espace.session_report') }}
+      <p class="bo-group">Mon profil</p>
+      {{ item(url_for('espace.profile'), 'Ma fiche', ep == 'espace.profile') }}
+      {{ item(url_for('account_password', lang='fr'), 'Mot de passe', ep == 'account_password') }}
+      <p class="bo-group">Site</p>
+      {{ item('/fr/professeurs', 'Les professeurs') }}
+      {{ item('/fr/', 'Voir le site') }}
+      {% else %}
+      <p class="bo-group">{{ t.sp_learning }}</p>
+      {{ item(url_for('account_home'), t.sp_overview, ep == 'account_home') }}
+      {% if me.role in ('parent', 'eleve') %}
+      {{ item(url_for('account_home') ~ '#cours', t.cr_my_classes) }}
+      {{ item(url_for('account_home') ~ '#bilans', t.cr_reports) }}
+      {{ item(url_for('account_home') ~ '#tests', t.sp_tests, ep in ('placement_result',)) }}
+      {{ item(url_for('placement_home'), t.sp_new_test) }}
+      {% endif %}
+      <p class="bo-group">{{ t.sp_account }}</p>
+      {{ item(url_for('account_password'), t.ac_change_pw, ep == 'account_password') }}
+      <p class="bo-group">{{ t.sp_site }}</p>
+      {{ item(url_for('live'), t.nav_live) }}
+      {{ item(url_for('teachers_page'), t.nav_teachers) }}
+      {{ item(url_for('contact'), t.nav_contact) }}
+      {% endif %}
+    </nav>
+    <div class="bo-me">
+      <span>{{ me.name }}</span>
+      <small>{{ 'Professeur' if teacher else role_label_of(me.role) }}</small>
+      {% if not teacher %}<a href="{{ alternates()[other_lang] }}" lang="{{ 'fr' if lang == 'zh' else 'zh' }}">{{ 'Français' if lang == 'zh' else '中文' }}</a>{% endif %}
+      <form method="post" action="{{ url_for('account_logout', lang=('fr' if teacher else lang)) }}">
+        <input type="hidden" name="csrf" value="{{ csrf() }}">
+        <button type="submit">{{ 'Se déconnecter' if teacher else t.ac_logout }}</button>
+      </form>
+    </div>
+    {% endif %}
+  </aside>
+  <div class="bo-body">
+    <main class="admin-main bo-main">
+    {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>

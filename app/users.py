@@ -112,7 +112,8 @@ def landing(u, lang):
 
 @web.app.context_processor
 def users_ctx():
-    return {"current_user": current, "is_admin": is_admin, "is_staff": is_staff, "ROLES": ROLES}
+    return {"current_user": current, "is_admin": is_admin, "is_staff": is_staff, "ROLES": ROLES,
+            "role_label_of": lambda r: role_label(r, getattr(g, "lang", "fr"))}
 
 
 def role_label(r, lang):

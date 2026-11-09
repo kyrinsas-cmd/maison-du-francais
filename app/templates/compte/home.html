@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "space/layout.html" %}
 {% block title %}{{ t.ac_home_title }} · {{ t.brand_main }}{% endblock %}
 {% block content %}
 <section class="account-page"><div class="auth-box wide">
@@ -12,7 +12,7 @@
   {% if rec_deleted %}<p class="flash">{{ p.rec_deleted }}</p>{% endif %}
   {% set sess = my_sessions(u) %}
   {% if sess %}
-  <div class="card account-tests">
+  <div class="card account-tests" id="cours">
     <h2 class="h3">{{ t.cr_my_classes }}</h2>
     {% for s in sess %}
     <div class="acct-test">
@@ -29,7 +29,7 @@
   {% endif %}
   {% set reps = my_reports(u) %}
   {% if reps %}
-  <div class="card account-tests">
+  <div class="card account-tests" id="bilans">
     <h2 class="h3">{{ t.cr_reports }}</h2>
     {% for r in reps %}
     <div class="acct-test">
@@ -40,7 +40,7 @@
   </div>
   {% endif %}
   {% if u.role in ('parent', 'eleve') %}
-  <div class="card account-tests">
+  <div class="card account-tests" id="tests">
     <h2 class="h3">{{ p.my_tests }}</h2>
     {% for x in tests %}
     <div class="acct-test">
@@ -63,10 +63,6 @@
   {% endif %}
   {% if u.role == 'professeur' %}<p class="card note-card">{{ t.ac_teacher_pending }}</p>
   {% else %}<p class="card note-card">{{ t.ac_next_family }} <a href="{{ url_for('contact') }}">{{ t.nav_contact }}</a></p>{% endif %}
-  <div class="actions">
-    <a class="btn btn-line btn-small" href="{{ url_for('account_password') }}">{{ t.ac_change_pw }}</a>
-    <form method="post" action="{{ url_for('account_logout') }}"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-line btn-small" type="submit">{{ t.ac_logout }}</button></form>
-  </div>
   <details class="review-notice">
     <summary>{{ t.ac_delete_h }}</summary>
     <p>{{ t.ac_delete_text }}</p>
