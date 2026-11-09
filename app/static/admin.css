@@ -1,15 +1,14 @@
-/* Administration — présentation reprise de la charte Avocatnet.fr (sobre, « étude ») :
-   fond ivoire, encre navy, l'or comme signal, titres Playfair Display, texte Inter, aucune ombre, filets fins.
+/* Administration — mise en page sobre (barre latérale, filets, sans ombre) aux couleurs de Maison du français :
+   bleu #063372, rouge #DF333A en signal, police Nunito du site.
    Chargée après site.css et limitée à body.bo : le site public ne change pas. */
-@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("fonts/inter-latin.woff2") format("woff2"); }
-@font-face { font-family: "Playfair Display"; font-style: normal; font-weight: 400 900; font-display: swap; src: url("fonts/playfair-latin.woff2") format("woff2"); }
 
 body.bo {
-  --page: #faf9f6; --surface: #f1efe8; --ink: #081422; --ink-soft: #5e666f; --line: #e4e0d6; --line-strong: #8a8579;
-  --accent: #081422; --accent-ink: #ffffff; --gold: #b7873f; --gold-tint: #f4ead8; --danger: #a1382a; --danger-tint: #f7e6e2;
-  --ok: #2f6b45; --ok-tint: #e3efe6; --radius-md: 10px;
-  --serif: "Playfair Display", Georgia, "Times New Roman", serif;
-  --sans: Inter, system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  /* couleurs de Maison du français (bleu #063372, rouge #DF333A en signal) — choix de l'utilisateur le 2026-11-09 */
+  --page: #ffffff; --surface: #f4f7fc; --ink: #063372; --ink-soft: #4a5670; --line: #e6eaf2; --line-strong: #c9d2e3;
+  --accent: #063372; --accent-ink: #ffffff; --gold: #df333a; --gold-tint: #fdecec; --danger: #c8242b; --danger-tint: #fdecec;
+  --ok: #1f5a33; --ok-tint: #e5f4ea; --radius-md: 12px;
+  --serif: "Nunito", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --sans: "Nunito", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   /* jetons du site réutilisés par les pages existantes */
   --navy: var(--ink); --muted: var(--ink-soft); --soft: var(--surface); --tile: var(--surface); --radius: var(--radius-md); --font: var(--sans);
@@ -25,14 +24,14 @@ body.bo :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; 
   position: sticky; top: 0; height: 100vh; overflow-y: auto; }
 .bo-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 0 8px; }
 .bo-brand img { width: 32px; height: 32px; }
-.bo-brand b { display: block; font-family: var(--serif); font-weight: 600; font-size: 17px; line-height: 1.2; }
+.bo-brand b { display: block; font-family: var(--serif); font-weight: 800; font-size: 17px; line-height: 1.2; }
 .bo-brand small { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft); }
 .bo-nav { display: flex; flex-direction: column; gap: 1px; }
 .bo-group { margin: 14px 8px 6px; font-family: var(--mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft); }
 .bo-group:first-child { margin-top: 0; }
-.bo-nav a { display: block; padding: 7px 10px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 14px; color: var(--ink); border-left: 2px solid transparent; }
+.bo-nav a { display: block; padding: 7px 10px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; color: var(--ink); border-left: 2px solid transparent; }
 .bo-nav a:hover { background: var(--page); }
-.bo-nav a[aria-current="page"] { background: var(--page); border-left-color: var(--gold); font-weight: 600; }
+.bo-nav a[aria-current="page"] { background: var(--page); border-left-color: var(--gold); font-weight: 800; }
 .bo-me { margin-top: auto; border-top: 1px solid var(--line); padding: 14px 8px 0; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
 .bo-me span { font-weight: 600; }
 .bo-me small { color: var(--ink-soft); }
@@ -44,8 +43,8 @@ body.bo :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; 
 body.bo .wrap.admin-main, body.bo .bo-main { max-width: 1120px; margin: 0; padding: 32px 40px 80px; }
 
 /* ---------- typographie ---------- */
-body.bo h1 { font-family: var(--serif); font-weight: 600; font-size: 30px; line-height: 36px; letter-spacing: -.025em; margin: 0 0 24px; color: var(--ink); }
-body.bo h2, body.bo .h3, body.bo h3 { font-family: var(--serif); font-weight: 600; font-size: 18px; line-height: 28px; letter-spacing: 0; color: var(--ink); }
+body.bo h1 { font-family: var(--serif); font-weight: 800; font-size: 30px; line-height: 36px; letter-spacing: -.01em; margin: 0 0 24px; color: var(--ink); }
+body.bo h2, body.bo .h3, body.bo h3 { font-family: var(--serif); font-weight: 800; font-size: 18px; line-height: 28px; letter-spacing: 0; color: var(--ink); }
 body.bo main > h2, body.bo main > .h3 { border-bottom: 1px solid var(--line); padding-bottom: 6px; margin: 36px 0 14px; }
 body.bo p { color: var(--ink); }
 body.bo .note { color: var(--ink-soft); font-size: 14px; }
@@ -55,11 +54,11 @@ body.bo main > p:first-child > a:only-child { font-size: 14px; color: var(--ink-
 .bo-eyebrow::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin-right: 8px; vertical-align: 2px; }
 
 /* ---------- boutons : plein = action principale, discret = le reste ; pas d'effet de survol en mouvement ---------- */
-body.bo .btn { font-family: var(--sans); font-weight: 500; font-size: 14px; line-height: 20px; padding: 9px 16px; border-radius: var(--radius-md); border: 1px solid transparent; transition: none; }
+body.bo .btn { font-family: var(--sans); font-weight: 700; font-size: 14px; line-height: 20px; padding: 9px 16px; border-radius: var(--radius-md); border: 1px solid transparent; transition: none; }
 body.bo .btn:hover { transform: none; }
 body.bo .btn-small { font-size: 14px; padding: 7px 12px; }
 body.bo .btn-navy, body.bo .btn-red { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-body.bo .btn-navy:hover, body.bo .btn-red:hover { background: #1a2b40; color: var(--accent-ink); }
+body.bo .btn-navy:hover, body.bo .btn-red:hover { background: #0a4596; color: var(--accent-ink); }
 body.bo .btn-line { background: var(--page); color: var(--ink); border-color: var(--line-strong); }
 body.bo .btn-line:hover { background: var(--surface); color: var(--ink); }
 body.bo button:disabled, body.bo .btn[disabled] { opacity: .6; cursor: not-allowed; }
@@ -76,7 +75,7 @@ body.bo .form { background: var(--page); border: 1px solid var(--line); border-r
 body.bo .form label { font-weight: 500; font-size: 14px; color: var(--ink); gap: 4px; }
 body.bo .form fieldset { border: 0; border-top: 1px solid var(--line); padding: 16px 0 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
 body.bo .form fieldset:first-of-type { border-top: 0; padding-top: 0; }
-body.bo .form legend { font-family: var(--serif); font-weight: 600; font-size: 18px; padding: 0 0 4px; color: var(--ink); }
+body.bo .form legend { font-family: var(--serif); font-weight: 800; font-size: 18px; padding: 0 0 4px; color: var(--ink); }
 body.bo input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]):not([type=submit]),
 body.bo select, body.bo textarea {
   font: 400 15px/22px var(--sans); color: var(--ink); background: var(--page); border: 1px solid var(--line-strong); border-radius: var(--radius-md); padding: 8px 12px;
@@ -93,14 +92,14 @@ body.bo th { text-align: left; font-family: var(--mono); font-weight: 400; font-
   background: var(--surface); border-bottom: 1px solid var(--line); padding: 10px 14px; }
 body.bo td { padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink); }
 body.bo tr:last-child td { border-bottom: 0; }
-body.bo tbody tr:hover td { background: #f6f4ef; }
+body.bo tbody tr:hover td { background: #f8fafd; }
 body.bo tr.low td { color: var(--ink-soft); }
 body.bo .admin-table td:first-child { font-size: 14px; }
 
 /* ---------- pastilles d'état : fond teinté, texte en encre ---------- */
 body.bo .status { font-family: var(--sans); font-size: 12px; line-height: 16px; font-weight: 500; padding: 3px 10px; border-radius: 9999px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
-body.bo .status-new { background: var(--danger-tint); border-color: #e9c9c2; }
-body.bo .status-contacted { background: var(--gold-tint); border-color: #e3cfa9; }
+body.bo .status-new { background: var(--danger-tint); border-color: #f3c4c6; }
+body.bo .status-contacted { background: #fff4d6; border-color: #ecd9a0; }
 body.bo .status-accepted { background: var(--ok-tint); border-color: #c4dccb; }
 body.bo .status-rejected { background: var(--surface); color: var(--ink-soft); }
 
@@ -122,11 +121,11 @@ body.bo .pager { font-weight: 500; font-size: 14px; }
 .bo-todo .n { font-family: var(--mono); font-size: 14px; min-width: 2.5em; text-align: right; }
 .bo-todo li.zero { color: var(--ink-soft); }
 .bo-todo li.zero a { color: var(--ink-soft); }
-.bo-todo li:not(.zero) .n { background: var(--gold-tint); border: 1px solid #e3cfa9; border-radius: 9999px; padding: 1px 10px; }
+.bo-todo li:not(.zero) .n { background: var(--gold-tint); border: 1px solid #f3c4c6; border-radius: 9999px; padding: 1px 10px; }
 .bo-figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--page); }
 .bo-figures div { padding: 14px 16px; border-right: 1px solid var(--line); }
 .bo-figures div:last-child { border-right: 0; }
-.bo-figures b { display: block; font-family: var(--serif); font-weight: 600; font-size: 28px; line-height: 34px; font-variant-numeric: tabular-nums; }
+.bo-figures b { display: block; font-family: var(--serif); font-weight: 800; font-size: 28px; line-height: 34px; font-variant-numeric: tabular-nums; }
 .bo-figures span { font-size: 13px; color: var(--ink-soft); }
 .bo-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; margin-top: 8px; }
 .bo-cols > section > h2 { border-bottom: 1px solid var(--line); padding-bottom: 6px; margin: 28px 0 12px; }
