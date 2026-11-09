@@ -5,7 +5,7 @@
 <h1>{{ s.first_name }}{% if s.age %} · {{ s.age }} ans{% endif %}{% if s.level %} · {{ s.level }}{% endif %}{% if s.status == 'left' %} <span class="status status-rejected">Parti</span>{% endif %}</h1>
 {% if msg %}<p class="flash">{{ msg }}</p>{% endif %}
 {% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-<p class="note">Compte : {{ s.account_name }} ({{ role_label(s.account_role) }}) · {{ s.email }} · langue {{ s.lang or 'zh' }}
+<p class="note">{% if s.login_id and s.password_hash %}Compte élève : <b class="pupil-id">{{ s.login_id }}</b>{% if not s.login_enabled %} (désactivé par le parent){% endif %} · dernière connexion {{ s.last_login_at.strftime('%d/%m/%Y %H:%M') if s.last_login_at else 'jamais' }}<br>{% endif %}Compte : {{ s.account_name }} ({{ role_label(s.account_role) }}) · {{ s.email }} · langue {{ s.lang or 'zh' }}
 {% if siblings %} · autres enfants : {% for b in siblings %}<a href="{{ url_for('admin.student', sid=b.id) }}">{{ b.first_name }}</a>{{ ', ' if not loop.last }}{% endfor %}{% endif %}</p>
 
 <h2>Classes</h2>

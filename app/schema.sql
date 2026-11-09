@@ -378,3 +378,10 @@ UPDATE class_members m SET student_id = s.id FROM students s, users u
 -- un parent peut avoir deux enfants dans la même classe : unicité par élève, plus par compte
 ALTER TABLE class_members DROP CONSTRAINT IF EXISTS class_members_class_id_user_id_key;
 CREATE UNIQUE INDEX IF NOT EXISTS class_members_class_student ON class_members (class_id, student_id);
+
+-- 2026-11-09 : comptes élèves créés par les parents (identifiant MF + 6 chiffres généré par le site, mot de passe), sans e-mail
+ALTER TABLE students ADD COLUMN IF NOT EXISTS login_id text;
+ALTER TABLE students ADD COLUMN IF NOT EXISTS password_hash text;
+ALTER TABLE students ADD COLUMN IF NOT EXISTS login_enabled boolean NOT NULL DEFAULT true;
+ALTER TABLE students ADD COLUMN IF NOT EXISTS last_login_at timestamptz;
+CREATE UNIQUE INDEX IF NOT EXISTS students_login_id ON students (login_id) WHERE login_id IS NOT NULL;

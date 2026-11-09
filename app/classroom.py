@@ -186,6 +186,35 @@ def access(c, s, u, wanted=None):
     return None, None
 
 
+def access_pupil(c, s, st):
+    """Élève connecté avec son numéro (pupil.py) : élève inscrit ou essai de la classe de la séance."""
+    m = c.execute("SELECT * FROM class_members WHERE class_id=%s AND student_id=%s AND status='active'", (s["class_id"], st["id"])).fetchone()
+    if not m:
+        return None, None
+    return ("trial" if m["kind"] == "trial" else "student"), m
+
+
+def viewer():
+    """(compte adulte, élève connecté avec son numéro) : l'un des deux, ou aucun."""
+    u = U.current()
+    if u:
+        return u, None
+    import pupil
+    return None, pupil.current_student()
+
+
+def student_sessions(st, limit=12):
+    """Prochains cours d'un élève connecté avec son numéro."""
+    now = datetime.now(timezone.utc)
+    with connect() as c:
+        rows = c.execute("""SELECT s.*, l.level, CASE WHEN m.kind='trial' THEN 'trial' ELSE 'student' END AS my_role
+                            FROM class_sessions s JOIN live_classes l ON l.id=s.class_id
+                            JOIN class_members m ON m.class_id=s.class_id AND m.student_id=%s AND m.status='active'
+                            WHERE s.status='scheduled' AND s.starts_at + make_interval(mins => s.duration_min) + interval '30 minutes' > %s
+                            ORDER BY s.starts_at LIMIT %s""", (st["id"], now, limit)).fetchall()
+    return [dict(r, open=is_open(r, r["my_role"], now), bj=r["starts_at"].astimezone(BJ), paris=r["starts_at"].astimezone(PARIS)) for r in rows]
+
+
 def display(role, u, m, teacher_name):
     lang = getattr(g, "lang", "zh")
     if role == "teacher":
@@ -262,17 +291,17 @@ def _session(c, sid):
 
 @web.route("/classe/<int:sid>")
 def classroom(sid):
-    u = U.current()
-    if not u:
+    u, st = viewer()
+    if not u and not st:
         return redirect(url_for("account_login", next=request.path))
     with connect() as c:
         s = _session(c, sid)
-        role, m = access(c, s, u, request.args.get("as"))
+        role, m = access_pupil(c, s, st) if st else access(c, s, u, request.args.get("as"))
         if not role:
             abort(403)
         cls = c.execute("""SELECT l.*, t.first_name, t.last_initial FROM live_classes l LEFT JOIN teachers t ON t.id=l.teacher_id
                            WHERE l.id=%s""", (s["class_id"],)).fetchone()
-        can_parent = role in ("student", "trial")
+        can_parent = role in ("student", "trial") and not st
     opens, closes = window(s, role)
     resp = web.app.make_response(render_template(
         "classroom.html", s=s, cls=cls, role=role, x=CR[g.lang], open=is_open(s, role), opens_bj=opens.astimezone(BJ), opens_paris=opens.astimezone(PARIS),
@@ -287,13 +316,13 @@ def classroom(sid):
 
 @web.route("/classe/<int:sid>/jeton", methods=["POST"])
 def classroom_token(sid):
-    u = U.current()
-    if not u:
+    u, st = viewer()
+    if not u and not st:
         abort(403)
     U.check_csrf()
     with connect() as c:
         s = _session(c, sid)
-        role, m = access(c, s, u, request.form.get("as"))
+        role, m = access_pupil(c, s, st) if st else access(c, s, u, request.form.get("as"))
         if not role:
             abort(403)
         if not is_open(s, role):
@@ -301,11 +330,13 @@ def classroom_token(sid):
         cls = c.execute("SELECT l.*, t.first_name FROM live_classes l LEFT JOIN teachers t ON t.id=l.teacher_id WHERE l.id=%s",
                         (s["class_id"],)).fetchone()
         room = room_name(sid)
-        identity = f"{role}-{u['id']}" + (f"-m{m['id']}" if m else "")
-        name = display(role, u, m, cls["first_name"])
+        if st:   # élève avec son propre numéro : identité distincte de celle du parent
+            identity, name, owner = f"{role}-s{st['id']}-m{m['id']}", st["first_name"], st["user_id"]
+        else:
+            identity, name, owner = f"{role}-{u['id']}" + (f"-m{m['id']}" if m else ""), display(role, u, m, cls["first_name"]), u["id"]
         c.execute("""INSERT INTO session_attendance (session_id, user_id, member_id, role) VALUES (%s,%s,%s,%s)
                      ON CONFLICT (session_id, user_id, role) DO UPDATE SET last_join=now(), joins=session_attendance.joins+1""",
-                  (sid, u["id"], m["id"] if m else None, role))
+                  (sid, owner, m["id"] if m else None, role))
         if role == "teacher" and not s["started_at"]:
             c.execute("UPDATE class_sessions SET started_at=now() WHERE id=%s", (sid,))
     tok = token(identity, name, grants_for(role, room), metadata={"role": role})

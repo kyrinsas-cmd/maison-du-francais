@@ -260,6 +260,7 @@ import examcentres  # noqa: E402,F401  (centres d'examen DELF-DALF)
 import classroom  # noqa: E402,F401  (salle de classe en direct, moteur LiveKit)
 import students  # noqa: E402,F401  (gestion des élèves, admin)
 import family  # noqa: E402,F401  (espace famille : mes enfants)
+import pupil  # noqa: E402,F401  (comptes élèves : numéro + mot de passe)
 
 admin.init_app(app)
 accounts.init_app(app)

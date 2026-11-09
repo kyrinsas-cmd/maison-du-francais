@@ -11,6 +11,7 @@
     <button class="btn btn-navy" type="submit">{{ t.ac_login_btn }}</button>
     <p class="note" style="margin:0"><a href="{{ url_for('account_forgot') }}">{{ t.ac_forgot_link }}</a></p>
   </form>
+  <p class="card note-card" style="margin:0"><a href="{{ url_for('pupil_login') }}"><b>{{ pup.login_h }} →</b></a> <span class="note">{{ pup.login_lead }}</span></p>
   <div class="card account-alt"><p style="margin:0">{{ t.ac_no_account }}</p><a class="btn btn-red btn-small" href="{{ url_for('account_signup') }}">{{ t.ac_signup_link }}</a></div>
 </div></section>
 {% endblock %}

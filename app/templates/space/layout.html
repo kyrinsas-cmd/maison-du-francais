@@ -14,16 +14,29 @@
 <body class="admin bo space lang-{{ lang or 'fr' }}">
 {% set ep = request.endpoint or '' %}
 {% set me = current_user() %}
+{% set stu = current_student() if not me else None %}
 {% set teacher = me and me.role == 'professeur' and me.teacher_id %}
 {% macro item(href, label, on=False) -%}
   <a href="{{ href }}" {% if on %}aria-current="page"{% endif %}>{{ label }}</a>
 {%- endmacro %}
 <div class="bo-shell">
   <aside class="bo-side">
-    <a class="bo-brand" href="{{ url_for('espace.home') if teacher else url_for('account_home') }}">
+    <a class="bo-brand" href="{{ url_for('espace.home') if teacher else (url_for('pupil_home') if stu else url_for('account_home')) }}">
       <img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="" width="32" height="32">
-      <span><b>{{ 'Maison du français' if teacher or lang == 'fr' else '法语之家' }}</b><small>{{ 'Espace professeur' if teacher else t.sp_space }}</small></span>
+      <span><b>{{ 'Maison du français' if teacher or lang == 'fr' else '法语之家' }}</b><small>{{ 'Espace professeur' if teacher else (pup.space if stu else t.sp_space) }}</small></span>
     </a>
+    {% if stu %}
+    <nav class="bo-nav" aria-label="{{ pup.space }}">
+      <p class="bo-group">{{ t.sp_learning }}</p>
+      {{ item(url_for('pupil_home'), pup.next, ep == 'pupil_home') }}
+    </nav>
+    <div class="bo-me">
+      <span>{{ stu.first_name }}</span>
+      <small>{{ stu.login_id }}</small>
+      <a href="{{ alternates()[other_lang] }}" lang="{{ 'fr' if lang == 'zh' else 'zh' }}">{{ 'Français' if lang == 'zh' else '中文' }}</a>
+      <form method="post" action="{{ url_for('pupil_logout') }}"><input type="hidden" name="csrf" value="{{ csrf() }}"><button type="submit">{{ pup.logout }}</button></form>
+    </div>
+    {% endif %}
     {% if me %}
     <nav class="bo-nav" aria-label="{{ 'Espace professeur' if teacher else t.sp_space }}">
       {% if teacher %}

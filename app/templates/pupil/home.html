@@ -1,0 +1,20 @@
+{% extends "space/layout.html" %}
+{% block title %}{{ pup.space }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<h1>{{ pup.hello.format(n=s.first_name) }}</h1>
+<dl class="account-dl card">
+  <dt>{{ pup.id }}</dt><dd><b>{{ s.login_id }}</b></dd>
+  {% if s.level %}<dt>{{ fam.level }}</dt><dd><b>{{ s.level }}</b></dd>{% endif %}
+</dl>
+<h2>{{ pup.next }}</h2>
+{% if sessions %}
+<div class="card account-tests">
+  {% for x in sessions %}
+  <div class="acct-test">
+    <p style="margin:0"><b>{{ x.level }}</b> — {{ pup.bj }} {{ x.bj.strftime('%m/%d %H:%M') }}{% if x.my_role == 'trial' %} · {{ t.cr_trial }}{% endif %}</p>
+    {% if x.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=x.id) }}">{{ pup.enter }}</a>{% else %}<p class="note" style="margin:0">{{ pup.opens }}</p>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">{{ pup.none }}</p>{% endif %}
+{% endblock %}

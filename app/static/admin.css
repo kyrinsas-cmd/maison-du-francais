@@ -177,3 +177,4 @@ body.bo .kid-card { text-decoration: none; gap: 4px; }
 body.bo .kid-card:hover { border-color: var(--ink); }
 .kid-name { font-size: 20px; }
 .kid-more { margin-top: 6px; font-weight: 700; font-size: 14px; }
+.pupil-id { font-family: var(--mono); font-size: 18px; letter-spacing: .06em; }

@@ -10,8 +10,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='classroom.css') }}?v=3">
 </head>
 <body class="cr lang-{{ lang }}" data-role="{{ role }}">
+{% set back_url = url_for('pupil_home') if (current_student() and not current_user()) else url_for('account_home') %}
 <header class="cr-top">
-  <a class="cr-brand" href="{{ url_for('account_home') }}" title="{{ x.back }}"><img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="" width="30" height="30"><span>{{ t.brand_main }}</span></a>
+  <a class="cr-brand" href="{{ back_url }}" title="{{ x.back }}"><img src="{{ url_for('static', filename='img/logo-icon.png') }}" alt="" width="30" height="30"><span>{{ t.brand_main }}</span></a>
   <div class="cr-class"><b>{{ cls.level }}</b>{% if cls.first_name %} · {{ cls.first_name }}{% endif %} ·
     {% if lang == 'zh' %}北京时间 {{ starts_bj.strftime('%m月%d日 %H:%M') }}{% else %}{{ starts_paris.strftime('%d/%m à %H:%M') }} (Paris){% endif %}</div>
   <div class="cr-status" id="cr-status" aria-live="polite"></div>
@@ -20,12 +21,12 @@
 
 {% if s.status == 'cancelled' or closed %}
 <main class="cr-gate"><div class="cr-card"><h1>{{ x.cancelled if s.status == 'cancelled' else x.closed }}</h1>
-  <a class="cr-btn" href="{{ url_for('account_home') }}">{{ x.back }}</a></div></main>
+  <a class="cr-btn" href="{{ back_url }}">{{ x.back }}</a></div></main>
 {% elif not open %}
 <main class="cr-gate"><div class="cr-card"><h1>{{ x.title }}</h1>
   <p>{{ x.not_open.format(t=(opens_bj.strftime('%H:%M') if lang == 'zh' else opens_paris.strftime('%H:%M'))) }}</p>
   <a class="cr-btn" href="{{ request.path }}{% if as_parent %}?as=parent{% endif %}">↻</a>
-  <a class="cr-link" href="{{ url_for('account_home') }}">{{ x.back }}</a></div></main>
+  <a class="cr-link" href="{{ back_url }}">{{ x.back }}</a></div></main>
 {% else %}
 <main class="cr-gate" id="cr-prejoin">
   <div class="cr-card">
@@ -90,7 +91,7 @@
 
 <main class="cr-gate" id="cr-after" hidden><div class="cr-card"><h1 id="cr-after-msg"></h1>
   <button class="cr-btn" id="cr-rejoin" type="button">{{ x.rejoin }}</button>
-  <a class="cr-link" href="{{ url_for('account_home') }}">{{ x.back }}</a></div></main>
+  <a class="cr-link" href="{{ back_url }}">{{ x.back }}</a></div></main>
 
 <script id="cr-config" type="application/json">{{ {
   "token_url": url_for('classroom_token', sid=s.id), "action_url": url_for('classroom_action', sid=s.id), "csrf": csrf(),

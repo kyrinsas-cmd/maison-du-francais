@@ -96,6 +96,7 @@ def is_staff():
 
 def login_user(uid):
     session.pop("user_id", None)
+    session.pop("student_sid", None)     # une connexion adulte ferme la session élève (pupil.py)
     session["user_id"] = uid
     session["csrf"] = secrets.token_urlsafe(24)
     session.permanent = True

@@ -104,3 +104,11 @@ Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquet
 - **Test de niveau** : le parent choisit l'enfant dans sa liste (`?enfant=<id>` pré-coche) ou « un autre enfant » (pseudo + âge, ajouté à Mes enfants) : plus de doublons de prénom.
 - **Admin** : fiche élève → « fusionner dans une autre fiche du même compte » (tests, inscriptions, présence, bilans) et « rattacher à un autre compte » (tests et classes suivent) ; la liste des comptes montre les enfants de chaque compte. Les 3 « xinhui » du compte de test ont été fusionnés le 2026-11-09.
 - Plus tard, si des familles le demandent : 2e parent sur la même famille (invitation), lien entre le compte d'un ado (15 ans et plus) et celui de ses parents.
+
+## Comptes élèves (enfants) et devoirs : décisions du 2026-11-09
+- **Devoirs** : rendus **par l'élève seulement, depuis son propre compte** ; **note sur 20**. La création des devoirs (par le professeur) reste à définir avec l'utilisateur.
+- **Comptes élèves** (`pupil.py`) : créés **par le parent** sur la page de l'enfant (我的孩子 → 学生账户) ; **identifiant unique généré par le site** « MF » + 6 chiffres au hasard, **mot de passe** choisi par le parent (7 caractères au moins), qu'il peut changer ; il peut désactiver le compte (l'élève est déconnecté à la requête suivante).
+- Connexion élève : `/eleve/connexion` (numéro accepté en minuscules), 5 essais ratés par 15 min et par IP (`admin_login_failures`, scope `pupil`) ; session `student_sid` séparée des comptes adultes (une connexion adulte la ferme et inversement). Espace élève `/eleve/` : numéro, niveau, prochains cours avec « entrer en classe ».
+- Salle de classe : l'élève connecté avec son numéro entre comme élève inscrit ou essai de sa classe (identité LiveKit `student-s<élève>-m<inscription>`, présence enregistrée sur le compte du parent avec l'inscription).
+- Les élèves de 15 ans et plus avec leur propre compte e-mail (rôle « eleve ») ne sont pas concernés.
+- Compte élève de test : « 测试学生 » (compte parent de test), numéro MF676192, mot de passe Eleve-2026. À supprimer avant le lancement avec les autres données de test.
