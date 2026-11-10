@@ -26,7 +26,16 @@ TX = {
            "acc_create": "创建学生账户", "acc_pw": "设置密码（至少7个字符）", "acc_pw2": "再输入一次密码", "acc_id": "学生编号", "acc_last": "上次登录",
            "acc_never": "还没有登录过", "acc_reset": "修改密码", "acc_off": "停用账户", "acc_on": "启用账户", "acc_disabled": "账户已停用：孩子暂时不能登录。",
            "acc_created": "学生账户已创建。请把学生编号和密码告诉孩子。", "acc_changed": "密码已修改。", "acc_err_pw": "密码至少需要7个字符。",
-           "acc_err_pw2": "两次输入的密码不一样。", "acc_where": "登录地址", "acc_toggled": "已保存。"},
+           "acc_err_pw2": "两次输入的密码不一样。", "acc_where": "登录地址", "acc_toggled": "已保存。",
+           "nav_home": "首页", "nav_class": "我的班级", "nav_hw": "我的作业", "nav_tests": "我的测试", "nav_stats": "学习统计", "nav_cal": "课表",
+           "class_none": "你还没有分班。老师评估你的水平以后，会为你推荐班级。", "teacher": "老师", "schedule": "上课时间", "classmates": "同学",
+           "trial": "试听", "hw_lead": "老师布置的作业会显示在这里：你可以在这里交作业，看到老师的批改和分数（满分20分）。", "hw_none": "现在还没有作业。",
+           "tests_none": "还没有水平测试。测试由爸爸妈妈在他们的账户里安排。", "test_wait": "等待老师评估", "test_doing": "进行中",
+           "final": "建议级别", "writing": "写作", "oral": "口语", "qcm": "选择题", "score": "得分", "level": "级别",
+           "st_courses": "上过的课", "st_rate": "出勤率", "st_present": "出勤", "st_late": "迟到", "st_absent": "缺席", "st_excused": "请假",
+           "st_hw": "作业平均分", "st_hw_none": "还没有批改的作业", "st_level": "现在的级别", "st_none": "上完第一节课以后，这里会显示你的统计。",
+           "st_month": "本月上课", "cal_today": "今天", "cal_none": "这个月没有课。", "cal_list": "接下来的课",
+           "weekdays": ["一", "二", "三", "四", "五", "六", "日"], "month_fmt": "{y}年{m}月"},
     "fr": {"login_h": "Connexion élève", "login_lead": "Connecte-toi avec le numéro d'élève et le mot de passe que tes parents ont créés pour toi.",
            "id": "Numéro d'élève", "pw": "Mot de passe", "login": "Se connecter", "err": "Numéro d'élève ou mot de passe incorrect.",
            "too_many": "Trop de tentatives. Réessaie dans 15 minutes.", "parent_link": "Parent ou professeur ? Connexion avec l'e-mail",
@@ -38,7 +47,18 @@ TX = {
            "acc_on": "Réactiver le compte", "acc_disabled": "Compte désactivé : l'enfant ne peut plus se connecter pour l'instant.",
            "acc_created": "Compte élève créé. Donnez le numéro d'élève et le mot de passe à votre enfant.", "acc_changed": "Mot de passe modifié.",
            "acc_err_pw": "Le mot de passe doit comporter au moins 7 caractères.", "acc_err_pw2": "Les deux mots de passe sont différents.",
-           "acc_where": "Adresse de connexion", "acc_toggled": "Enregistré."},
+           "acc_where": "Adresse de connexion", "acc_toggled": "Enregistré.",
+           "nav_home": "Accueil", "nav_class": "Ma classe", "nav_hw": "Mes devoirs", "nav_tests": "Mes tests", "nav_stats": "Statistiques", "nav_cal": "Calendrier",
+           "class_none": "Tu n'as pas encore de classe : ton professeur en proposera une après ton test de niveau.", "teacher": "Professeur",
+           "schedule": "Horaires", "classmates": "Élèves de la classe", "trial": "essai",
+           "hw_lead": "Les devoirs donnés par ton professeur apparaîtront ici : tu pourras les rendre, puis voir la correction et la note sur 20.",
+           "hw_none": "Pas de devoir pour l'instant.", "tests_none": "Pas encore de test de niveau. Ce sont tes parents qui le lancent depuis leur compte.",
+           "test_wait": "En attente d'évaluation", "test_doing": "En cours", "final": "Niveau conseillé", "writing": "Écrit", "oral": "Oral", "qcm": "QCM",
+           "score": "Score", "level": "Niveau", "st_courses": "Cours suivis", "st_rate": "Présence", "st_present": "Présent", "st_late": "En retard",
+           "st_absent": "Absent", "st_excused": "Absence signalée", "st_hw": "Moyenne des devoirs", "st_hw_none": "Pas encore de devoir noté",
+           "st_level": "Niveau actuel", "st_none": "Tes statistiques apparaîtront après ton premier cours.", "st_month": "Cours ce mois-ci",
+           "cal_today": "Aujourd'hui", "cal_none": "Pas de cours ce mois-ci.", "cal_list": "Prochains cours",
+           "weekdays": ["L", "M", "M", "J", "V", "S", "D"], "month_fmt": "{m}/{y}"},
 }
 
 
@@ -129,15 +149,138 @@ def pupil_logout():
 
 @web.route("/eleve/")
 def pupil_home():
-    s = current_student()
+    s = me_student()
     if not s:
         return redirect(url_for("pupil_login"))
     import classroom
-    sess = classroom.student_sessions(s)
-    resp = web.app.make_response(render_template("pupil/home.html", s=s, sessions=sess))
+    with connect() as c:
+        stats = stats_for(c, s)
+        classes = my_classes(c, s)
+    return _page("pupil/home.html", s=s, sessions=classroom.student_sessions(s, 3), st=stats, classes=classes)
+
+
+# ---------- espace élève : ma classe, mes devoirs, mes tests, statistiques, calendrier ----------
+# Valable pour un enfant connecté avec son numéro (session student_sid) et pour un élève de 15 ans et plus avec son compte e-mail.
+
+def me_student():
+    st = current_student()
+    if st:
+        return st
+    u = U.current()
+    if u and u["role"] == "eleve":
+        import students as ST
+        with connect() as c:
+            sid = ST.ensure_student(c, u["id"], u["name"])
+            return c.execute("SELECT * FROM students WHERE id=%s", (sid,)).fetchone()
+    return None
+
+
+def _page(tpl, **kw):
+    resp = web.app.make_response(render_template(tpl, **kw))
     resp.headers["Cache-Control"] = "no-store"
     resp.headers["X-Robots-Tag"] = "noindex"
     return resp
+
+
+def _need():
+    st = me_student()
+    if not st:
+        return None, redirect(url_for("pupil_login"))
+    return st, None
+
+
+def my_classes(c, st):
+    return c.execute("""SELECT l.*, m.kind, t.first_name AS t_first, t.last_initial AS t_last, t.slug AS t_slug, t.published AS t_pub,
+                          (SELECT json_agg(m2.child_label ORDER BY m2.child_label) FROM class_members m2
+                            WHERE m2.class_id=l.id AND m2.status='active' AND m2.kind='student' AND m2.student_id <> %(s)s) AS mates
+                        FROM class_members m JOIN live_classes l ON l.id=m.class_id LEFT JOIN teachers t ON t.id=l.teacher_id
+                        WHERE m.student_id=%(s)s AND m.status='active' ORDER BY l.level""", {"s": st["id"]}).fetchall()
+
+
+@web.route("/eleve/classe")
+def pupil_class():
+    st, resp = _need()
+    if resp:
+        return resp
+    import classroom
+    with connect() as c:
+        classes = my_classes(c, st)
+    return _page("pupil/class.html", s=st, classes=classes, sessions=classroom.student_sessions(st, 6))
+
+
+@web.route("/eleve/devoirs")
+def pupil_homework():
+    st, resp = _need()
+    if resp:
+        return resp
+    return _page("pupil/homework.html", s=st)
+
+
+@web.route("/eleve/tests")
+def pupil_tests():
+    st, resp = _need()
+    if resp:
+        return resp
+    import placement
+    with connect() as c:
+        tests = c.execute("SELECT * FROM placement_tests WHERE student_id=%s ORDER BY created_at DESC", (st["id"],)).fetchall()
+    tests = [dict(t, qcm=placement.qcm_total(t)) for t in tests]
+    return _page("pupil/tests.html", s=st, tests=tests, levels=placement.LEVELS)
+
+
+def stats_for(c, st):
+    att = {r["status"]: r["n"] for r in c.execute("""SELECT r.status, count(*) AS n FROM session_reports r JOIN class_members m ON m.id=r.member_id
+                                                       WHERE m.student_id=%s GROUP BY 1""", (st["id"],)).fetchall()}
+    done = sum(att.values())
+    came = att.get("present", 0) + att.get("late", 0)
+    month = c.execute("""SELECT count(*) AS n FROM session_reports r JOIN class_members m ON m.id=r.member_id JOIN class_sessions x ON x.id=r.session_id
+                         WHERE m.student_id=%s AND r.status IN ('present','late') AND x.starts_at >= date_trunc('month', now())""", (st["id"],)).fetchone()["n"]
+    return {"att": att, "done": done, "came": came, "rate": round(100 * came / done) if done else None, "month": month}
+
+
+@web.route("/eleve/statistiques")
+def pupil_stats():
+    st, resp = _need()
+    if resp:
+        return resp
+    with connect() as c:
+        stats = stats_for(c, st)
+        levels = c.execute("""SELECT final_level, evaluated_at FROM placement_tests WHERE student_id=%s AND step='evaluated' ORDER BY evaluated_at""",
+                           (st["id"],)).fetchall()
+    return _page("pupil/stats.html", s=st, st=stats, levels=levels)
+
+
+@web.route("/eleve/calendrier")
+def pupil_calendar():
+    """Calendrier du mois (heure de Pékin) : les jours de cours sont marqués ; ?m=AAAA-MM pour un autre mois."""
+    import calendar as cal
+    from datetime import date, datetime, timezone
+    from liveclasses import BJ
+    st, resp = _need()
+    if resp:
+        return resp
+    today = datetime.now(BJ).date()
+    try:
+        y, m = (int(x) for x in request.args.get("m", "").split("-"))
+        first = date(y, m, 1)
+    except ValueError:
+        first = today.replace(day=1)
+    last = date(first.year + (first.month == 12), first.month % 12 + 1, 1)
+    with connect() as c:
+        rows = c.execute("""SELECT s.*, l.level, CASE WHEN m.kind='trial' THEN 'trial' ELSE 'student' END AS my_role FROM class_sessions s
+                            JOIN live_classes l ON l.id=s.class_id JOIN class_members m ON m.class_id=s.class_id AND m.student_id=%s AND m.status='active'
+                            WHERE s.status <> 'cancelled' AND s.starts_at >= %s AND s.starts_at < %s ORDER BY s.starts_at""",
+                         (st["id"], datetime.combine(first, datetime.min.time(), BJ), datetime.combine(last, datetime.min.time(), BJ))).fetchall()
+    import classroom
+    now = datetime.now(timezone.utc)
+    by_day = {}
+    for r in rows:
+        r = dict(r, bj=r["starts_at"].astimezone(BJ), open=classroom.is_open(r, r["my_role"], now), past=r["starts_at"] < now)
+        by_day.setdefault(r["bj"].date(), []).append(r)
+    weeks = cal.Calendar(firstweekday=0).monthdatescalendar(first.year, first.month)
+    prev_m = (first.replace(day=1) - __import__("datetime").timedelta(days=1)).strftime("%Y-%m")
+    return _page("pupil/calendar.html", s=st, weeks=weeks, by_day=by_day, first=first, today=today, prev_m=prev_m, next_m=last.strftime("%Y-%m"),
+                 upcoming=classroom.student_sessions(st, 8))
 
 
 # ---------- côté parent : créer et gérer le compte de l'enfant (page de l'enfant, family.py) ----------

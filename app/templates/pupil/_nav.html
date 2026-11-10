@@ -1,0 +1,9 @@
+{# Rubriques de l'espace élève (enfant connecté avec son numéro, ou élève de 15 ans et plus avec son compte) #}
+{% set e = request.endpoint or '' %}
+<p class="bo-group">{{ t.sp_learning }}</p>
+<a href="{{ url_for('pupil_home') }}" {% if e == 'pupil_home' %}aria-current="page"{% endif %}>{{ pup.nav_home }}</a>
+<a href="{{ url_for('pupil_class') }}" {% if e == 'pupil_class' %}aria-current="page"{% endif %}>{{ pup.nav_class }}</a>
+<a href="{{ url_for('pupil_homework') }}" {% if e == 'pupil_homework' %}aria-current="page"{% endif %}>{{ pup.nav_hw }}</a>
+<a href="{{ url_for('pupil_tests') }}" {% if e == 'pupil_tests' %}aria-current="page"{% endif %}>{{ pup.nav_tests }}</a>
+<a href="{{ url_for('pupil_stats') }}" {% if e == 'pupil_stats' %}aria-current="page"{% endif %}>{{ pup.nav_stats }}</a>
+<a href="{{ url_for('pupil_calendar') }}" {% if e == 'pupil_calendar' %}aria-current="page"{% endif %}>{{ pup.nav_cal }}</a>

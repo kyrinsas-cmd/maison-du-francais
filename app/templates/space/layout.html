@@ -27,8 +27,7 @@
     </a>
     {% if stu %}
     <nav class="bo-nav" aria-label="{{ pup.space }}">
-      <p class="bo-group">{{ t.sp_learning }}</p>
-      {{ item(url_for('pupil_home'), pup.next, ep == 'pupil_home') }}
+      {% include "pupil/_nav.html" %}
     </nav>
     <div class="bo-me">
       <span>{{ stu.first_name }}</span>
@@ -50,7 +49,8 @@
       {{ item('/fr/professeurs', 'Les professeurs') }}
       {{ item('/fr/', 'Voir le site') }}
       {% else %}
-      <p class="bo-group">{{ t.sp_learning }}</p>
+      {% if me.role == 'eleve' %}{% include "pupil/_nav.html" %}{% endif %}
+      <p class="bo-group">{{ t.sp_learning if me.role != 'eleve' else t.sp_account }}</p>
       {{ item(url_for('account_home'), t.sp_overview, ep == 'account_home') }}
       {% if me.role in ('parent', 'eleve') %}
       {{ item(url_for('family_kids'), fam.kids if me.role == 'parent' else fam.me, ep in ('family_kids', 'family_kid', 'placement_result')) }}

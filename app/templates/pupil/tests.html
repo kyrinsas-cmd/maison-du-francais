@@ -1,0 +1,24 @@
+{% extends "space/layout.html" %}
+{% block title %}{{ pup.nav_tests }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<h1>{{ pup.nav_tests }}</h1>
+{% for x in tests %}
+<div class="card account-tests">
+  <p style="margin:0"><b>{{ x.created_at.strftime('%Y-%m-%d') }}</b> · {% if x.step == 'evaluated' %}<span class="status status-accepted">{{ pup.final }} {{ x.final_level }}</span>{% elif x.step == 'submitted' %}<span class="status status-contacted">{{ pup.test_wait }}</span>{% else %}<span class="status status-contacted">{{ pup.test_doing }}</span>{% endif %}</p>
+  {% if x.step == 'evaluated' %}
+  <dl class="account-dl">
+    <dt>{{ pup.writing }}</dt><dd>{{ x.writing_level or '—' }}</dd>
+    <dt>{{ pup.oral }}</dt><dd>{{ x.oral_level or '—' }}</dd>
+    <dt>{{ pup.qcm }}</dt><dd>{{ x.qcm[0] }} / {{ x.qcm[1] }}</dd>
+  </dl>
+  {% if x.scores %}
+  <div class="table-box admin-table"><table>
+    <thead><tr><th scope="col">{{ pup.level }}</th><th scope="col">{{ pup.score }}</th><th scope="col">%</th></tr></thead>
+    <tbody>{% for lv in levels %}{% if x.scores.get(lv) %}{% set sc = x.scores[lv] %}<tr><td>{{ lv }}</td><td>{{ sc[0] }} / {{ sc[1] }}</td><td>{{ (100 * sc[0] / sc[1])|round|int if sc[1] else 0 }} %</td></tr>{% endif %}{% endfor %}</tbody>
+  </table></div>
+  {% endif %}
+  {% if x.family_msg %}<p class="pre" style="margin:0">{{ x.family_msg }}</p>{% endif %}
+  {% endif %}
+</div>
+{% else %}<p class="empty">{{ pup.tests_none }}</p>{% endfor %}
+{% endblock %}

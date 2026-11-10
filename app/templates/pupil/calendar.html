@@ -1,0 +1,32 @@
+{% extends "space/layout.html" %}
+{% block title %}{{ pup.nav_cal }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<h1>{{ pup.nav_cal }}</h1>
+<div class="cal-head">
+  <a class="btn btn-line btn-small" href="{{ url_for('pupil_calendar', m=prev_m) }}" aria-label="←">←</a>
+  <b>{{ pup.month_fmt.format(y=first.year, m=first.month) }}</b>
+  <a class="btn btn-line btn-small" href="{{ url_for('pupil_calendar', m=next_m) }}" aria-label="→">→</a>
+  <span class="note">{{ pup.bj }}</span>
+</div>
+<div class="cal" role="table">
+  <div class="cal-row cal-days" role="row">{% for d in pup.weekdays %}<span role="columnheader">{{ d }}</span>{% endfor %}</div>
+  {% for w in weeks %}
+  <div class="cal-row" role="row">
+    {% for d in w %}
+    <div role="cell" class="cal-cell{{ ' out' if d.month != first.month }}{{ ' today' if d == today }}{{ ' has' if by_day.get(d) }}">
+      <span class="cal-n">{{ d.day }}</span>
+      {% for x in by_day.get(d, []) %}
+      {% if x.open %}<a class="cal-ev open" href="{{ url_for('classroom', sid=x.id) }}">{{ x.bj.strftime('%H:%M') }} {{ x.level }}</a>
+      {% else %}<span class="cal-ev{{ ' past' if x.past }}">{{ x.bj.strftime('%H:%M') }} {{ x.level }}</span>{% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% if not by_day %}<p class="note" style="margin-top:8px">{{ pup.cal_none }}</p>{% endif %}
+<h2>{{ pup.cal_list }}</h2>
+{% if upcoming %}
+<div class="card account-tests">{% for x in upcoming %}<div class="acct-test"><p style="margin:0"><b>{{ x.level }}</b> — {{ pup.bj }} {{ x.bj.strftime('%m/%d %H:%M') }}</p>{% if x.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=x.id) }}">{{ pup.enter }}</a>{% endif %}</div>{% endfor %}</div>
+{% else %}<p class="empty">{{ pup.none }}</p>{% endif %}
+{% endblock %}

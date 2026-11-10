@@ -178,3 +178,23 @@ body.bo .kid-card:hover { border-color: var(--ink); }
 .kid-name { font-size: 20px; }
 .kid-more { margin-top: 6px; font-weight: 700; font-size: 14px; }
 .pupil-id { font-family: var(--mono); font-size: 18px; letter-spacing: .06em; }
+/* espace élève : calendrier du mois et barres de statistiques */
+.cal-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.cal-head b { font-size: 18px; min-width: 7em; text-align: center; }
+.cal { border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; background: var(--page); }
+.cal-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.cal-days span { padding: 8px; text-align: center; font-size: 12px; color: var(--ink-soft); background: var(--surface); border-bottom: 1px solid var(--line); font-weight: 700; }
+.cal-cell { min-height: 78px; padding: 6px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cal-row .cal-cell:last-child { border-right: 0; }
+.cal-cell.out { background: var(--surface); color: var(--ink-soft); }
+.cal-n { font-size: 13px; font-weight: 700; }
+.cal-cell.today .cal-n { background: var(--gold); color: #fff; border-radius: 999px; padding: 0 7px; align-self: flex-start; }
+.cal-ev { font-size: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
+.cal-ev.open { background: var(--gold); color: #fff; border-color: var(--gold); font-weight: 700; }
+.cal-ev.past { color: var(--ink-soft); }
+.stat-bars { display: flex; flex-direction: column; gap: 8px; max-width: 560px; }
+.stat-row { display: grid; grid-template-columns: 7em 1fr 2.5em; gap: 10px; align-items: center; font-size: 14px; }
+.stat-bar { height: 10px; background: var(--surface); border-radius: 99px; overflow: hidden; }
+.stat-bar i { display: block; height: 100%; background: var(--ink); }
+.stat-bar i.b-late { background: #b48700; } .stat-bar i.b-absent { background: var(--danger); } .stat-bar i.b-excused { background: var(--ink-soft); }
+@media (max-width: 600px) { .cal-cell { min-height: 56px; padding: 3px; } .cal-ev { font-size: 10px; padding: 0 2px; } }

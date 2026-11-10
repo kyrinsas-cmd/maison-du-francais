@@ -1,0 +1,25 @@
+{% extends "space/layout.html" %}
+{% block title %}{{ pup.nav_stats }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<h1>{{ pup.nav_stats }}</h1>
+<div class="bo-figures">
+  <div><b>{{ s.level or '—' }}</b><span>{{ pup.st_level }}</span></div>
+  <div><b>{{ st.came }}</b><span>{{ pup.st_courses }}</span></div>
+  <div><b>{{ (st.rate ~ ' %') if st.rate is not none else '—' }}</b><span>{{ pup.st_rate }}</span></div>
+  <div><b>{{ st.month }}</b><span>{{ pup.st_month }}</span></div>
+  <div><b>—</b><span>{{ pup.st_hw }}<br>{{ pup.st_hw_none }}</span></div>
+</div>
+{% if st.done %}
+<h2>{{ pup.st_rate }}</h2>
+<div class="stat-bars">
+  {% for k, lab in [('present', pup.st_present), ('late', pup.st_late), ('absent', pup.st_absent), ('excused', pup.st_excused)] %}
+  {% set n = st.att.get(k, 0) %}
+  <div class="stat-row"><span>{{ lab }}</span><span class="stat-bar"><i class="b-{{ k }}" style="width:{{ (100 * n / st.done)|round|int }}%"></i></span><b>{{ n }}</b></div>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">{{ pup.st_none }}</p>{% endif %}
+{% if levels %}
+<h2>{{ pup.level }}</h2>
+<div class="table-box admin-table"><table><tbody>{% for l in levels %}<tr><td>{{ l.evaluated_at.strftime('%Y-%m-%d') }}</td><td><b>{{ l.final_level }}</b></td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+{% endblock %}

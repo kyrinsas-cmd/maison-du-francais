@@ -1,0 +1,26 @@
+{% extends "space/layout.html" %}
+{% block title %}{{ pup.nav_class }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<h1>{{ pup.nav_class }}</h1>
+{% for cl in classes %}
+<dl class="account-dl card">
+  <dt>{{ pup.level }}</dt><dd><b>{{ cl.level }}</b>{% if cl.kind == 'trial' %} · {{ pup.trial }}{% endif %}</dd>
+  <dt>{{ pup.teacher }}</dt><dd>{% if cl.t_first %}{% if cl.t_pub %}<a href="{{ url_for('teacher_page', slug=cl.t_slug) }}">{{ cl.t_first }} {{ cl.t_last or '' }}</a>{% else %}{{ cl.t_first }}{% endif %}{% else %}—{% endif %}</dd>
+  <dt>{{ pup.schedule }}</dt><dd>{% for d in cl.days %}{{ t['day_' ~ d] }} {% endfor %}· {{ pup.bj }} {{ cl.start_bj.strftime('%H:%M') }}</dd>
+  <dt>{{ pup.classmates }}</dt><dd>{% if cl.mates %}{{ cl.mates|join('、' if lang == 'zh' else ', ') }}{% else %}—{% endif %}</dd>
+</dl>
+{% else %}<p class="empty">{{ pup.class_none }}</p>{% endfor %}
+{% if classes %}
+<h2>{{ pup.next }}</h2>
+{% if sessions %}
+<div class="card account-tests">
+  {% for x in sessions %}
+  <div class="acct-test">
+    <p style="margin:0"><b>{{ x.level }}</b> — {{ pup.bj }} {{ x.bj.strftime('%m/%d %H:%M') }}</p>
+    {% if x.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=x.id) }}">{{ pup.enter }}</a>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">{{ pup.none }}</p>{% endif %}
+{% endif %}
+{% endblock %}
