@@ -1,0 +1,42 @@
+{% extends "espace/layout.html" %}
+{% block title %}{{ s.first_name }} · Profil{% endblock %}
+{% block content %}
+<p><a href="javascript:history.back()">← Retour</a></p>
+<h1>{{ s.first_name }}</h1>
+<div class="bo-figures">
+  <div><b>{{ s.age or '—' }}</b><span>Âge</span></div>
+  <div><b>{{ s.level or '—' }}</b><span>Niveau</span></div>
+  <div><b>{{ (rate ~ ' %') if rate is not none else '—' }}</b><span>Présence ({{ done }} cours)</span></div>
+  <div><b>{{ (avg ~ ' / 20') if avg is not none else '—' }}</b><span>Moyenne des devoirs</span></div>
+</div>
+<p class="note" style="margin-top:8px">Classes : {% for cl in classes %}{{ cl.level }}{% if cl.kind == 'trial' %} (essai){% endif %}{% if cl.m_status != 'active' %} (ancienne){% endif %}{{ ', ' if not loop.last }}{% endfor %}
+{% if s.login_id %} · compte élève {{ s.login_id }}{% endif %}</p>
+
+<h2>Devoirs</h2>
+{% if hws %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Devoir</th><th scope="col">Classe</th><th scope="col">Rendu</th><th scope="col">Note</th></tr></thead>
+  <tbody>{% for h in hws %}<tr><td><a href="{{ url_for('espace.homework_teacher', hid=h.id) }}">{{ h.title }}</a></td><td>{{ h.level }}</td>
+    <td>{{ h.submitted_at.strftime('%d/%m') if h.submitted_at else 'non' }}</td><td>{{ (h.grade|string)|replace('.0', '') ~ ' / 20' if h.grade is not none else '—' }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">Pas encore de devoir.</p>{% endif %}
+
+<h2>Présence et bilans</h2>
+<p class="note">Présent {{ att.get('present', 0) }} · en retard {{ att.get('late', 0) }} · absent {{ att.get('absent', 0) }} · absence signalée {{ att.get('excused', 0) }}</p>
+{% if reports %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Cours</th><th scope="col">Présence</th><th scope="col">Mot aux parents</th></tr></thead>
+  <tbody>{% for r in reports %}<tr><td>{{ r.starts_at.strftime('%d/%m/%Y') }} · {{ r.level }}</td>
+    <td>{{ {'present': 'Présent', 'late': 'En retard', 'absent': 'Absent', 'excused': 'Absence signalée'}[r.status] }}</td><td>{{ r.comment or '—' }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">Pas encore de bilan.</p>{% endif %}
+
+<h2>Tests de niveau</h2>
+{% if tests %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Date</th><th scope="col">QCM</th><th scope="col">Écrit</th><th scope="col">Oral</th><th scope="col">Niveau final</th></tr></thead>
+  <tbody>{% for x in tests %}<tr><td>{{ x.created_at.strftime('%d/%m/%Y') }}</td><td>{{ x.est_level or '—' }}</td><td>{{ x.writing_level or '—' }}</td><td>{{ x.oral_level or '—' }}</td>
+    <td>{{ x.final_level or ('à évaluer' if x.step == 'submitted' else 'en cours') }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">Pas de test de niveau.</p>{% endif %}
+{% endblock %}

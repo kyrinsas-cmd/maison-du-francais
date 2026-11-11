@@ -385,3 +385,49 @@ ALTER TABLE students ADD COLUMN IF NOT EXISTS password_hash text;
 ALTER TABLE students ADD COLUMN IF NOT EXISTS login_enabled boolean NOT NULL DEFAULT true;
 ALTER TABLE students ADD COLUMN IF NOT EXISTS last_login_at timestamptz;
 CREATE UNIQUE INDEX IF NOT EXISTS students_login_id ON students (login_id) WHERE login_id IS NOT NULL;
+
+-- 2026-11-11 : programme par niveau et avancement des classes ; devoirs (rendus par l'élève, note sur 20)
+CREATE TABLE IF NOT EXISTS program_units (              -- programme indicatif par niveau (program_seed.py), modifiable par l'équipe
+    id        bigserial PRIMARY KEY,
+    level     text NOT NULL,
+    sort      int NOT NULL,
+    title_fr  text NOT NULL,
+    title_zh  text NOT NULL,
+    goals_fr  text,
+    goals_zh  text,
+    UNIQUE (level, sort)
+);
+CREATE TABLE IF NOT EXISTS class_progress (             -- avancement d'une classe dans le programme
+    class_id   bigint NOT NULL REFERENCES live_classes(id) ON DELETE CASCADE,
+    unit_id    bigint NOT NULL REFERENCES program_units(id) ON DELETE CASCADE,
+    status     text NOT NULL CHECK (status IN ('doing', 'done')),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (class_id, unit_id)
+);
+ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS unit_id bigint REFERENCES program_units(id) ON DELETE SET NULL;  -- unité travaillée
+ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS topic text;                                                     -- ce qui a été fait
+CREATE TABLE IF NOT EXISTS homeworks (
+    id           bigserial PRIMARY KEY,
+    class_id     bigint NOT NULL REFERENCES live_classes(id) ON DELETE CASCADE,
+    session_id   bigint REFERENCES class_sessions(id) ON DELETE SET NULL,
+    title        text NOT NULL,
+    instructions text,
+    file_name    text,                                    -- pièce jointe du professeur (uploads/homework/)
+    file_kind    text,
+    due_at       timestamptz,
+    created_by   bigint REFERENCES users(id) ON DELETE SET NULL,
+    created_at   timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS homework_submissions (
+    id           bigserial PRIMARY KEY,
+    homework_id  bigint NOT NULL REFERENCES homeworks(id) ON DELETE CASCADE,
+    student_id   bigint NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    text_answer  text,
+    file_name    text,
+    file_kind    text,
+    submitted_at timestamptz NOT NULL DEFAULT now(),
+    grade        numeric(4,1) CHECK (grade >= 0 AND grade <= 20),
+    feedback     text,
+    graded_at    timestamptz,
+    UNIQUE (homework_id, student_id)
+);

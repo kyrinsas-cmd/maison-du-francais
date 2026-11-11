@@ -433,6 +433,16 @@ def _espace_routes():
                 U.check_csrf()
                 if s["starts_at"] > datetime.now(timezone.utc):
                     abort(400)
+                unit = request.form.get("unit_id", type=int)
+                c.execute("UPDATE class_sessions SET unit_id=%s, topic=%s WHERE id=%s",
+                          (unit if unit and c.execute("SELECT 1 FROM program_units WHERE id=%s AND level=%s", (unit, cls["level"])).fetchone() else None,
+                           (request.form.get("topic") or "").strip()[:1000] or None, sid))
+                if request.form.get("unit_done") and unit:
+                    c.execute("""INSERT INTO class_progress (class_id, unit_id, status) VALUES (%s,%s,'done')
+                                 ON CONFLICT (class_id, unit_id) DO UPDATE SET status='done', updated_at=now()""", (cls["id"], unit))
+                elif unit:
+                    c.execute("""INSERT INTO class_progress (class_id, unit_id, status) VALUES (%s,%s,'doing')
+                                 ON CONFLICT (class_id, unit_id) DO NOTHING""", (cls["id"], unit))
                 for m in report_rows(c, s):
                     st = request.form.get(f"st{m['id']}")
                     if st not in REPORT_STATUSES:
@@ -442,7 +452,8 @@ def _espace_routes():
                               (sid, m["id"], st, (request.form.get(f"cm{m['id']}") or "").strip()[:600] or None))
                 return redirect(url_for("espace.session_report", sid=sid, ok=1))
             rows = report_rows(c, s)
-        return render_template("espace/session.html", s=s, cls=cls, rows=rows, statuses=REPORT_STATUSES, ok=request.args.get("ok"),
+            units = c.execute("SELECT * FROM program_units WHERE level=%s ORDER BY sort", (cls["level"],)).fetchall()
+        return render_template("espace/session.html", s=s, cls=cls, rows=rows, units=units, statuses=REPORT_STATUSES, ok=request.args.get("ok"),
                                paris=s["starts_at"].astimezone(PARIS), bj=s["starts_at"].astimezone(BJ),
                                future=s["starts_at"] > datetime.now(timezone.utc))
 
@@ -479,10 +490,17 @@ def _espace_routes():
                                       (SELECT count(*) FROM session_absences a WHERE a.session_id=s.id) AS excused
                                     FROM class_sessions s WHERE s.class_id=%s AND s.status <> 'cancelled'
                                     AND s.starts_at > now() - interval '30 days' ORDER BY s.starts_at LIMIT 40""", (cid,)).fetchall()
+            import homework as HW
+            program, done, pct = HW.program_for(c, cls)
+            homeworks = HW.homeworks_for_class(c, cls)
+            next_at = HW.next_session_at(c, cid)
         now = datetime.now(timezone.utc)
         sessions = [dict(s, paris=s["starts_at"].astimezone(PARIS), bj=s["starts_at"].astimezone(BJ), past=s["starts_at"] < now,
                          open=is_open(s, "teacher", now)) for s in sessions]
-        return render_template("espace/class.html", cls=cls, members=members, sessions=sessions)
+        return render_template("espace/class.html", cls=cls, members=members, sessions=sessions, program=program, done=done, pct=pct,
+                               homeworks=homeworks, open_now=next((s for s in sessions if s["open"]), None),
+                               next_due=(next_at.astimezone(PARIS).strftime("%Y-%m-%dT%H:%M") if next_at else ""),
+                               ok=request.args.get("ok"), err=request.args.get("err"))
 
 
 _espace_routes()

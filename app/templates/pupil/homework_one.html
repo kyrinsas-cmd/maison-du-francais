@@ -1,0 +1,38 @@
+{% extends "space/layout.html" %}
+{% block title %}{{ h.title }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('pupil_homework') }}">← {{ pup.nav_hw }}</a></p>
+<h1>{{ h.title }}</h1>
+{% if ok %}<p class="flash">{{ pup.hw_saved }}</p>{% endif %}
+{% if error %}<p class="errors" role="alert">{{ error }}</p>{% endif %}
+<dl class="account-dl card">
+  <dt>{{ pup.level }}</dt><dd>{{ h.level }}</dd>
+  {% if h.due_bj %}<dt>{{ pup.hw_due }}</dt><dd>{{ pup.bj }} {{ h.due_bj.strftime('%Y-%m-%d %H:%M') }}</dd>{% endif %}
+  {% if h.instructions %}<dt>{{ pup.hw_instr }}</dt><dd class="pre" lang="fr">{{ h.instructions }}</dd>{% endif %}
+  {% if h.file_name %}<dt>{{ pup.hw_attach }}</dt><dd><a href="{{ url_for('homework_file', what='devoir', oid=h.id) }}" target="_blank" rel="noopener">{{ pup.hw_open }}</a></dd>{% endif %}
+</dl>
+{% if sub and sub.grade is not none %}
+<h2>{{ pup.hw_result }}</h2>
+<div class="bo-figures"><div><b>{{ (sub.grade|string)|replace('.0', '') }} / 20</b><span>{{ pup.hw_grade }}</span></div></div>
+{% if sub.feedback %}<p class="card pre" style="margin-top:10px" lang="fr">{{ sub.feedback }}</p>{% endif %}
+{% endif %}
+<h2>{{ pup.hw_your }}</h2>
+{% if sub %}
+<div class="card account-tests">
+  {% if sub.text_answer %}<p class="pre" style="margin:0">{{ sub.text_answer }}</p>{% endif %}
+  {% if sub.file_name %}{% set fu = url_for('homework_file', what='rendu', oid=sub.id) %}
+    {% if sub.file_kind == 'image' %}<img src="{{ fu }}" alt="" style="max-width:420px;border-radius:8px">{% elif sub.file_kind == 'audio' %}<audio controls preload="none" src="{{ fu }}"></audio>{% else %}<a href="{{ fu }}" target="_blank" rel="noopener">{{ pup.hw_open }}</a>{% endif %}
+  {% endif %}
+  <p class="note" style="margin:0">{{ pup.hw_sent }} {{ sub.submitted_at.strftime('%Y-%m-%d %H:%M') }}</p>
+</div>
+{% endif %}
+{% if not sub or sub.grade is none %}
+<form class="form" method="post" enctype="multipart/form-data" style="max-width:640px;margin-top:12px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <label>{{ pup.hw_answer }}<textarea name="text" rows="6" maxlength="8000" lang="fr">{{ sub.text_answer if sub and sub.text_answer else '' }}</textarea></label>
+  <label>{{ pup.hw_file }}<input type="file" name="file" accept="image/*,.pdf,.mp3,.m4a,.docx,.pptx"></label>
+  <button class="btn btn-red" type="submit" style="align-self:flex-start">{{ pup.hw_resubmit if sub else pup.hw_submit }}</button>
+  {% if sub %}<p class="note" style="margin:0">{{ pup.hw_edit_note }}</p>{% endif %}
+</form>
+{% endif %}
+{% endblock %}

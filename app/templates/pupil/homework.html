@@ -2,6 +2,18 @@
 {% block title %}{{ pup.nav_hw }} · {{ t.brand_main }}{% endblock %}
 {% block content %}
 <h1>{{ pup.nav_hw }}</h1>
-<p class="note">{{ pup.hw_lead }}</p>
-<p class="empty">{{ pup.hw_none }}</p>
+{% if hws %}
+<div class="card account-tests">
+  {% for h in hws %}
+  <div class="acct-test">
+    <p style="margin:0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><a href="{{ url_for('pupil_homework_one', hid=h.id) }}"><b>{{ h.title }}</b></a>
+      {% if h.grade is not none %}<span class="status status-accepted">{{ (h.grade|string)|replace('.0', '') }} / 20</span>
+      {% elif h.sub_id %}<span class="status status-contacted">{{ pup.hw_done }}</span>
+      {% elif h.late %}<span class="status status-new">{{ pup.hw_late }}</span>
+      {% else %}<span class="status status-contacted">{{ pup.hw_todo }}</span>{% endif %}</p>
+    <p class="note" style="margin:0">{{ h.level }}{% if h.due_bj %} · {{ pup.hw_due }} {{ pup.bj }} {{ h.due_bj.strftime('%m/%d %H:%M') }}{% endif %}</p>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="note">{{ pup.hw_lead }}</p><p class="empty">{{ pup.hw_none }}</p>{% endif %}
 {% endblock %}

@@ -198,3 +198,6 @@ body.bo .kid-card:hover { border-color: var(--ink); }
 .stat-bar i { display: block; height: 100%; background: var(--ink); }
 .stat-bar i.b-late { background: #b48700; } .stat-bar i.b-absent { background: var(--danger); } .stat-bar i.b-excused { background: var(--ink-soft); }
 @media (max-width: 600px) { .cal-cell { min-height: 56px; padding: 3px; } .cal-ev { font-size: 10px; padding: 0 2px; } }
+.prog-head { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; flex-wrap: wrap; }
+.prog-bar { flex: 1 1 240px; height: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
+.prog-bar i { display: block; height: 100%; background: var(--gold); }

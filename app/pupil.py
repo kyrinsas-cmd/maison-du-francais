@@ -35,7 +35,12 @@ TX = {
            "st_courses": "上过的课", "st_rate": "出勤率", "st_present": "出勤", "st_late": "迟到", "st_absent": "缺席", "st_excused": "请假",
            "st_hw": "作业平均分", "st_hw_none": "还没有批改的作业", "st_level": "现在的级别", "st_none": "上完第一节课以后，这里会显示你的统计。",
            "st_month": "本月上课", "cal_today": "今天", "cal_none": "这个月没有课。", "cal_list": "接下来的课",
-           "weekdays": ["一", "二", "三", "四", "五", "六", "日"], "month_fmt": "{y}年{m}月"},
+           "weekdays": ["一", "二", "三", "四", "五", "六", "日"], "month_fmt": "{y}年{m}月",
+           "hw_due": "截止", "hw_todo": "待完成", "hw_done": "已提交", "hw_late": "已过截止时间", "hw_instr": "要求", "hw_attach": "附件", "hw_open": "打开",
+           "hw_result": "老师批改", "hw_grade": "分数（满分20）", "hw_your": "我的作业", "hw_sent": "提交时间", "hw_answer": "我的答案（可以直接写在这里）",
+           "hw_file": "上传文件（照片、PDF、录音，最大20MB）", "hw_submit": "提交作业", "hw_resubmit": "重新提交", "hw_saved": "作业已提交，老师会批改。",
+           "hw_edit_note": "老师批改之前，你可以修改。", "hw_err_size": "文件太大（最大20MB）。", "hw_err_format": "文件格式不支持：请上传照片（JPG、PNG）、PDF、录音（MP3、M4A）、Word 或 PowerPoint。",
+           "hw_err_empty": "请写下答案或上传一个文件。"},
     "fr": {"login_h": "Connexion élève", "login_lead": "Connecte-toi avec le numéro d'élève et le mot de passe que tes parents ont créés pour toi.",
            "id": "Numéro d'élève", "pw": "Mot de passe", "login": "Se connecter", "err": "Numéro d'élève ou mot de passe incorrect.",
            "too_many": "Trop de tentatives. Réessaie dans 15 minutes.", "parent_link": "Parent ou professeur ? Connexion avec l'e-mail",
@@ -58,7 +63,13 @@ TX = {
            "st_absent": "Absent", "st_excused": "Absence signalée", "st_hw": "Moyenne des devoirs", "st_hw_none": "Pas encore de devoir noté",
            "st_level": "Niveau actuel", "st_none": "Tes statistiques apparaîtront après ton premier cours.", "st_month": "Cours ce mois-ci",
            "cal_today": "Aujourd'hui", "cal_none": "Pas de cours ce mois-ci.", "cal_list": "Prochains cours",
-           "weekdays": ["L", "M", "M", "J", "V", "S", "D"], "month_fmt": "{m}/{y}"},
+           "weekdays": ["L", "M", "M", "J", "V", "S", "D"], "month_fmt": "{m}/{y}",
+           "hw_due": "À rendre pour", "hw_todo": "À faire", "hw_done": "Rendu", "hw_late": "En retard", "hw_instr": "Consigne", "hw_attach": "Pièce jointe",
+           "hw_open": "Ouvrir", "hw_result": "Correction", "hw_grade": "Note sur 20", "hw_your": "Mon devoir", "hw_sent": "Rendu le",
+           "hw_answer": "Ma réponse (tu peux l'écrire ici)", "hw_file": "Envoyer un fichier (photo, PDF, enregistrement audio, 20 Mo au plus)",
+           "hw_submit": "Rendre le devoir", "hw_resubmit": "Rendre à nouveau", "hw_saved": "Devoir rendu : ton professeur va le corriger.",
+           "hw_edit_note": "Tu peux le modifier tant qu'il n'est pas corrigé.", "hw_err_size": "Fichier trop lourd (20 Mo au plus).",
+           "hw_err_format": "Format refusé : photo (JPG, PNG), PDF, audio (MP3, M4A), Word ou PowerPoint.", "hw_err_empty": "Écris ta réponse ou envoie un fichier."},
 }
 
 
@@ -213,7 +224,10 @@ def pupil_homework():
     st, resp = _need()
     if resp:
         return resp
-    return _page("pupil/homework.html", s=st)
+    import homework as HW
+    with connect() as c:
+        hws = HW.homeworks_for_student(c, st)
+    return _page("pupil/homework.html", s=st, hws=hws)
 
 
 @web.route("/eleve/tests")
@@ -235,7 +249,10 @@ def stats_for(c, st):
     came = att.get("present", 0) + att.get("late", 0)
     month = c.execute("""SELECT count(*) AS n FROM session_reports r JOIN class_members m ON m.id=r.member_id JOIN class_sessions x ON x.id=r.session_id
                          WHERE m.student_id=%s AND r.status IN ('present','late') AND x.starts_at >= date_trunc('month', now())""", (st["id"],)).fetchone()["n"]
-    return {"att": att, "done": done, "came": came, "rate": round(100 * came / done) if done else None, "month": month}
+    avg = c.execute("SELECT round(avg(grade), 1) AS a, count(grade) AS n FROM homework_submissions WHERE student_id=%s AND grade IS NOT NULL",
+                    (st["id"],)).fetchone()
+    return {"att": att, "done": done, "came": came, "rate": round(100 * came / done) if done else None, "month": month,
+            "hw_avg": avg["a"], "hw_n": avg["n"]}
 
 
 @web.route("/eleve/statistiques")

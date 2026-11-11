@@ -2,7 +2,15 @@
 {% block title %}Classe {{ cls.level }}{% endblock %}
 {% block content %}
 <p><a href="{{ url_for('espace.my_classes') }}">← Mes classes</a></p>
-<h1>Classe {{ cls.level }}</h1>
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
+  <h1 style="margin:0">Classe {{ cls.level }}</h1>
+  <div class="actions" style="gap:8px">
+    {% if open_now %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=open_now.id, lang='fr') }}">Entrer dans la salle (cours de {{ open_now.paris.strftime('%H:%M') }})</a>
+    {% else %}<form method="post" action="{{ url_for('espace.class_start_now', cid=cls.id) }}" onsubmit="return confirm('Démarrer un cours maintenant ? La salle s\'ouvre tout de suite pour vous et les élèves de la classe.');"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-red btn-small" type="submit">Démarrer un cours en visio maintenant</button></form>{% endif %}
+  </div>
+</div>
+{% if ok == 'programme' %}<p class="flash">Avancement enregistré.</p>{% elif ok == 'devoir' %}<p class="flash">Devoir donné : les élèves le voient dans « Mes devoirs ».</p>{% elif ok == 'devoir-supprime' %}<p class="flash">Devoir supprimé.</p>{% endif %}
+{% if err %}<ul class="errors" role="alert"><li>{{ {'titre': 'Donnez un titre au devoir.', 'date': 'Date limite invalide.', 'fichier-format': 'Fichier refusé : PDF, image (PNG, JPEG), audio (MP3, M4A), Word ou PowerPoint.', 'fichier-size': 'Fichier trop lourd (20 Mo au plus).'}.get(err, 'Erreur.') }}</li></ul>{% endif %}
 <p class="note">{{ members|selectattr('kind', 'equalto', 'student')|list|length }} élève(s) sur {{ cls.capacity }} places · liste tenue par l'équipe.</p>
 
 <h2>Élèves</h2>
@@ -10,13 +18,56 @@
 <div class="table-box admin-table"><table>
   <thead><tr><th scope="col">Élève</th><th scope="col">Âge</th><th scope="col">Niveau</th><th scope="col">Présence</th><th scope="col">Dernier mot aux parents</th></tr></thead>
   <tbody>{% for m in members %}<tr>
-    <td><b>{{ m.child_label or 'Élève' }}</b>{% if m.kind == 'trial' %} <span class="status status-contacted">Essai</span>{% endif %}</td>
+    <td>{% if m.student_id %}<a href="{{ url_for('espace.student_profile', sid=m.student_id) }}"><b>{{ m.child_label or 'Élève' }}</b></a>{% else %}<b>{{ m.child_label or 'Élève' }}</b>{% endif %}{% if m.kind == 'trial' %} <span class="status status-contacted">Essai</span>{% endif %}</td>
     <td>{{ m.age or '—' }}</td><td>{{ m.s_level or '—' }}</td>
     <td>{{ m.came }} / {{ m.done }} cours</td>
     <td>{{ m.last_comment or '—' }}</td>
   </tr>{% endfor %}</tbody>
 </table></div>
 {% else %}<p class="empty">Pas encore d'élève dans cette classe.</p>{% endif %}
+
+<h2 id="programme">Avancement du programme {{ cls.level }}</h2>
+{% if program %}
+<div class="prog-head"><span class="prog-bar"><i style="width:{{ pct }}%"></i></span><b>{{ done }} / {{ program|length }} unités terminées · {{ pct }} %</b></div>
+<form method="post" action="{{ url_for('espace.class_program', cid=cls.id) }}">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <div class="table-box admin-table"><table>
+    <thead><tr><th scope="col">N°</th><th scope="col">Unité</th><th scope="col">Objectifs</th><th scope="col">État</th></tr></thead>
+    <tbody>{% for u in program %}<tr {% if u.status == 'done' %}class="low"{% endif %}>
+      <td>{{ u.sort }}</td><td><b>{{ u.title_fr }}</b><br><span class="note">{{ u.title_zh }}</span></td><td class="note">{{ u.goals_fr or '' }}</td>
+      <td><label class="visually-hidden" for="u{{ u.id }}">État</label><select id="u{{ u.id }}" name="u{{ u.id }}">
+        <option value="todo" {% if not u.status %}selected{% endif %}>À faire</option><option value="doing" {% if u.status == 'doing' %}selected{% endif %}>En cours</option><option value="done" {% if u.status == 'done' %}selected{% endif %}>Terminée</option></select></td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+  <button class="btn btn-navy btn-small" type="submit" style="margin-top:10px">Enregistrer l'avancement</button>
+</form>
+<p class="note" style="margin-top:6px">Programme indicatif de l'équipe. Vous pouvez aussi indiquer l'unité travaillée à chaque cours, dans « Appel et bilan ».</p>
+{% else %}<p class="empty">Pas encore de programme pour le niveau {{ cls.level }}.</p>{% endif %}
+
+<h2 id="devoirs">Devoirs</h2>
+{% if homeworks %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Devoir</th><th scope="col">À rendre pour</th><th scope="col">Rendus</th><th scope="col">Corrigés</th><th scope="col">Moyenne</th></tr></thead>
+  <tbody>{% for h in homeworks %}<tr>
+    <td><a href="{{ url_for('espace.homework_teacher', hid=h.id) }}"><b>{{ h.title }}</b></a>{% if h.file_name %} <span class="note">· pièce jointe</span>{% endif %}</td>
+    <td>{{ h.due_paris.strftime('%d/%m à %H:%M') if h.due_paris else '—' }}</td>
+    <td>{{ h.n_sub }} / {{ members|selectattr('kind', 'equalto', 'student')|list|length }}</td><td>{{ h.n_graded }}</td><td>{{ (h.avg ~ ' / 20') if h.avg is not none else '—' }}</td>
+  </tr>{% endfor %}</tbody>
+</table></div>
+{% endif %}
+<form class="form" method="post" action="{{ url_for('espace.class_homework_new', cid=cls.id) }}" enctype="multipart/form-data" style="max-width:760px;margin-top:12px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <fieldset><legend>Donner un devoir à la classe</legend>
+    <label>Titre<input type="text" name="title" maxlength="200" required placeholder="Ex. : Exercices p. 12, se présenter en 5 phrases"></label>
+    <label>Consigne<textarea name="instructions" rows="4" maxlength="4000" placeholder="Ce que l'élève doit faire, et comment le rendre (texte, photo du cahier, enregistrement audio)."></textarea></label>
+    <div class="row2">
+      <label>À rendre pour (heure de Paris)<input type="datetime-local" name="due" value="{{ next_due }}"></label>
+      <label>Pièce jointe (facultatif : PDF, image, audio, Word, PowerPoint, 20 Mo)<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.mp3,.m4a,.docx,.pptx"></label>
+    </div>
+    <p class="note" style="margin:0">Par défaut : le prochain cours. Les élèves rendent le devoir depuis leur compte élève ; vous le notez sur 20.</p>
+    <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">Donner le devoir</button>
+  </fieldset>
+</form>
 
 <h2>Cours</h2>
 {% if sessions %}
@@ -25,9 +76,9 @@
   <tbody>{% for s in sessions %}<tr {% if s.past and s.reported %}class="low"{% endif %}>
     <td>{{ s.paris.strftime('%d/%m à %H:%M') }}</td><td>{{ s.bj.strftime('%H:%M') }}</td>
     <td>{% if s.past %}{{ 'fait' if s.reported else 'à faire' }}{% else %}—{% endif %}{% if s.excused %} · {{ s.excused }} absence(s) signalée(s){% endif %}</td>
-    <td>{% if s.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr') }}">Démarrer le cours</a>
+    <td>{% if s.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr') }}">Entrer dans la salle</a>
       {% elif s.past %}<a class="btn btn-line btn-small" href="{{ url_for('espace.session_report', sid=s.id) }}">Appel et bilan</a>{% endif %}</td>
   </tr>{% endfor %}</tbody>
 </table></div>
-{% else %}<p class="empty">Aucun cours programmé.</p>{% endif %}
+{% else %}<p class="empty">Aucun cours programmé. Utilisez « Démarrer un cours en visio maintenant », ou demandez à l'équipe de programmer les cours.</p>{% endif %}
 {% endblock %}
