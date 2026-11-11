@@ -540,6 +540,11 @@ def class_room_admin(cid):
                     return redirect(url_for("admin.class_room_admin", cid=cid, ok="Séance ajoutée."))
                 except ValueError:
                     errors.append("Date et heure invalides.")
+            elif act == "start_now":                # séance immédiate (test, rattrapage) : salle ouverte tout de suite, 90 min
+                starts = datetime.now(timezone.utc).replace(second=0, microsecond=0)
+                c.execute("""INSERT INTO class_sessions (class_id, starts_at, duration_min) VALUES (%s,%s,%s)
+                             ON CONFLICT (class_id, starts_at) DO NOTHING""", (cid, starts, SESSION_MIN))
+                return redirect(url_for("admin.class_room_admin", cid=cid, ok="Séance créée : la salle est ouverte dès maintenant, jusqu'à 1 h 30 après le début."))
             elif act == "cancel":
                 c.execute("UPDATE class_sessions SET status='cancelled' WHERE id=%s AND class_id=%s AND status='scheduled'",
                           (request.form.get("session", type=int), cid))
