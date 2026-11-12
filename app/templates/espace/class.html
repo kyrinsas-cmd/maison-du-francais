@@ -55,15 +55,31 @@
   </tr>{% endfor %}</tbody>
 </table></div>
 {% endif %}
-<form class="form" method="post" action="{{ url_for('espace.class_homework_new', cid=cls.id) }}" enctype="multipart/form-data" style="max-width:760px;margin-top:12px">
+<div class="card bank-box" id="banque">
+  <p style="margin:0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>Banque de devoirs{% if cur_unit %} · unité {{ cur_unit.sort }} : {% if bo_lang() == 'zh' %}{{ cur_unit.title_zh }}{% else %}{{ cur_unit.title_fr }}{% endif %}{% endif %}</b>
+    <a href="{{ url_for('espace.bank_teacher', niveau=cls.level[:2]) }}">Toute la banque {{ cls.level }} →</a></p>
+  {% if bank_items %}
+  <ul class="bank-list">{% for b in bank_items %}
+    <li><span><b>{% if bo_lang() == 'zh' and b.title_zh %}{{ b.title_zh }}{% else %}{{ b.title_fr }}{% endif %}</b> <span class="tag">{{ 'Oral' if b.kind == 'oral' else 'Écrit' }}</span>{% if b.file_name %} <span class="note">· pièce jointe</span>{% endif %}<br>
+      <span class="note">{% if bo_lang() == 'zh' and b.instr_zh %}{{ b.instr_zh }}{% else %}{{ b.instr_fr or '' }}{% endif %}</span></span>
+      <a class="btn btn-line btn-small" href="{{ url_for('espace.my_class', cid=cls.id, modele=b.id) }}#donner">Utiliser</a></li>
+  {% endfor %}</ul>
+  {% else %}<p class="note" style="margin:6px 0 0">Pas encore de devoir type pour cette unité.</p>{% endif %}
+</div>
+<form class="form" method="post" action="{{ url_for('espace.class_homework_new', cid=cls.id) }}" enctype="multipart/form-data" style="max-width:760px;margin-top:12px" id="donner">
   <input type="hidden" name="csrf" value="{{ csrf() }}">
+  {% if tpl %}<input type="hidden" name="bank_id" value="{{ tpl.id }}">{% endif %}
   <fieldset><legend>Donner un devoir à la classe</legend>
-    <label>Titre<input type="text" name="title" maxlength="200" required placeholder="Ex. : Exercices p. 12, se présenter en 5 phrases"></label>
-    <label>Consigne<textarea name="instructions" rows="4" maxlength="4000" placeholder="Ce que l'élève doit faire, et comment le rendre (texte, photo du cahier, enregistrement audio)."></textarea></label>
+    {% if tpl %}<p class="flash" style="margin:0">Rempli d'après la banque de devoirs : modifiez si besoin, puis donnez le devoir. <a href="{{ url_for('espace.my_class', cid=cls.id) }}#devoirs">Vider</a></p>{% endif %}
+    <label>Unité du programme<select name="unit_id"><option value="">—</option>{% set uid = tpl.unit_id if tpl else (cur_unit.id if cur_unit else none) %}{% for u in program %}<option value="{{ u.id }}" {% if u.id == uid %}selected{% endif %}>{{ u.sort }}. {{ u.title_zh if bo_lang() == 'zh' else u.title_fr }}</option>{% endfor %}</select></label>
+    <label>Titre<input type="text" name="title" maxlength="200" required placeholder="Ex. : Exercices p. 12, se présenter en 5 phrases" value="{{ tpl.title if tpl else '' }}"></label>
+    <label>Consigne<textarea name="instructions" rows="{{ 6 if tpl else 4 }}" maxlength="4000" placeholder="Ce que l'élève doit faire, et comment le rendre (texte, photo du cahier, enregistrement audio).">{{ tpl.instructions if tpl else '' }}</textarea></label>
     <div class="row2">
       <label>À rendre pour (heure de Paris)<input type="datetime-local" name="due" value="{{ next_due }}"></label>
       <label>Pièce jointe (facultatif : PDF, image, audio, Word, PowerPoint, 20 Mo)<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.mp3,.m4a,.docx,.pptx"></label>
     </div>
+    {% if tpl and tpl.file_name %}<p class="note" style="margin:0">La pièce jointe du devoir type sera jointe (sauf si vous envoyez un autre fichier).</p>{% endif %}
+    {% if not tpl %}<label class="check"><input type="checkbox" name="to_bank" value="1"> Ajouter aussi ce devoir à la banque (unité choisie ci-dessus), pour les autres professeurs</label>{% endif %}
     <p class="note" style="margin:0">Par défaut : le prochain cours. Les élèves rendent le devoir depuis leur compte élève ; vous le notez sur 20.</p>
     <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">Donner le devoir</button>
   </fieldset>

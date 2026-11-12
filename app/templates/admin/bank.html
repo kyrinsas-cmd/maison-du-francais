@@ -1,0 +1,26 @@
+{% extends "admin/layout.html" %}
+{% block title %}Banque de devoirs{% endblock %}
+{% block content %}
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px">
+  <h1 style="margin:0">Banque de devoirs (作业库)</h1>
+  <a class="btn btn-navy btn-small" href="{{ url_for('admin.bank_new') }}">Ajouter un devoir type</a>
+</div>
+{% if ok == 'supprime' %}<p class="flash">Devoir type supprimé.</p>{% endif %}
+<p class="note">Devoirs types rangés par unité du programme. Les professeurs les voient sur la page de leur classe (unité en cours) et peuvent en ajouter. Les devoirs de départ ont été rédigés comme base de travail : à faire relire par un professeur de FLE.</p>
+<nav class="tabs-admin" aria-label="Niveau">{% for lv in levels %}<a href="{{ url_for('admin.bank_admin', niveau=lv) }}" {% if lv == level %}aria-current="page"{% endif %}>{{ lv }} ({{ counts.get(lv, 0) }})</a>{% endfor %}</nav>
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">Unité</th><th scope="col">Devoir</th><th scope="col">Type</th><th scope="col">Origine</th><th scope="col">Donné</th><th scope="col">État</th></tr></thead>
+  <tbody>
+  {% for u in units %}{% set its = items.get(u.id, []) %}
+  {% for b in its %}<tr {% if not b.active %}class="low"{% endif %}>
+    {% if loop.first %}<td rowspan="{{ its|length }}"><b>{{ u.sort }}. {{ u.title_fr }}</b><br><span class="note">{{ u.title_zh }}</span><br><a class="note" href="{{ url_for('admin.bank_new', unite=u.id) }}">+ ajouter</a></td>{% endif %}
+    <td><a href="{{ url_for('admin.bank_item', bid=b.id) }}"><b>{{ b.title_fr }}</b></a><br><span class="note">{{ b.title_zh or '' }}</span>{% if b.file_name %} <span class="tag">pièce jointe</span>{% endif %}</td>
+    <td>{{ 'Oral' if b.kind == 'oral' else 'Écrit' }}</td>
+    <td>{{ {'seed': 'Départ', 'team': 'Équipe', 'teacher': 'Professeur'}[b.source] }}{% if b.source == 'teacher' and b.author %}<br><span class="note">{{ b.author }}</span>{% endif %}</td>
+    <td>{{ b.used }}</td>
+    <td>{{ 'Visible' if b.active else 'Masqué' }}</td>
+  </tr>{% else %}<tr><td><b>{{ u.sort }}. {{ u.title_fr }}</b><br><a class="note" href="{{ url_for('admin.bank_new', unite=u.id) }}">+ ajouter</a></td><td colspan="5" class="note">Aucun devoir type.</td></tr>{% endfor %}
+  {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

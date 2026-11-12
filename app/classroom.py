@@ -494,11 +494,15 @@ def _espace_routes():
             program, done, pct = HW.program_for(c, cls)
             homeworks = HW.homeworks_for_class(c, cls)
             next_at = HW.next_session_at(c, cid)
+            import bank
+            cur_unit = bank.current_unit(program)
+            bank_items = bank.items_for_units(c, [cur_unit["id"]]).get(cur_unit["id"], []) if cur_unit else []
+            tpl = bank.prefill(c, request.args.get("modele", type=int), cls["level"]) if request.args.get("modele") else None
         now = datetime.now(timezone.utc)
         sessions = [dict(s, paris=s["starts_at"].astimezone(PARIS), bj=s["starts_at"].astimezone(BJ), past=s["starts_at"] < now,
                          open=is_open(s, "teacher", now)) for s in sessions]
         return render_template("espace/class.html", cls=cls, members=members, sessions=sessions, program=program, done=done, pct=pct,
-                               homeworks=homeworks, open_now=next((s for s in sessions if s["open"]), None),
+                               homeworks=homeworks, cur_unit=cur_unit, bank_items=bank_items, tpl=tpl, open_now=next((s for s in sessions if s["open"]), None),
                                next_due=(next_at.astimezone(PARIS).strftime("%Y-%m-%dT%H:%M") if next_at else ""),
                                ok=request.args.get("ok"), err=request.args.get("err"))
 

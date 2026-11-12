@@ -1,0 +1,35 @@
+{% extends "admin/layout.html" %}
+{% block title %}Devoir type{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.bank_admin') }}">← Banque de devoirs</a></p>
+<h1>{{ b.title_fr if b else 'Nouveau devoir type' }}</h1>
+{% if ok %}<p class="flash">Enregistré.</p>{% endif %}
+{% if error %}<ul class="errors" role="alert"><li>{{ error }}</li></ul>{% endif %}
+{% if b %}<p class="note">{{ {'seed': 'Devoir de départ', 'team': "Ajouté par l'équipe", 'teacher': 'Ajouté par un professeur'}[b.source] }}{% if b.author %} ({{ b.author }}){% endif %} · donné {{ b.used }} fois</p>{% endif %}
+<form class="form" method="post" enctype="multipart/form-data" style="max-width:820px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <fieldset><legend>Devoir</legend>
+    <div class="row2">
+      <label>Unité<select name="unit_id" required><option value="">—</option>{% for u in units %}<option value="{{ u.id }}" {% if u.id == (v.unit_id|int if v.unit_id else 0) %}selected{% endif %}>{{ u.level }} · {{ u.sort }}. {{ u.title_zh if bo_lang() == 'zh' else u.title_fr }}</option>{% endfor %}</select></label>
+      <label>Type<select name="kind">{% for k, lab in kinds.items() %}<option value="{{ k }}" {% if v.kind == k %}selected{% endif %}>{{ lab }}</option>{% endfor %}</select></label>
+    </div>
+    <div class="row2">
+      <label>Titre en français<input type="text" name="title_fr" maxlength="200" required value="{{ v.title_fr or '' }}" lang="fr"></label>
+      <label>Titre en chinois<input type="text" name="title_zh" maxlength="200" value="{{ v.title_zh or '' }}"></label>
+    </div>
+    <label>Consigne en français<textarea name="instr_fr" rows="4" maxlength="4000" lang="fr">{{ v.instr_fr or '' }}</textarea></label>
+    <label>Consigne en chinois<textarea name="instr_zh" rows="4" maxlength="4000">{{ v.instr_zh or '' }}</textarea></label>
+    <label>Pièce jointe (facultatif : PDF, image, audio, Word, PowerPoint, 20 Mo)<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.mp3,.m4a,.docx,.pptx"></label>
+    {% if b and b.file_name %}<p class="note" style="margin:0"><a href="{{ url_for('bank_file', bid=b.id) }}" target="_blank" rel="noopener">Pièce jointe actuelle</a> · <label class="check" style="display:inline-flex"><input type="checkbox" name="remove_file" value="1"> la retirer</label></p>{% endif %}
+    {% if b %}<label class="check"><input type="checkbox" name="active" value="1" {% if v.active %}checked{% endif %}> Visible par les professeurs</label>{% else %}<input type="hidden" name="active" value="1">{% endif %}
+    <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">Enregistrer</button>
+  </fieldset>
+</form>
+{% if b %}
+<form method="post" style="margin-top:16px" onsubmit="return confirm('Supprimer ce devoir type ?')">
+  <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="delete">
+  <button class="btn btn-line btn-small" type="submit">Supprimer</button>
+  {% if b.key %}<span class="note">Devoir de départ : il sera masqué plutôt que supprimé.</span>{% endif %}
+</form>
+{% endif %}
+{% endblock %}

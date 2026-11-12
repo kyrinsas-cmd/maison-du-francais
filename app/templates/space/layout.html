@@ -9,7 +9,7 @@
 <title>{% block title %}{{ t.brand_main }}{% endblock %}</title>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=25">
-<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}?v=10">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}?v=11">
 </head>
 <body class="admin bo space lang-{{ lang or 'fr' }}">
 {% set ep = request.endpoint or '' %}
@@ -45,6 +45,7 @@
       <p class="bo-group">Mes cours</p>
       {{ item(url_for('espace.home'), 'Accueil', ep == 'espace.home') }}
       {{ item(url_for('espace.my_classes'), 'Mes classes', ep in ('espace.my_classes', 'espace.my_class', 'espace.session_report')) }}
+      {{ item(url_for('espace.bank_teacher'), 'Banque de devoirs', ep == 'espace.bank_teacher') }}
       <p class="bo-group">Mon profil</p>
       {{ item(url_for('espace.profile'), 'Ma fiche', ep == 'espace.profile') }}
       {{ item(url_for('account_password', lang=bo_lang()), 'Mot de passe', ep == 'account_password') }}

@@ -455,3 +455,25 @@ CREATE TABLE IF NOT EXISTS pupil_quizzes (
     finished_at timestamptz
 );
 CREATE INDEX IF NOT EXISTS pupil_quizzes_student ON pupil_quizzes (student_id, kind, created_at DESC);
+
+-- 作业库 : devoirs types par unité du programme (homework_seed.py + ajouts de l'équipe et des professeurs), 2026-11-12
+CREATE TABLE IF NOT EXISTS homework_bank (
+    id          bigserial PRIMARY KEY,
+    key         text UNIQUE,                            -- devoirs de la graine seulement
+    unit_id     bigint NOT NULL REFERENCES program_units(id) ON DELETE CASCADE,
+    kind        text NOT NULL DEFAULT 'ecrit' CHECK (kind IN ('ecrit', 'oral')),
+    title_fr    text NOT NULL,
+    title_zh    text,
+    instr_fr    text,
+    instr_zh    text,
+    file_name   text,                                   -- pièce jointe (uploads/homework/, préfixe b)
+    file_kind   text,
+    sort        int NOT NULL DEFAULT 0,
+    source      text NOT NULL DEFAULT 'team' CHECK (source IN ('seed', 'team', 'teacher')),
+    created_by  bigint REFERENCES users(id) ON DELETE SET NULL,
+    active      boolean NOT NULL DEFAULT true,
+    created_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS homework_bank_unit ON homework_bank (unit_id, sort);
+ALTER TABLE homeworks ADD COLUMN IF NOT EXISTS bank_id bigint REFERENCES homework_bank(id) ON DELETE SET NULL;
+ALTER TABLE homeworks ADD COLUMN IF NOT EXISTS unit_id bigint REFERENCES program_units(id) ON DELETE SET NULL;

@@ -145,9 +145,26 @@ def class_homework_new(cid):
                 return redirect(url_for("espace.my_class", cid=cid, err="date") + "#devoirs")
         else:
             due = next_session_at(c, cid)
-        hid = c.execute("""INSERT INTO homeworks (class_id, title, instructions, due_at, created_by) VALUES (%s,%s,%s,%s,%s) RETURNING id""",
-                        (cid, title, (request.form.get("instructions") or "").strip()[:4000] or None, due, u["id"])).fetchone()["id"]
+        units = {r["id"] for r in c.execute("SELECT id FROM program_units WHERE level=%s", (cls["level"],)).fetchall()}
+        unit_id = request.form.get("unit_id", type=int)
+        unit_id = unit_id if unit_id in units else None
+        instructions = (request.form.get("instructions") or "").strip()[:4000] or None
+        b = None
+        if request.form.get("bank_id", type=int):
+            b = c.execute("SELECT * FROM homework_bank WHERE id=%s AND active AND unit_id = ANY(%s)",
+                          (request.form.get("bank_id", type=int), list(units))).fetchone()
+        hid = c.execute("""INSERT INTO homeworks (class_id, title, instructions, due_at, created_by, bank_id, unit_id) VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
+                        (cid, title, instructions, due, u["id"], b["id"] if b else None, unit_id or (b["unit_id"] if b else None))).fetchone()["id"]
+        if request.form.get("to_bank") == "1" and not b and unit_id:     # le professeur partage son devoir dans la banque
+            import bank
+            bid = bank.add_item(c, unit_id, request.form.get("kind"), title, None, instructions, None, "teacher", u["id"])
+            c.execute("UPDATE homeworks SET bank_id=%s WHERE id=%s", (bid, hid))
         f = request.files.get("file")
+        if b and not (f and f.filename) and b["file_name"]:
+            import bank
+            name, kind = bank.copy_file(b, hid)
+            if name:
+                c.execute("UPDATE homeworks SET file_name=%s, file_kind=%s WHERE id=%s", (name, kind, hid))
         if f and f.filename:
             try:
                 name, kind = save_upload(f"h{hid}", f)

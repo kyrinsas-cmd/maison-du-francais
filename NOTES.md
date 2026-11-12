@@ -140,3 +140,8 @@ Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquet
 - Écoute : seulement 3 questions avec audio par niveau → l'exercice « 听力 » n'a que 3 questions. Ajouter des audios dans Admin → Tests de niveau → Banque de questions.
 - Résultats repris dans « 学习统计 » (nombre d'essais et % moyen).
 - 学习统计 (2026-11-12) : réussite aux exercices, meilleur examen blanc, réussite par rubrique (la plus faible en rouge, à partir de 5 questions dans au moins 2 rubriques), 10 derniers examens blancs avec l'écart par rapport au précédent, tableau par niveau (practice.practice_stats).
+
+## 作业库 — banque de devoirs (2026-11-12)
+- bank.py, homework_seed.py (80 devoirs types : 2 par unité, A1 → B2, fr + zh ; rédigés par l'IA, **à faire relire par un professeur de FLE**), table homework_bank ; homeworks.bank_id et homeworks.unit_id.
+- Professeur : page de la classe → encadré « Banque de devoirs · unité en cours » (unité « en cours », sinon première non terminée) → « Utiliser » remplit le formulaire (titre fr · zh, consigne zh puis fr, unité, pièce jointe copiée). Menu « Banque de devoirs » : tout le niveau ; ajout de devoirs types (visibles aussitôt par les autres professeurs) ; case « ajouter aussi à la banque » en donnant un devoir.
+- Admin : Contenus → Banque de devoirs (ajout, modification, pièce jointe, masquer). Un devoir de la graine est masqué au lieu d'être supprimé (sinon recréé au déploiement).

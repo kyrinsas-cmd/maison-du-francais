@@ -270,3 +270,36 @@ PATTERNS += [
     (r" · Profil$", " · 资料"),
     (r"^Classes : (.*?)( · compte élève (MF\d+))?$", lambda m: "班级：" + m.group(1) + (f" · 学生账户 {m.group(3)}" if m.group(3) else "")),
 ]
+
+ZH.update({   # 作业库 (2026-11-12)
+    "Banque de devoirs": "作业库", "Banque de devoirs (作业库)": "作业库", "Toute la banque": "全部作业库", "Utiliser": "使用", "Oral": "口语", "Écrit": "书面",
+    "Pas encore de devoir type pour cette unité.": "这个单元还没有作业模板。", "Pas encore de devoir type.": "还没有作业模板。",
+    "Rempli d'après la banque de devoirs : modifiez si besoin, puis donnez le devoir.": "已根据作业库填写：需要时修改，然后布置作业。", "Vider": "清空",
+    "Unité du programme": "教学单元", "La pièce jointe du devoir type sera jointe (sauf si vous envoyez un autre fichier).": "会附上作业模板的附件（除非你上传了别的文件）。",
+    "Ajouter aussi ce devoir à la banque (unité choisie ci-dessus), pour les autres professeurs": "同时把这个作业加入作业库（上面选择的单元），供其他老师使用",
+    "Devoirs types rangés par unité du programme. Pour en donner un, ouvrez la page de votre classe : les devoirs de l'unité en cours s'y affichent, ou cliquez sur « Utiliser » ci-dessous.":
+        "作业模板按教学单元分类。要布置作业，可以打开班级页面（会显示当前单元的作业），或者点击下面的「使用」。",
+    "Devoir ajouté à la banque.": "作业已加入作业库。", "Devoir retiré de la banque.": "作业已从作业库移除。", "Retirer ce devoir de la banque ?": "确定从作业库移除这个作业吗？",
+    "ajouté par un professeur": "由老师添加", "Unité": "单元", "Titre en chinois (facultatif)": "中文标题（选填）", "Consigne en français": "法语要求",
+    "Consigne en chinois (facultatif)": "中文要求（选填）", "Consigne en chinois": "中文要求", "Titre": "标题",
+    "Visible tout de suite par les autres professeurs. L'équipe peut le modifier ou le masquer.": "其他老师马上可以看到。团队可以修改或隐藏。",
+    "Ajouter à la banque": "加入作业库", "Ajouter un devoir type": "添加作业模板", "Devoir type supprimé.": "作业模板已删除。",
+    "Devoirs types rangés par unité du programme. Les professeurs les voient sur la page de leur classe (unité en cours) et peuvent en ajouter. Les devoirs de départ ont été rédigés comme base de travail : à faire relire par un professeur de FLE.":
+        "作业模板按教学单元分类。老师在班级页面可以看到当前单元的作业，也可以添加。初始作业只是工作底稿，需要请对外法语老师审核。",
+    "Origine": "来源", "Donné": "布置次数", "Départ": "初始", "Équipe": "团队", "Visible": "显示", "Masqué": "已隐藏", "+ ajouter": "+ 添加",
+    "Aucun devoir type.": "没有作业模板。", "← Banque de devoirs": "← 作业库", "Nouveau devoir type": "新作业模板", "Devoir type": "作业模板",
+    "Devoir de départ": "初始作业", "Ajouté par l'équipe": "团队添加", "Ajouté par un professeur": "老师添加", "Pièce jointe actuelle": "当前附件",
+    "la retirer": "删除附件", "Visible par les professeurs": "老师可见", "Supprimer ce devoir type ?": "确定删除这个作业模板吗？",
+    "Devoir de départ : il sera masqué plutôt que supprimé.": "初始作业：会被隐藏，而不是删除。", "Choisissez l'unité.": "请选择单元。",
+    "Le titre en français est obligatoire.": "法语标题必填。", "Oral (enregistrement)": "口语（录音）",
+})
+PATTERNS += [
+    (r"^Toute la banque (\S+) →$", r"\1 全部作业库 →"),
+    (r"^Banque de devoirs · unité (\d+) :", r"作业库 · 第 \1 单元："),
+    (r"^Ajouter un devoir type \((\S+)\)$", r"添加作业模板（\1）"),
+    (r"^· ajouté par (.+)$", r"· 由 \1 添加"),
+    (r"^· donné (\d+) fois$", r"· 已布置 \1 次"), (r"^· donné (\d+) fois$", r"· 已布置 \1 次"),
+    (r"donné (\d+) fois$", r"已布置 \1 次"),
+    (r"^Utiliser \((.+)\)$", r"使用（\1）"),
+]
+PATTERNS += [(r"n° (\d+)\)$", r"\1号班）")]
