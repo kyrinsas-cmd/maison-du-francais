@@ -435,3 +435,23 @@ CREATE TABLE IF NOT EXISTS homework_submissions (
 -- Langue choisie pour l'espace connecté (2026-11-12) : NULL = défaut (français pour l'équipe et les professeurs, langue de l'adresse pour les familles)
 ALTER TABLE users ADD COLUMN IF NOT EXISTS ui_lang text CHECK (ui_lang IN ('zh', 'fr'));
 ALTER TABLE students ADD COLUMN IF NOT EXISTS ui_lang text CHECK (ui_lang IN ('zh', 'fr'));
+
+-- Espace élève : exercices (练习题) et examens blancs (模拟考试), 2026-11-12. Questions de placement_items.
+CREATE TABLE IF NOT EXISTS pupil_quizzes (
+    id          bigserial PRIMARY KEY,
+    student_id  bigint NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    kind        text NOT NULL CHECK (kind IN ('practice', 'mock')),
+    level       text NOT NULL,
+    section     text,                                  -- NULL = mélangé (exercices) ; toujours NULL pour un examen blanc
+    item_ids    jsonb NOT NULL,                        -- questions, dans l'ordre affiché
+    perms       jsonb NOT NULL,                        -- ordre mélangé des réponses par question {item_id: [index d'origine…]}
+    answers     jsonb,                                 -- {item_id: index d'origine choisi ou null}
+    score       int,
+    total       int NOT NULL,
+    by_section  jsonb,
+    deadline    timestamptz,                           -- examen blanc : fin du temps
+    late        boolean NOT NULL DEFAULT false,
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    finished_at timestamptz
+);
+CREATE INDEX IF NOT EXISTS pupil_quizzes_student ON pupil_quizzes (student_id, kind, created_at DESC);

@@ -8,6 +8,9 @@
   <div><b>{{ (st.rate ~ ' %') if st.rate is not none else '—' }}</b><span>{{ pup.st_rate }}</span></div>
   <div><b>{{ st.month }}</b><span>{{ pup.st_month }}</span></div>
   <div><b>{{ ((st.hw_avg|string)|replace('.0', '') ~ ' / 20') if st.hw_avg is not none else '—' }}</b><span>{{ pup.st_hw }}{% if st.hw_avg is none %}<br>{{ pup.st_hw_none }}{% endif %}</span></div>
+{% for p in pstats %}
+  <div><b>{{ p.n }}</b><span>{{ prx.nav_mock if p.kind == 'mock' else prx.nav_ex }} · {{ p.pct|int }} %</span></div>
+{% endfor %}
 </div>
 {% if st.done %}
 <h2>{{ pup.st_rate }}</h2>

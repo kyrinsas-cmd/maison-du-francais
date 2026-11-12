@@ -262,6 +262,7 @@ import students  # noqa: E402,F401  (gestion des élèves, admin)
 import family  # noqa: E402,F401  (espace famille : mes enfants)
 import pupil  # noqa: E402,F401  (comptes élèves : numéro + mot de passe)
 import homework  # noqa: E402,F401  (devoirs, programme, profil élève côté professeur)
+import practice  # noqa: E402,F401  (espace élève : exercices et examen blanc)
 import bo_i18n  # noqa: E402,F401  (langue des espaces : choix enregistré, administration et espace professeur traduits)
 
 admin.init_app(app)

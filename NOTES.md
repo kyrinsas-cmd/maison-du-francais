@@ -131,3 +131,11 @@ Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquet
   Jamais traduits : éléments lang="fr" (questions du test, textes saisis en français), textarea, script, style, pre, classe notranslate.
   **Nouveau texte dans un gabarit admin/espace → l'ajouter à bo_zh.py**, sinon il reste en français pour les comptes en chinois.
 - Connexion de l'équipe : arrivée sur le tableau de bord (admin.index).
+
+## Espace élève : 练习题 / 模拟考试 (2026-11-12)
+- practice.py, gabarits pupil/practice.html et pupil/quiz.html ; table pupil_quizzes (un essai par ligne).
+- Exercices (/eleve/exercices) : 10 questions d'un niveau, par rubrique ou mélangées, correction immédiate.
+- Examen blanc (/eleve/examen-blanc) : 30 questions (3 écoute, 9 lecture, 9 vocabulaire, 9 grammaire), 30 min, note /100 ; QCM seulement (pas de production écrite ni orale).
+- Questions tirées de la même banque que le test de niveau (placement_items) : un élève qui s'entraîne voit des questions qu'il pourrait retrouver dans un nouveau test de niveau. À séparer si la banque grandit.
+- Écoute : seulement 3 questions avec audio par niveau → l'exercice « 听力 » n'a que 3 questions. Ajouter des audios dans Admin → Tests de niveau → Banque de questions.
+- Résultats repris dans « 学习统计 » (nombre d'essais et % moyen).

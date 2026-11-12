@@ -4,6 +4,8 @@
 <a href="{{ url_for('pupil_home') }}" {% if e == 'pupil_home' %}aria-current="page"{% endif %}>{{ pup.nav_home }}</a>
 <a href="{{ url_for('pupil_class') }}" {% if e == 'pupil_class' %}aria-current="page"{% endif %}>{{ pup.nav_class }}</a>
 <a href="{{ url_for('pupil_homework') }}" {% if e == 'pupil_homework' %}aria-current="page"{% endif %}>{{ pup.nav_hw }}</a>
+<a href="{{ url_for('pupil_practice') }}" {% if e in ('pupil_practice', 'pupil_quiz') and not (q is defined and q.kind == 'mock') %}aria-current="page"{% endif %}>{{ prx.nav_ex }}</a>
+<a href="{{ url_for('pupil_mock') }}" {% if e == 'pupil_mock' or (e == 'pupil_quiz' and q is defined and q.kind == 'mock') %}aria-current="page"{% endif %}>{{ prx.nav_mock }}</a>
 <a href="{{ url_for('pupil_tests') }}" {% if e == 'pupil_tests' %}aria-current="page"{% endif %}>{{ pup.nav_tests }}</a>
 <a href="{{ url_for('pupil_stats') }}" {% if e == 'pupil_stats' %}aria-current="page"{% endif %}>{{ pup.nav_stats }}</a>
 <a href="{{ url_for('pupil_calendar') }}" {% if e == 'pupil_calendar' %}aria-current="page"{% endif %}>{{ pup.nav_cal }}</a>

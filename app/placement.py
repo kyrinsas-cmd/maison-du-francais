@@ -456,7 +456,8 @@ def placement_delete_recordings(tid):
 @web.app.route("/test-de-niveau/audio/<name>")
 def placement_audio(name):
     """Audios des questions d'écoute (enregistrés par l'équipe) : pour les comptes connectés."""
-    if not U.current() or not re.fullmatch(r"a\d+-[0-9a-f]{12}\.(mp3|m4a|ogg|webm)", name):
+    import pupil
+    if not (U.current() or pupil.current_student()) or not re.fullmatch(r"a\d+-[0-9a-f]{12}\.(mp3|m4a|ogg|webm)", name):
         abort(404)
     return send_from_directory(AUDIO_DIR, name, conditional=True, max_age=3600)
 

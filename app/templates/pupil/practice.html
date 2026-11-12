@@ -1,0 +1,30 @@
+{% extends "space/layout.html" %}
+{% set title = prx.nav_mock if kind == 'mock' else prx.nav_ex %}
+{% block title %}{{ title }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p class="note">{{ prx.mock_lead if kind == 'mock' else prx.ex_lead }}</p>
+{% if error %}<p class="errors" role="alert">{{ error }}</p>{% endif %}
+<form method="post" class="card admin-form" style="flex-direction:row;flex-wrap:wrap;align-items:flex-end;gap:14px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}">
+  <label>{{ prx.level }}<select name="level">{% for lv in levels %}<option {% if lv == level %}selected{% endif %}>{{ lv }}</option>{% endfor %}</select></label>
+  {% if kind != 'mock' %}
+  <label>{{ prx.section }}<select name="section"><option value="">{{ prx.mixed }}</option>{% for sec in sections %}<option value="{{ sec }}">{{ prx[sec] }}</option>{% endfor %}</select></label>
+  {% endif %}
+  <button class="btn btn-red" type="submit">{{ prx.start_mock if kind == 'mock' else prx.start }}</button>
+</form>
+<h2>{{ prx.history }}</h2>
+{% if hist %}
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">{{ prx.date }}</th><th scope="col">{{ prx.level }}</th>{% if kind != 'mock' %}<th scope="col">{{ prx.section }}</th>{% endif %}<th scope="col">{{ prx.score }}</th><th scope="col"></th></tr></thead>
+  <tbody>
+  {% for h in hist %}
+  <tr><td>{{ h.created_at.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ h.level }}</td>
+    {% if kind != 'mock' %}<td>{{ prx[h.section] if h.section else prx.mixed }}</td>{% endif %}
+    <td>{% if h.finished_at %}{% if kind == 'mock' %}<b>{{ (100 * h.score / h.total)|round|int }} / 100</b>{% else %}<b>{{ h.score }} / {{ h.total }}</b>{% endif %}{% if h.late %} <span class="note">({{ prx.late }})</span>{% endif %}{% else %}<span class="note">{{ prx.in_progress }}</span>{% endif %}</td>
+    <td><a href="{{ url_for('pupil_quiz', qid=h.id) }}">{{ prx.result if h.finished_at else prx.continue }}</a></td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}<p class="empty">{{ prx.none }}</p>{% endif %}
+{% endblock %}

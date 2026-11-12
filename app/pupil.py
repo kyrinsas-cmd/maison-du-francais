@@ -262,9 +262,11 @@ def pupil_stats():
         return resp
     with connect() as c:
         stats = stats_for(c, st)
+        import practice
+        pstats = practice.practice_stats(c, st)
         levels = c.execute("""SELECT final_level, evaluated_at FROM placement_tests WHERE student_id=%s AND step='evaluated' ORDER BY evaluated_at""",
                            (st["id"],)).fetchall()
-    return _page("pupil/stats.html", s=st, st=stats, levels=levels)
+    return _page("pupil/stats.html", s=st, st=stats, levels=levels, pstats=pstats)
 
 
 @web.route("/eleve/calendrier")

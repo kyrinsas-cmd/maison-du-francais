@@ -201,3 +201,10 @@ body.bo .kid-card:hover { border-color: var(--ink); }
 .prog-head { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; flex-wrap: wrap; }
 .prog-bar { flex: 1 1 240px; height: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
 .prog-bar i { display: block; height: 100%; background: var(--gold); }
+
+/* exercices et examen blanc (espace élève) */
+.pt-q .pt-choice.ok { border-color: #1f8a4c; background: #e9f7ef; }
+.pt-q .pt-choice.ko { border-color: var(--red, #DF333A); background: #fdecec; }
+.pt-mark { margin-left: auto; font-weight: 800; }
+.pt-timer { position: sticky; top: 8px; z-index: 5; margin: 0 0 16px; padding: 10px 16px; }
+fieldset[disabled] .pt-choice { cursor: default; }
