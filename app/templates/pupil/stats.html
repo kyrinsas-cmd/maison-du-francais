@@ -8,12 +8,37 @@
   <div><b>{{ (st.rate ~ ' %') if st.rate is not none else '—' }}</b><span>{{ pup.st_rate }}</span></div>
   <div><b>{{ st.month }}</b><span>{{ pup.st_month }}</span></div>
   <div><b>{{ ((st.hw_avg|string)|replace('.0', '') ~ ' / 20') if st.hw_avg is not none else '—' }}</b><span>{{ pup.st_hw }}{% if st.hw_avg is none %}<br>{{ pup.st_hw_none }}{% endif %}</span></div>
-{% for p in pstats %}
-  <div><b>{{ p.n }}</b><span>{{ prx.nav_mock if p.kind == 'mock' else prx.nav_ex }} · {{ p.pct|int }} %</span></div>
-{% endfor %}
+  {% set kp = ps.kinds.get('practice') %}{% set km = ps.kinds.get('mock') %}
+  <div><b>{{ (kp.pct ~ ' %') if kp else '—' }}</b><span>{{ prx.st_acc }}{% if kp %} · {{ kp.n }} {{ prx.times }}{% endif %}</span></div>
+  <div><b>{{ (km.best ~ ' / 100') if km else '—' }}</b><span>{{ prx.st_best }}{% if km %} · {{ km.n }} {{ prx.times }}{% endif %}</span></div>
 </div>
-{% if st.done %}
+<h2>{{ prx.st_h }}</h2>
+{% if ps.n %}
+<p class="note" style="margin-top:0">{{ prx.st_done }}{{ '：' if lang == 'zh' else ' : ' }}<b>{{ ps.n }}</b> · {{ prx.st_month }}{{ '：' if lang == 'zh' else ' : ' }}<b>{{ ps.month }}</b></p>
+<h3 class="stat-h">{{ prx.st_skills }}</h3>
+<div class="stat-bars">
+  {% for x in ps.skills %}
+  <div class="stat-row"><span>{{ prx[x.sec] }}</span><span class="stat-bar"><i class="b-skill{{ ' b-weak' if x.sec == ps.weak }}" style="width:{{ x.pct }}%"></i></span><b>{{ x.pct }} %</b></div>
+  {% endfor %}
+</div>
+{% if ps.weak %}<p class="note">{{ prx.st_weak.format(s=prx[ps.weak]) }}</p>{% endif %}
+{% if ps.mocks %}
+<h3 class="stat-h">{{ prx.st_mocks }}</h3>
+<div class="stat-bars">
+  {% for m in ps.mocks %}
+  <div class="stat-row"><span>{{ m.date.strftime('%m/%d') }} · {{ m.level }}</span><span class="stat-bar"><i class="b-skill{{ ' b-pass' if m.pct >= 50 }}" style="width:{{ m.pct }}%"></i></span><b>{{ m.pct }}</b></div>
+  {% endfor %}
+</div>
+{% if ps.trend is defined %}<p class="note">{{ prx.st_trend_up.format(n=ps.trend) if ps.trend > 0 else (prx.st_trend_down.format(n=-ps.trend) if ps.trend < 0 else prx.st_trend_same) }}</p>{% endif %}
+{% endif %}
+<h3 class="stat-h">{{ prx.st_levels }}</h3>
+<div class="table-box admin-table"><table>
+  <thead><tr><th scope="col">{{ prx.level }}</th><th scope="col">{{ prx.nav_ex }}</th><th scope="col">{{ prx.st_mock_n }}</th><th scope="col">{{ prx.acc }}</th><th scope="col">{{ prx.st_best }}</th></tr></thead>
+  <tbody>{% for l in ps.levels %}<tr><td><b>{{ l.level }}</b></td><td>{{ l.practice }}</td><td>{{ l.mock_n }}</td><td>{{ l.pct }} %</td><td>{{ (l.mock_best ~ ' / 100') if l.mock_best is not none else '—' }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p class="empty">{{ prx.st_none }}</p>{% endif %}
 <h2>{{ pup.st_rate }}</h2>
+{% if st.done %}
 <div class="stat-bars">
   {% for k, lab in [('present', pup.st_present), ('late', pup.st_late), ('absent', pup.st_absent), ('excused', pup.st_excused)] %}
   {% set n = st.att.get(k, 0) %}

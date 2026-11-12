@@ -139,3 +139,4 @@ Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquet
 - Questions tirées de la même banque que le test de niveau (placement_items) : un élève qui s'entraîne voit des questions qu'il pourrait retrouver dans un nouveau test de niveau. À séparer si la banque grandit.
 - Écoute : seulement 3 questions avec audio par niveau → l'exercice « 听力 » n'a que 3 questions. Ajouter des audios dans Admin → Tests de niveau → Banque de questions.
 - Résultats repris dans « 学习统计 » (nombre d'essais et % moyen).
+- 学习统计 (2026-11-12) : réussite aux exercices, meilleur examen blanc, réussite par rubrique (la plus faible en rouge, à partir de 5 questions dans au moins 2 rubriques), 10 derniers examens blancs avec l'écart par rapport au précédent, tableau par niveau (practice.practice_stats).

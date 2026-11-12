@@ -30,7 +30,10 @@ TX = {
            "time_left": "剩余时间", "time_up": "时间到了，答卷已自动提交。", "late": "超时提交", "unanswered": "未作答",
            "answered": "已答", "read_text": "阅读下面的短文：", "listen": "听录音", "pass": "达到50分", "fail": "未达到50分",
            "in_progress": "未完成", "continue": "继续", "date": "日期", "kind": "类型", "per_section": "各部分得分",
-           "no_items": "这个级别暂时没有足够的题目。", "confirm_submit": "确定交卷吗？还有题目没有作答。"},
+           "no_items": "这个级别暂时没有足够的题目。", "st_h": "练习和模拟考试", "st_done": "完成次数", "st_acc": "练习正确率",
+           "st_best": "模拟考试最好成绩", "st_month": "本月练习次数", "st_skills": "各项正确率", "st_weak": "最需要加强：{s}。可以多做这类练习题。",
+           "st_mocks": "模拟考试成绩", "st_levels": "按级别", "st_mock_n": "模拟考试", "st_none": "做完第一次练习题或模拟考试以后，这里会显示你的成绩。",
+           "st_trend_up": "比上一次提高了 {n} 分", "st_trend_down": "比上一次低了 {n} 分", "st_trend_same": "和上一次一样", "times": "次", "acc": "正确率", "confirm_submit": "确定交卷吗？还有题目没有作答。"},
     "fr": {"nav_ex": "Exercices", "nav_mock": "Examen blanc", "ex_lead": "Choisis un niveau et un type de questions : 10 questions, la correction s'affiche tout de suite.",
            "mock_lead": "Examen blanc : 30 questions à choix multiples (écoute, lecture, vocabulaire, grammaire) en 30 minutes, noté sur 100. Seulement la partie QCM : ni production écrite ni oral.",
            "level": "Niveau", "section": "Type", "mixed": "Tout mélangé", "start": "Commencer", "start_mock": "Commencer l'examen", "history": "Mes résultats",
@@ -39,7 +42,11 @@ TX = {
            "time_left": "Temps restant", "time_up": "Temps écoulé : ta copie a été rendue automatiquement.", "late": "rendu en retard", "unanswered": "pas de réponse",
            "answered": "Répondu", "read_text": "Lis le texte :", "listen": "Écouter", "pass": "50 points atteints", "fail": "Moins de 50 points",
            "in_progress": "pas terminé", "continue": "Reprendre", "date": "Date", "kind": "Type", "per_section": "Par partie",
-           "no_items": "Pas assez de questions pour ce niveau pour l'instant.", "confirm_submit": "Rendre la copie ? Certaines questions n'ont pas de réponse."},
+           "no_items": "Pas assez de questions pour ce niveau pour l'instant.", "st_h": "Exercices et examens blancs", "st_done": "Essais terminés",
+           "st_acc": "Réussite aux exercices", "st_best": "Meilleur examen blanc", "st_month": "Essais ce mois-ci", "st_skills": "Réussite par rubrique",
+           "st_weak": "À travailler en priorité : {s}. Fais davantage d'exercices de ce type.", "st_mocks": "Résultats des examens blancs", "st_levels": "Par niveau",
+           "st_mock_n": "Examens blancs", "st_none": "Tes résultats s'afficheront ici après ton premier exercice ou examen blanc.",
+           "st_trend_up": "{n} points de plus que la fois précédente", "st_trend_down": "{n} points de moins que la fois précédente", "st_trend_same": "comme la fois précédente", "times": "essai(s)", "acc": "Réussite", "confirm_submit": "Rendre la copie ? Certaines questions n'ont pas de réponse."},
 }
 
 
@@ -192,5 +199,41 @@ def pupil_quiz(qid):
 
 
 def practice_stats(c, st):
-    return c.execute("""SELECT kind, count(*) AS n, round(100.0 * sum(score) / nullif(sum(total), 0)) AS pct, max(round(100.0 * score / nullif(total, 0))) AS best
-                        FROM pupil_quizzes WHERE student_id=%s AND finished_at IS NOT NULL GROUP BY kind""", (st["id"],)).fetchall()
+    """Statistiques des exercices et examens blancs terminés : totaux, réussite par rubrique et par niveau, suite des examens blancs."""
+    rows = c.execute("""SELECT * FROM pupil_quizzes WHERE student_id=%s AND finished_at IS NOT NULL ORDER BY finished_at""", (st["id"],)).fetchall()
+    pct = lambda a, b: round(100 * a / b) if b else None
+    out = {"n": len(rows), "kinds": {}, "skills": [], "levels": [], "mocks": [], "weak": None, "month": 0}
+    by_skill, by_level = {}, {}
+    month0 = datetime.now(timezone.utc).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    for r in rows:
+        k = out["kinds"].setdefault(r["kind"], {"n": 0, "good": 0, "total": 0, "best": None})
+        k["n"] += 1
+        k["good"] += r["score"]
+        k["total"] += r["total"]
+        p = pct(r["score"], r["total"])
+        k["best"] = p if k["best"] is None else max(k["best"], p)
+        out["month"] += r["finished_at"] >= month0
+        for sec, (g_, t_) in (r["by_section"] or {}).items():
+            a = by_skill.setdefault(sec, [0, 0])
+            a[0] += g_
+            a[1] += t_
+        lv = by_level.setdefault(r["level"], {"level": r["level"], "practice": 0, "good": 0, "total": 0, "mock_best": None, "mock_n": 0})
+        lv["good"] += r["score"]
+        lv["total"] += r["total"]
+        if r["kind"] == "mock":
+            lv["mock_n"] += 1
+            lv["mock_best"] = p if lv["mock_best"] is None else max(lv["mock_best"], p)
+            out["mocks"].append({"date": r["finished_at"], "level": r["level"], "pct": p, "late": r["late"]})
+        else:
+            lv["practice"] += 1
+    for k in out["kinds"].values():
+        k["pct"] = pct(k["good"], k["total"])
+    out["skills"] = [{"sec": sec, "good": by_skill[sec][0], "total": by_skill[sec][1], "pct": pct(*by_skill[sec])} for sec in SECTIONS if sec in by_skill]
+    enough = [x for x in out["skills"] if x["total"] >= 5]
+    if len(enough) >= 2:
+        out["weak"] = min(enough, key=lambda x: x["pct"])["sec"]
+    out["levels"] = [dict(v, pct=pct(v["good"], v["total"])) for lv in LEVELS for v in [by_level.get(lv)] if v]
+    out["mocks"] = out["mocks"][-10:]
+    if len(out["mocks"]) >= 2:
+        out["trend"] = out["mocks"][-1]["pct"] - out["mocks"][-2]["pct"]
+    return out

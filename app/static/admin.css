@@ -208,3 +208,6 @@ body.bo .kid-card:hover { border-color: var(--ink); }
 .pt-mark { margin-left: auto; font-weight: 800; }
 .pt-timer { position: sticky; top: 8px; z-index: 5; margin: 0 0 16px; padding: 10px 16px; }
 fieldset[disabled] .pt-choice { cursor: default; }
+.stat-bar i.b-skill { background: var(--ink); } .stat-bar i.b-weak { background: var(--danger); } .stat-bar i.b-pass { background: #1f8a4c; }
+.stat-row span:first-child { white-space: nowrap; }
+.stat-h { margin: 22px 0 10px; font-size: 16px; } .stat-bars + .note { margin-top: 10px; }
