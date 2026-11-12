@@ -11,6 +11,9 @@
 </head>
 <body class="admin bo">
 {% set ep = request.endpoint or '' %}
+{% macro lang_switch(target, next) -%}
+  <form method="post" action="{{ url_for('set_lang', l=target) }}" class="bo-lang"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="next" value="{{ next }}"><button type="submit" lang="{{ target }}" class="notranslate">{{ '中文' if target == 'zh' else 'Français' }}</button></form>
+{%- endmacro %}
 {% macro item(endpoint, label, prefixes=()) -%}
   <a href="{{ url_for(endpoint) }}" {% if ep == endpoint or ep in prefixes %}aria-current="page"{% endif %}>{{ label }}</a>
 {%- endmacro %}
@@ -46,8 +49,9 @@
     <div class="bo-me">
       <span>{{ current_user().name }}</span>
       <small>{{ 'Administrateur' if is_admin() else 'Modérateur' }}</small>
-      <a href="/" target="_blank" rel="noopener">Voir le site</a>
-      <form method="post" action="{{ url_for('account_logout', lang='fr') }}">
+      <a href="{{ '/' if bo_lang() == 'zh' else '/fr/' }}" target="_blank" rel="noopener">Voir le site</a>
+      {{ lang_switch('fr' if bo_lang() == 'zh' else 'zh', request.full_path.rstrip('?')) }}
+      <form method="post" action="{{ url_for('account_logout', lang=bo_lang()) }}">
         <input type="hidden" name="csrf" value="{{ csrf() }}">
         <button type="submit">Se déconnecter</button>
       </form>

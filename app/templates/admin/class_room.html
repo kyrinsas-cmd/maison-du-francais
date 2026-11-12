@@ -54,8 +54,8 @@ La salle ouvre 15 min avant le cours (30 min pour le professeur) et ferme 30 min
     <td>{{ s.present }}{% if s.excused %} · {{ s.excused }} absence(s) signalée(s){% endif %}</td>
     <td>{{ 'fait' if s.reported else ('à faire' if s.starts_at < now_utc else '—') }}</td>
     <td><div class="actions" style="gap:6px">
-      <a class="btn btn-line btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr') }}" target="_blank" rel="noopener">Observer</a>
-      {% if is_admin() %}<a class="btn btn-line btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr', **{'as': 'teacher'}) }}" target="_blank" rel="noopener">Entrer comme professeur</a>{% endif %}
+      <a class="btn btn-line btn-small" href="{{ url_for('classroom', sid=s.id, lang=bo_lang()) }}" target="_blank" rel="noopener">Observer</a>
+      {% if is_admin() %}<a class="btn btn-line btn-small" href="{{ url_for('classroom', sid=s.id, lang=bo_lang(), **{'as': 'teacher'}) }}" target="_blank" rel="noopener">Entrer comme professeur</a>{% endif %}
       {% if s.status == 'scheduled' %}<form method="post" class="actions" style="gap:4px"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="move_session"><input type="hidden" name="session" value="{{ s.id }}">
         <label class="visually-hidden" for="mv{{ s.id }}">Nouvelle date (Pékin)</label><input id="mv{{ s.id }}" type="datetime-local" name="starts_bj" required value="{{ s.bj.strftime('%Y-%m-%dT%H:%M') }}"><button class="btn btn-line btn-small" type="submit">Déplacer</button></form>
       <form method="post" onsubmit="return confirm('Annuler cette séance ?');"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="cancel"><input type="hidden" name="session" value="{{ s.id }}"><button class="btn btn-line btn-small" type="submit">Annuler</button></form>{% endif %}

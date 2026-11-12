@@ -123,3 +123,11 @@ Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquet
 - **Devoirs** (`homeworks`, `homework_submissions`) : rendus par l'élève seulement (numéro MF… ou compte élève 15+), texte et/ou fichier (photo, PDF, audio, Word, PowerPoint, 20 Mo ; limite du site 1 Mo levée sur ces deux formulaires), modifiables tant qu'ils ne sont pas corrigés ; correction : note sur 20 (demi-points), commentaire ; l'élève voit la note, sa moyenne apparaît dans ses statistiques. Fichiers `uploads/homework/`, accès : professeur de la classe, équipe, l'élève, son parent (`/devoirs/fichier/…`).
 - Testé le 2026-11-11 (classe de test 19) : devoir avec PDF, rendu d'Alice avec photo, note 15,5, refus d'une note > 20, plus de modification après correction, accès refusé à un autre élève et à un anonyme, profil, avancement. Données de test supprimées ensuite.
 - Pas encore : voir les devoirs côté parent, rappels avant la date limite, devoirs pour certains élèves seulement.
+
+## Langue des espaces (2026-11-12)
+- Bouton « 中文 / Français » en bas du menu de tous les espaces (admin, professeur, parent, élève) → POST /langue/<zh|fr> (next relatif seulement).
+- Choix enregistré : users.ui_lang (adultes), students.ui_lang (comptes élèves). Familles et élèves : arrivée après connexion dans la langue choisie.
+- Admin et espace professeur : gabarits en français, traduits à l'affichage (bo_i18n.translate_html, dictionnaire app/bo_zh.py : ZH + PATTERNS).
+  Jamais traduits : éléments lang="fr" (questions du test, textes saisis en français), textarea, script, style, pre, classe notranslate.
+  **Nouveau texte dans un gabarit admin/espace → l'ajouter à bo_zh.py**, sinon il reste en français pour les comptes en chinois.
+- Connexion de l'équipe : arrivée sur le tableau de bord (admin.index).

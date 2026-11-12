@@ -13,6 +13,9 @@
 </head>
 <body class="admin bo space lang-{{ lang or 'fr' }}">
 {% set ep = request.endpoint or '' %}
+{% macro lang_switch(target, next) -%}
+  <form method="post" action="{{ url_for('set_lang', l=target) }}" class="bo-lang"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="next" value="{{ next }}"><button type="submit" lang="{{ target }}" class="notranslate">{{ '中文' if target == 'zh' else 'Français' }}</button></form>
+{%- endmacro %}
 {% set me = current_user() %}
 {% set stu = current_student() if not me else None %}
 {% set teacher = me and me.role == 'professeur' and me.teacher_id %}
@@ -32,7 +35,7 @@
     <div class="bo-me">
       <span>{{ stu.first_name }}</span>
       <small>{{ stu.login_id }}</small>
-      <a href="{{ alternates()[other_lang] }}" lang="{{ 'fr' if lang == 'zh' else 'zh' }}">{{ 'Français' if lang == 'zh' else '中文' }}</a>
+      {{ lang_switch(other_lang, alternates()[other_lang]) }}
       <form method="post" action="{{ url_for('pupil_logout') }}"><input type="hidden" name="csrf" value="{{ csrf() }}"><button type="submit">{{ pup.logout }}</button></form>
     </div>
     {% endif %}
@@ -44,10 +47,10 @@
       {{ item(url_for('espace.my_classes'), 'Mes classes', ep in ('espace.my_classes', 'espace.my_class', 'espace.session_report')) }}
       <p class="bo-group">Mon profil</p>
       {{ item(url_for('espace.profile'), 'Ma fiche', ep == 'espace.profile') }}
-      {{ item(url_for('account_password', lang='fr'), 'Mot de passe', ep == 'account_password') }}
+      {{ item(url_for('account_password', lang=bo_lang()), 'Mot de passe', ep == 'account_password') }}
       <p class="bo-group">Site</p>
-      {{ item('/fr/professeurs', 'Les professeurs') }}
-      {{ item('/fr/', 'Voir le site') }}
+      {{ item(url_for('teachers_page', lang=bo_lang()), 'Les professeurs') }}
+      {{ item(url_for('home', lang=bo_lang()), 'Voir le site') }}
       {% else %}
       {% if me.role == 'eleve' %}{% include "pupil/_nav.html" %}{% endif %}
       <p class="bo-group">{{ t.sp_learning if me.role != 'eleve' else t.sp_account }}</p>
@@ -67,8 +70,8 @@
     <div class="bo-me">
       <span>{{ me.name }}</span>
       <small>{{ 'Professeur' if teacher else role_label_of(me.role) }}</small>
-      {% if not teacher %}<a href="{{ alternates()[other_lang] }}" lang="{{ 'fr' if lang == 'zh' else 'zh' }}">{{ 'Français' if lang == 'zh' else '中文' }}</a>{% endif %}
-      <form method="post" action="{{ url_for('account_logout', lang=('fr' if teacher else lang)) }}">
+      {% if teacher %}{{ lang_switch('fr' if bo_lang() == 'zh' else 'zh', request.full_path.rstrip('?')) }}{% else %}{{ lang_switch(other_lang, alternates()[other_lang]) }}{% endif %}
+      <form method="post" action="{{ url_for('account_logout', lang=(bo_lang() if teacher else lang)) }}">
         <input type="hidden" name="csrf" value="{{ csrf() }}">
         <button type="submit">{{ 'Se déconnecter' if teacher else t.ac_logout }}</button>
       </form>

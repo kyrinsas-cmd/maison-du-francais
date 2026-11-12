@@ -5,7 +5,7 @@
 <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
   <h1 style="margin:0">Classe {{ cls.level }}</h1>
   <div class="actions" style="gap:8px">
-    {% if open_now %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=open_now.id, lang='fr') }}">Entrer dans la salle (cours de {{ open_now.paris.strftime('%H:%M') }})</a>
+    {% if open_now %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=open_now.id, lang=bo_lang()) }}">Entrer dans la salle (cours de {{ open_now.paris.strftime('%H:%M') }})</a>
     {% else %}<form method="post" action="{{ url_for('espace.class_start_now', cid=cls.id) }}" onsubmit="return confirm('Démarrer un cours maintenant ? La salle s\'ouvre tout de suite pour vous et les élèves de la classe.');"><input type="hidden" name="csrf" value="{{ csrf() }}"><button class="btn btn-red btn-small" type="submit">Démarrer un cours en visio maintenant</button></form>{% endif %}
   </div>
 </div>
@@ -34,7 +34,7 @@
   <div class="table-box admin-table"><table>
     <thead><tr><th scope="col">N°</th><th scope="col">Unité</th><th scope="col">Objectifs</th><th scope="col">État</th></tr></thead>
     <tbody>{% for u in program %}<tr {% if u.status == 'done' %}class="low"{% endif %}>
-      <td>{{ u.sort }}</td><td><b>{{ u.title_fr }}</b><br><span class="note">{{ u.title_zh }}</span></td><td class="note">{{ u.goals_fr or '' }}</td>
+      <td>{{ u.sort }}</td>{% if bo_lang() == 'zh' %}<td><b>{{ u.title_zh }}</b><br><span class="note" lang="fr">{{ u.title_fr }}</span></td><td class="note">{{ u.goals_zh or '' }}</td>{% else %}<td><b>{{ u.title_fr }}</b><br><span class="note">{{ u.title_zh }}</span></td><td class="note">{{ u.goals_fr or '' }}</td>{% endif %}
       <td><label class="visually-hidden" for="u{{ u.id }}">État</label><select id="u{{ u.id }}" name="u{{ u.id }}">
         <option value="todo" {% if not u.status %}selected{% endif %}>À faire</option><option value="doing" {% if u.status == 'doing' %}selected{% endif %}>En cours</option><option value="done" {% if u.status == 'done' %}selected{% endif %}>Terminée</option></select></td>
     </tr>{% endfor %}</tbody>
@@ -76,7 +76,7 @@
   <tbody>{% for s in sessions %}<tr {% if s.past and s.reported %}class="low"{% endif %}>
     <td>{{ s.paris.strftime('%d/%m à %H:%M') }}</td><td>{{ s.bj.strftime('%H:%M') }}</td>
     <td>{% if s.past %}{{ 'fait' if s.reported else 'à faire' }}{% else %}—{% endif %}{% if s.excused %} · {{ s.excused }} absence(s) signalée(s){% endif %}</td>
-    <td>{% if s.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=s.id, lang='fr') }}">Entrer dans la salle</a>
+    <td>{% if s.open %}<a class="btn btn-red btn-small" href="{{ url_for('classroom', sid=s.id, lang=bo_lang()) }}">Entrer dans la salle</a>
       {% elif s.past %}<a class="btn btn-line btn-small" href="{{ url_for('espace.session_report', sid=s.id) }}">Appel et bilan</a>{% endif %}</td>
   </tr>{% endfor %}</tbody>
 </table></div>

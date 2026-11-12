@@ -11,7 +11,7 @@
   <input type="hidden" name="csrf" value="{{ csrf() }}">
   <fieldset>
     <legend>Ce qui a été fait</legend>
-    <label>Unité du programme travaillée<select name="unit_id"><option value="">—</option>{% for u in units %}<option value="{{ u.id }}" {% if s.unit_id == u.id %}selected{% endif %}>{{ u.sort }}. {{ u.title_fr }}</option>{% endfor %}</select></label>
+    <label>Unité du programme travaillée<select name="unit_id"><option value="">—</option>{% for u in units %}<option value="{{ u.id }}" {% if s.unit_id == u.id %}selected{% endif %}>{{ u.sort }}. {{ u.title_zh if bo_lang() == 'zh' else u.title_fr }}</option>{% endfor %}</select></label>
     <label class="check"><input type="checkbox" name="unit_done" value="1"><span>Cette unité est terminée</span></label>
     <label>Contenu du cours (pour l'équipe et le suivi du programme)<textarea name="topic" rows="2" maxlength="1000">{{ s.topic or '' }}</textarea></label>
   </fieldset>

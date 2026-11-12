@@ -1,0 +1,272 @@
+"""Traduction chinoise de l'administration et de l'espace professeur (2026-11-12).
+Les gabarits restent écrits en français ; bo_i18n.py traduit la page à l'affichage quand l'utilisateur a choisi le chinois.
+Clé = texte français tel qu'affiché (espaces normalisés). Un texte absent reste en français : ajoutez-le ici."""
+
+ZH = {
+    # ---- navigation, coque ----
+    "Administration": "管理后台", "Espace professeur": "教师空间", "Pilotage": "总览", "Tableau de bord": "仪表板", "Élèves": "学生",
+    "Tests de niveau": "水平测试", "Classes et séances": "班级和课程", "Professeurs": "老师", "Fiches professeurs": "教师资料",
+    "Candidatures": "应聘申请", "Familles": "家庭", "Avis": "评价", "Réclamations": "投诉", "Contenus": "内容", "Ressources": "教材资源",
+    "Centres d'examen": "考点", "Réglages": "设置", "Tarifs": "价格", "Comptes": "账户", "Voir le site": "查看网站", "Se déconnecter": "退出登录",
+    "Administrateur": "管理员", "Modérateur": "审核员", "Professeur": "老师", "Mes cours": "我的课程", "Accueil": "首页", "Mes classes": "我的班级",
+    "Mon profil": "我的资料", "Ma fiche": "我的介绍页", "Mot de passe": "密码", "Site": "网站", "Les professeurs": "老师介绍",
+    "Maison du français": "法语之家",
+    # ---- tableau de bord ----
+    "À traiter": "待处理", "En chiffres": "数据", "Tests de niveau à évaluer": "待评估的水平测试", "Réclamations ouvertes": "未结投诉",
+    "Avis à modérer": "待审核的评价", "Candidatures nouvelles": "新的应聘申请", "Profils de professeurs modifiés": "老师修改的资料",
+    "Comptes professeurs à relier": "待关联的老师账户", "Appels de cours à faire": "待完成的点名", "Familles inscrites": "注册家庭",
+    "Professeurs publiés": "已发布的老师", "Classes ouvertes": "开放的班级", "Tests de niveau ce mois-ci": "本月水平测试",
+    "Prochains cours": "接下来的课", "Aucun test en attente.": "没有待评估的测试。", "Aucun cours programmé.": "还没有安排课程。",
+    "Envoyé le": "提交时间", "N°": "编号", "Élève": "学生", "QCM": "选择题", "Paris": "巴黎时间", "Pékin": "北京时间", "Classe": "班级",
+    # ---- élèves (admin) ----
+    "Ajouter un élève": "添加学生", "Actifs": "在读", "Partis": "已离开", "Prénom, nom ou e-mail du compte": "名字或账户邮箱",
+    "Tous les niveaux": "所有级别", "Toutes les classes": "所有班级", "Sans classe": "未分班", "Filtrer": "筛选", "Âge": "年龄", "Niveau": "级别",
+    "Classes": "班级", "Test de niveau": "水平测试", "Compte": "账户", "À évaluer": "待评估", "En cours": "进行中",
+    "Aucun élève ne correspond.": "没有符合条件的学生。",
+    "Un élève est créé automatiquement au premier test de niveau. Un compte parent peut avoir plusieurs enfants.":
+        "第一次做水平测试时会自动建立学生资料。一个家长账户可以有多个孩子。",
+    "E-mail du compte parent ou élève": "家长或学生账户的邮箱", "La famille doit d'abord avoir créé son compte sur le site.": "家庭需要先在网站上注册账户。",
+    "Prénom de l'enfant (obligatoire pour un compte parent)": "孩子的名字（家长账户必填）", "Pas encore évalué": "尚未评估", "Créer la fiche": "创建资料",
+    "Type": "类型", "Places": "名额", "Prochain cours": "下一节课", "Passer en élève inscrit": "改为正式学生", "Passer en essai": "改为试听",
+    "Changer de classe": "换班", "Retirer": "移出", "Inscrit dans aucune classe.": "没有加入任何班级。", "Inscrire dans une classe": "加入班级",
+    "Élève inscrit (prend une place)": "正式学生（占一个名额）", "Essai 试听 (ne prend pas de place)": "试听（不占名额）", "Inscrire": "加入",
+    "Présence et bilans": "出勤和课后报告", "Aucun bilan de cours pour l'instant.": "还没有课后报告。", "Cours": "课程", "Présence": "出勤",
+    "Mot du professeur": "老师评语", "Aucun test de niveau.": "没有水平测试。", "Date": "日期", "Niveau final": "最终级别", "Classe proposée": "推荐班级",
+    "Fiche": "资料", "Prénom affiché (en classe et dans les bilans)": "显示的名字（课堂和报告中）", "Niveau retenu": "确定的级别", "Statut": "状态",
+    "Actif": "在读", "Parti (le retire de ses classes)": "已离开（从所有班级移出）", "Notes internes (visibles par l'équipe seulement)": "内部备注（仅团队可见）",
+    "Enregistrer": "保存", "Compte de la famille": "家庭账户", "Fusionner": "合并", "Rattacher": "转移",
+    "Rattacher à un autre compte (e-mail du compte parent ou élève)": "转移到另一个账户（家长或学生账户的邮箱）",
+    "Ses tests de niveau et ses classes le suivent.": "他的水平测试和班级会一起转移。", "Compte élève": "学生账户", "dernière connexion": "上次登录",
+    "désactivé par le parent": "已被家长停用", "jamais": "从未", "autres enfants": "其他孩子", "Élève inscrit": "正式学生", "Essai": "试听",
+    "Absence signalée": "已请假", "Présent": "出勤", "En retard": "迟到", "Absent": "缺席", "Parti": "已离开", "retiré": "已移出",
+    # ---- classes (admin) ----
+    "Classes en direct (直播课)": "直播班级", "Ajouter une classe": "添加班级", "Âges": "年龄", "Jours": "上课日", "Pékin / Paris": "北京 / 巴黎",
+    "Prochain cours (Paris)": "下一节课（巴黎时间）", "Site ": "网站", "Publiée": "已发布", "Brouillon": "草稿", "Élèves et séances": "学生和课程",
+    "aucune séance": "没有课程", "Ouverte": "开放", "Bientôt": "即将开放", "Complète (liste d'attente)": "已满（候补名单）", "Fermée": "已关闭",
+    "Nouvelle classe": "新班级", "Élèves et séances (salle de classe) →": "学生和课程（教室）→", "Niveau de la classe": "班级级别",
+    "Âge des élèves : de": "学生年龄：从", "Jours et heure": "上课日和时间", "Heure de début,": "开始时间，", "heure de Pékin": "北京时间",
+    "Première séance": "第一节课", "Places et statut": "名额和状态", "Places dans la classe (5 au plus)": "班级名额（最多5人）",
+    "Remarque en chinois (facultatif)": "中文备注（选填）", "Remarque en français": "法语备注", "Afficher sur la page 直播课": "在「直播课」页面显示",
+    "Ordre d'affichage": "显示顺序", "Supprimer la classe": "删除班级", "Supprimer cette classe ?": "确定删除这个班级吗？",
+    "Classe supprimée.": "班级已删除。", "Enregistré.": "已保存。",
+    "Les classes publiées s'affichent sur la page 直播课. Les places occupées se calculent d'après les élèves inscrits (gestion des élèves ou page de la classe). Heure saisie en heure de Pékin ; l'heure de Paris est calculée.":
+        "已发布的班级会显示在「直播课」页面。已占名额根据正式学生自动计算（在学生管理或班级页面里调整）。时间按北京时间填写，巴黎时间自动计算。",
+    "Salle de classe": "教室", "Inscrire un élève": "添加学生",
+    "Les élèves du même niveau sont proposés en premier. Un élève absent de la liste": "同级别的学生排在前面。如果名单里没有这个学生",
+    "créez sa fiche": "请先创建他的资料", "Démarrer une séance maintenant": "立即开始一节课", "Créer les séances des": "创建接下来",
+    "prochaines semaines": "周的课程", "Créer": "创建", "Séance ponctuelle (heure de Pékin)": "单次课程（北京时间）", "Ajouter": "添加",
+    "Prévue": "已安排", "Annulée": "已取消", "Terminée": "已结束", "salle ouverte": "教室已开放", "Présents": "到课人数", "Bilan": "报告",
+    "fait": "已完成", "à faire": "待完成", "Observer": "旁听", "Entrer comme professeur": "以老师身份进入", "Déplacer": "改时间", "Annuler": "取消",
+    "Annuler cette séance ?": "确定取消这节课吗？", "Nouvelle date (Pékin)": "新时间（北京时间）",
+    "Aucune séance. Créez-les depuis le planning ci-dessus.": "还没有课程。请根据上面的课表创建。",
+    "Notre visio (moteur LiveKit sur le serveur). Seuls les comptes inscrits ci-dessous, le professeur de la classe et l'équipe peuvent entrer. La salle ouvre 15 min avant le cours (30 min pour le professeur) et ferme 30 min après. Pas d'enregistrement vidéo pour l'instant.":
+        "我们自己的视频教室（服务器上的 LiveKit）。只有下面的学生、本班老师和团队可以进入。教室在上课前15分钟开放（老师提前30分钟），下课后30分钟关闭。目前不录像。",
+    "Séance créée : la salle est ouverte dès maintenant, jusqu'à 1 h 30 après le début.": "课程已创建：教室现在开放，到开始后1个半小时。",
+    "Séance ajoutée.": "课程已添加。", "Séance annulée.": "课程已取消。", "Élève inscrit.": "学生已加入。", "Élève retiré de la classe.": "学生已从班级移出。",
+    "Séance déplacée. Pensez à prévenir les familles (WeChat) : la nouvelle heure s'affiche déjà dans leur compte.": "课程时间已修改。请通过微信通知家长：新时间已经显示在他们的账户里。",
+    "Seule une séance prévue (ni terminée ni annulée) peut être déplacée.": "只有已安排的课程（未结束、未取消）可以改时间。",
+    "Il y a déjà une séance à cette heure-là.": "这个时间已经有一节课。", "Date et heure invalides.": "日期或时间无效。",
+    "Élève inscrit dans la classe.": "学生已加入班级。", "Élève changé de classe.": "学生已换班。", "Type d'inscription modifié.": "已修改加入方式。",
+    "Fiche enregistrée.": "资料已保存。", "Élève créé.": "学生已创建。", "Choisissez une classe.": "请选择一个班级。", "Choisissez un élève.": "请选择一个学生。",
+    "Choisissez une autre classe.": "请选择另一个班级。", "Le prénom est obligatoire.": "名字必填。", "Ce compte a déjà un élève avec ce prénom.": "这个账户已经有同名的学生。",
+    "Aucun compte parent ou élève avec cette adresse.": "没有使用这个邮箱的家长或学生账户。",
+    "Aucun compte parent ou élève avec cette adresse. La famille doit d'abord créer son compte sur le site.": "没有使用这个邮箱的家长或学生账户。家庭需要先在网站上注册。",
+    "L'élève est déjà rattaché à ce compte.": "学生已经属于这个账户。", "Choisissez l'autre fiche du même compte.": "请选择同一账户下的另一份资料。",
+    "Indiquez le prénom de l'enfant.": "请填写孩子的名字。", "Choisissez le niveau.": "请选择级别。", "Choisissez au moins un jour.": "请至少选择一天。",
+    "Indiquez l'heure de début (heure de Pékin).": "请填写开始时间（北京时间）。", "Date de début invalide.": "开始日期无效。",
+    # ---- tests de niveau (admin) ----
+    "Banque de questions et audios": "题库和音频", "Banque de questions": "题库", "Évalués": "已评估", "Tous": "全部", "Envoyé le ": "提交时间",
+    "Compte ": "账户", "Oral": "口语", "Écrit": "笔试", "Enregistré (3)": "已录音（3段）", "Entretien à fixer": "待安排面谈",
+    "Les enregistrements oraux ne sont accessibles qu'ici ; ils sont supprimés automatiquement 30 jours après l'évaluation (60 jours au plus).":
+        "口语录音只能在这里收听；评估30天后自动删除（最多保留60天）。",
+    "QCM — estimation automatique": "选择题——自动估计", "Bonnes réponses": "答对题数", "Détail des réponses": "答题详情", "Rédaction": "写作",
+    "Évaluation": "评估", "Niveau écrit": "写作级别", "Niveau oral": "口语级别", "Niveau final conseillé": "建议的最终级别",
+    "Message à la famille": "给家长的留言", "Notes internes": "内部备注", "Supprimer le test": "删除测试",
+    "Supprimer ce test et ses enregistrements ?": "确定删除这个测试和录音吗？", "Résultat envoyé à la famille (e-mail + « Mon compte »).": "结果已发给家长（邮件和「我的账户」）。",
+    "Indiquez le niveau final avant d'envoyer le résultat.": "发送结果之前，请填写最终级别。", "Vocabulaire": "词汇", "Grammaire": "语法", "Lecture": "阅读",
+    "Écoute": "听力", "Question": "题目", "Posée": "使用中", "Désactivée": "已停用", "Audio manquant": "缺少音频", "Envoyer l'audio": "上传音频",
+    "Générées": "自动生成", "Rédigées à la main": "人工编写", "Toutes les origines": "所有来源", "Tous les types": "所有题型", "Mot dans la question": "题目关键词",
+    "Question mise à jour.": "题目已更新。",
+    # ---- professeurs (admin) ----
+    "Nouvelle fiche": "新建资料", "Nouvelle fiche professeur": "新建老师资料", "Prénom": "名字", "Initiale du nom": "姓的首字母",
+    "Diplômes": "学历", "Niveaux enseignés": "教授级别", "Présentation": "介绍", "Photo": "照片", "Vidéo": "视频", "Vidéo de présentation": "介绍视频",
+    "Publier la fiche sur le site": "在网站上发布资料", "Supprimer la fiche": "删除资料", "Valider": "通过", "Refuser": "拒绝", "En attente": "待审核",
+    "Validée": "已通过", "À modifier": "需修改", "Aucune vidéo": "没有视频", "Pas encore publiée": "尚未发布", "Accord du professeur et publication": "老师同意和发布",
+    "Une fiche n'est publiée qu'avec l'accord écrit du professeur, une photo, ses diplômes et sa présentation dans les deux langues. La vidéo n'apparaît qu'une fois validée.":
+        "只有在老师书面同意、有照片、学历和中法双语介绍的情况下才能发布资料。视频通过审核后才会显示。",
+    "Aucune fiche pour l'instant. Créez-en une depuis une candidature retenue, ou avec « Nouvelle fiche ».": "还没有老师资料。可以从通过的应聘申请创建，或者点「新建资料」。",
+    "Modifications proposées par le professeur": "老师提交的修改", "Appliquer les modifications": "应用修改", "Compte de l'espace professeur": "教师空间账户",
+    "Relier ou inviter": "关联或邀请", "E-mail du professeur": "老师的邮箱",
+    # ---- candidatures, avis, réclamations ----
+    "Candidatures de professeurs": "老师应聘申请", "Toutes": "全部", "Nouvelle": "新", "Contactée": "已联系", "Retenue": "已录用", "Refusée": "已拒绝",
+    "Nom, e-mail ou diplôme": "姓名、邮箱或学历", "Rechercher": "搜索", "Aucune candidature pour l'instant.": "还没有应聘申请。",
+    "Aucune candidature ne correspond.": "没有符合条件的申请。", "Supprimer la candidature": "删除申请", "Diplôme": "学历", "Message": "留言",
+    "Note interne": "内部备注", "← Précédentes": "← 上一页", "Suivantes →": "下一页 →", "Notes et avis": "评分和评价", "Saisir un avis": "录入评价",
+    "Aucun avis.": "没有评价。", "Publié": "已发布", "Refusé": "已拒绝", "À modérer": "待审核", "Publier": "发布", "Refuser l'avis": "拒绝评价",
+    "Supprimer l'avis": "删除评价", "Auteur": "作者", "Note": "评分", "Enregistrer une réclamation": "登记投诉", "Réclamation": "投诉",
+    "Catégorie": "类别", "Gravité": "严重程度", "Normale": "一般", "Haute": "高", "Grave": "严重", "Résolue": "已解决", "Close": "已关闭",
+    "En attente de la famille": "等待家长回复", "Responsable": "负责人", "Historique": "处理记录", "Numéro de suivi": "查询编号",
+    "Toutes les catégories": "所有类别", "Sécurité des enfants": "儿童安全", "Pédagogie / contenu": "教学/内容", "Planning / absence / rattrapage": "课表/缺课/补课",
+    "Facturation / remboursement": "收费/退款", "Technique / connexion": "技术/网络", "Autre": "其他", "Téléphone": "电话", "E-mail": "邮箱",
+    "Aucune réclamation": "没有投诉", "Réclamation enregistrée.": "投诉已登记。", "Réclamation supprimée.": "投诉已删除。",
+    # ---- ressources, centres, tarifs, comptes ----
+    "Bibliothèque de ressources (教材库)": "教材库", "Ajouter une ressource": "添加资源", "Titre": "标题", "Compétence": "技能", "Fichier": "文件",
+    "Lien": "链接", "Ouvertures (30 j)": "打开次数（30天）", "Ajouter un centre": "添加考点", "Ajouter une session": "添加考试", "Centre": "考点",
+    "Ville": "城市", "Session": "考试", "Sessions": "考试", "Page Tarifs": "价格页面", "Prix d'une séance, par élève (¥)": "每节课每人价格（元）",
+    "Publier la page Tarifs": "发布价格页面", "Utilisateurs": "用户", "Rôle": "角色", "Filtrer par rôle": "按角色筛选", "Inscrit le": "注册时间",
+    "Dernière connexion": "上次登录", "Actions": "操作", "vous": "你", "non confirmé": "未确认", "désactivé": "已停用", "sans fiche": "没有资料",
+    "Supprimer ce compte ?": "确定删除这个账户吗？", "Supprimer": "删除", "Ouvrir": "打开",
+    # ---- espace professeur ----
+    "Mes prochains cours": "我接下来的课", "Démarrer le cours": "开始上课", "la salle ouvre 30 min avant": "教室提前30分钟开放",
+    "Aucun cours programmé.": "还没有安排课程。", "Appel et bilan à faire": "待完成的点名和报告", "Ma fiche sur le site": "我在网站上的介绍页",
+    "Mes modifications": "我的修改", "Aucune modification en attente.": "没有待审核的修改。", "Modifier mon profil": "修改我的资料",
+    "Avis des familles": "家长评价", "Pas encore d'avis publié.": "还没有发布的评价。", "Ma vidéo de présentation": "我的介绍视频",
+    "MP4 (H.264) de préférence, 150 Mo au plus, 2 à 3 minutes conseillées.": "建议 MP4 (H.264)，最大150MB，2–3分钟。",
+    "L'équipe publie la fiche une fois tout réuni, avec votre accord écrit.": "材料齐全并有你的书面同意后，团队会发布介绍页。",
+    "Votre compte est activé.": "你的账户已开通。", "Vos modifications sont envoyées. L'équipe les vérifie avant leur mise en ligne.": "修改已提交，团队审核后会更新到网站。",
+    "Les classes et les élèves sont gérés par l'équipe de Maison du français. Pour une question sur un élève ou un horaire, écrivez-nous.":
+        "班级和学生由法语之家团队管理。关于学生或课表的问题，请联系我们。",
+    "Aucune classe pour l'instant. L'équipe vous préviendra quand une classe vous sera confiée.": "还没有班级。分配班级时团队会通知你。",
+    "Jours et heure ": "上课时间", "Démarrer un cours en visio maintenant": "立即开始视频课", "Entrer dans la salle": "进入教室",
+    "Démarrer un cours maintenant ? La salle s'ouvre tout de suite pour vous et les élèves de la classe.": "现在开始上课吗？教室会马上为你和本班学生开放。",
+    "Dernier mot aux parents": "最近给家长的评语", "Pas encore d'élève dans cette classe.": "这个班还没有学生。", "Avancement du programme": "教学进度",
+    "Unité": "单元", "Objectifs": "目标", "État": "状态", "À faire": "未开始", "Enregistrer l'avancement": "保存进度", "Avancement enregistré.": "进度已保存。",
+    "Programme indicatif de l'équipe. Vous pouvez aussi indiquer l'unité travaillée à chaque cours, dans « Appel et bilan ».": "团队制定的参考教学大纲。你也可以在每节课的「点名和报告」里填写本节课的单元。",
+    "Devoirs": "作业", "Devoir": "作业", "À rendre pour": "截止时间", "Rendus": "已交", "Corrigés": "已批改", "Moyenne": "平均分",
+    "Donner un devoir à la classe": "给班级布置作业", "Consigne": "要求", "À rendre pour (heure de Paris)": "截止时间（巴黎时间）",
+    "Pièce jointe (facultatif : PDF, image, audio, Word, PowerPoint, 20 Mo)": "附件（选填：PDF、图片、音频、Word、PowerPoint，最大20MB）",
+    "Par défaut : le prochain cours. Les élèves rendent le devoir depuis leur compte élève ; vous le notez sur 20.": "默认截止时间是下一节课。学生用自己的学生账户交作业；你按20分制打分。",
+    "Donner le devoir": "布置作业", "Devoir donné : les élèves le voient dans « Mes devoirs ».": "作业已布置：学生在「我的作业」里可以看到。",
+    "Devoir supprimé.": "作业已删除。", "Donnez un titre au devoir.": "请填写作业标题。", "Date limite invalide.": "截止时间无效。",
+    "Fichier trop lourd (20 Mo au plus).": "文件太大（最大20MB）。", "Ex. : Exercices p. 12, se présenter en 5 phrases": "例如：第12页练习，用5句话介绍自己",
+    "Ce que l'élève doit faire, et comment le rendre (texte, photo du cahier, enregistrement audio).": "学生要做什么，怎么交（文字、作业本照片、录音）。",
+    "pièce jointe": "附件", "Pièce jointe": "附件", "Pas encore rendu": "还没交", "Note sur 20": "分数（满分20）", "Commentaire pour l'élève": "给学生的评语",
+    "Enregistrer la correction": "保存批改", "Modifier la correction": "修改批改", "Supprimer le devoir": "删除作业", "Supprimer ce devoir et tous les rendus ?": "确定删除这个作业和所有提交吗？",
+    "Correction enregistrée : l'élève voit sa note.": "批改已保存：学生可以看到分数。", "Ouvrir le fichier rendu": "打开提交的文件",
+    "La note doit être un nombre entre 0 et 20 (demi-points acceptés).": "分数必须在0到20之间（可以有0.5分）。",
+    "← Retour": "← 返回", "Moyenne des devoirs": "作业平均分", "Pas encore de devoir.": "还没有作业。", "Pas encore de bilan.": "还没有报告。",
+    "Pas de test de niveau.": "没有水平测试。", "Mot aux parents": "给家长的评语", "Rendu": "已交", "non": "未交", "ancienne": "以前的",
+    "compte élève": "学生账户", "Appel et bilan": "点名和报告", "Ce qui a été fait": "本节课内容", "Unité du programme travaillée": "本节课的单元",
+    "Cette unité est terminée": "这个单元已完成", "Contenu du cours (pour l'équipe et le suivi du programme)": "课堂内容（团队查看和教学进度用）",
+    "Le cours n'a pas encore eu lieu : l'appel se fait après le cours.": "这节课还没上：下课后再点名。",
+    "La présence est proposée d'après l'entrée dans la salle (« en retard » au-delà de 5 minutes) et les absences signalées par les familles. Corrigez si besoin, puis ajoutez un mot court pour chaque enfant : il est visible par la famille.":
+        "出勤根据进入教室的时间自动填写（晚于5分钟算迟到），并考虑家长的请假。需要时请修改，然后给每个孩子写一句简短的评语：家长可以看到。",
+    "Pas entré en salle": "没有进入教室", "Mot pour la famille (facultatif)": "给家长的评语（选填）", "Enregistrer l'appel et le bilan": "保存点名和报告",
+    "Enregistré. Les familles voient l'appel et votre mot dans leur compte.": "已保存。家长可以在账户里看到出勤和你的评语。",
+    "Ex. : Très bonne participation, revoir les nombres de 11 à 20.": "例如：课堂表现很好，复习11到20的数字。", "absence signalée par la famille": "家长已请假",
+    "Mes informations": "我的信息", "Ma présentation": "我的介绍", "Envoyer pour validation": "提交审核", "Nouvelle photo": "新照片", "Nouvelle vidéo": "新视频",
+    "Vos modifications ne sont visibles sur le site qu'après validation par l'équipe.": "你的修改要经过团队审核后才会显示在网站上。",
+    "Le formulaire affiche votre dernière proposition, en attente.": "表单显示的是你最近一次提交、待审核的内容。",
+    "Cours (chinois)": "课程（中文）", "Cours (français)": "课程（法语）", "Présentation (chinois)": "介绍（中文）", "Présentation (français)": "介绍（法语）",
+    "Âge minimum": "最小年龄", "Âge maximum": "最大年龄", "Niveaux": "级别", "Bonjour": "你好", "Retour à mon espace": "返回我的空间",
+    "en retard": "迟到", "absent": "缺席", "essai": "试听", "Entré en salle à": "进入教室时间", "unités terminées": "个单元已完成",
+}
+
+# Textes avec une partie variable : (expression régulière, remplacement)
+PATTERNS = [
+    (r"^(\d{1,2}/\d{1,2}(?:/\d{4})?) à (\d{1,2}:\d{2})( \(Paris\))?$", lambda m: f"{m.group(1)} {m.group(2)}" + ("（巴黎时间）" if m.group(3) else "")),
+    (r"^Bonjour (.+)$", r"你好，\1"),
+    (r"^(\d+) / (\d+) unités terminées · (\d+) %$", r"已完成 \1 / \2 个单元 · \3 %"),
+    (r"^(\d+) élève\(s\) sur (\d+) places · liste tenue par l'équipe\.$", r"\1 名学生，共 \2 个名额 · 名单由团队管理。"),
+    (r"^(\d+) / (\d+) cours$", r"\1 / \2 节课"),
+    (r"^(\d+) ans$", r"\1岁"),
+    (r"^Classe (A1\.1|A1|A2|B1|B2|C1)$", r"\1 班"),
+    (r"^Entrer dans la salle \(cours de (\d{1,2}:\d{2})\)$", r"进入教室（\1 的课）"),
+    (r"^\+ (\d+) essais?$", r"+ \1 名试听"),
+    (r"^(\d+) absence\(s\) signalée\(s\)$", r"\1 人请假"),
+    (r"^Rendu le (.+)$", r"提交于 \1"),
+    (r"^Pas encore de programme pour le niveau (.+)\.$", r"\1 级别还没有教学大纲。"),
+    (r"^← Classe (.+)$", r"← \1 班"),
+    (r"^Présent (\d+) · en retard (\d+) · absent (\d+) · absence signalée (\d+)$", r"出勤 \1 · 迟到 \2 · 缺席 \3 · 请假 \4"),
+    (r"^Présence \((\d+) cours\)$", r"出勤（\1 节课）"),
+    (r"^(\d+) question\(s\)", r"\1 题"),
+]
+
+ZH.update({
+    # ---- complété d'après la relecture des pages (2026-11-12) ----
+    "Mon espace": "我的空间", "Appel": "点名", "← Mes classes": "← 我的班级", "Filtrer par statut": "按状态筛选", "← Tous les avis": "← 所有评价",
+    "Saisissez uniquement des avis réels, reçus d'une famille dont l'enfant a suivi le cours, avec leur source et l'accord de l'auteur. Publiez-les quelle que soit la note : un avis ne se refuse que pour l'un des motifs prévus (injures, données personnelles, hors sujet, auteur non vérifié, accord retiré).":
+        "只录入真实评价：来自孩子上过课的家庭，注明来源并取得作者同意。无论评分高低都要发布：只有出现规定的情况（辱骂、个人信息、与主题无关、作者未核实、撤回同意）才能拒绝。",
+    "Commentaire tel qu'écrit par l'auteur, en chinois (ne pas le réécrire)": "作者原文（中文，请勿改写）",
+    "Traduction en français (facultative ; sinon l'original est affiché en version française)": "法语翻译（选填；不填则法语版显示原文）",
+    "Auteur affiché (sans nom complet)": "显示的作者（不写全名）", "Mois du cours évalué": "所评价课程的月份", "Vérification": "核实",
+    "Source de l'avis (obligatoire, jamais affichée)": "评价来源（必填，不会显示）", "L'auteur a accepté que son avis soit publié sur le site": "作者同意在网站上发布评价",
+    "Enregistrer (à modérer)": "保存（待审核）", "Message WeChat du 20/10/2026, questionnaire de fin de trimestre…": "例如：2026年10月20日的微信消息、学期末问卷……",
+    "1er jour": "第一天", "Inscriptions": "报名", "Affichée": "已显示", "Affiché": "已显示", "Centres": "考点", "← Classes": "← 班级",
+    "— à confirmer —": "— 待确认 —", "Âges : de": "年龄：从", "Lun": "周一", "Mar": "周二", "Mer": "周三", "Jeu": "周四", "Ven": "周五", "Sam": "周六", "Dim": "周日",
+    "Places occupées :": "已占名额：", ", calculées d'après les élèves inscrits (les essais ne comptent pas).": "，根据正式学生自动计算（试听不计）。",
+    "Enfant": "孩子", "Retiré": "已移出", "(gestion des élèves).": "（学生管理）。", "Séances": "课程", "← Élèves": "← 学生", "Compte élève :": "学生账户：",
+    "brouillon": "草稿", "Fiche en double : fusionner « Emma » dans": "重复资料：合并到", "Accord": "同意书",
+    "Nouveau lien de réinitialisation": "新的重置链接", "Désactiver le compte": "停用账户", "Délier de la fiche": "解除关联", "Identité": "身份信息",
+    "En chinois (langue principale du site)": "中文（网站主要语言）", "En français": "法语", "En chinois (facultatif)": "中文（选填）",
+    "En chinois (facultatif : l'équipe peut la traduire)": "中文（选填：团队可以翻译）",
+    "Cours enseignés, en chinois (un par ligne)": "教授的课程，中文（每行一个）", "Cours enseignés, en français (un par ligne)": "教授的课程，法语（每行一个）",
+    "Ajouter une photo (JPEG, PNG ou WebP, 15 Mo au plus)": "上传照片（JPEG、PNG 或 WebP，最大15MB）",
+    "Tournée par le professeur. Elle n'apparaît sur le site qu'au statut « Validée ». MP4 (H.264) conseillé pour être lue partout, 150 Mo au plus.":
+        "由老师自己拍摄。状态为「已通过」后才会显示在网站上。建议 MP4 (H.264)，各设备都能播放，最大150MB。",
+    "Ajouter une vidéo": "上传视频", "Envoyer ma vidéo": "上传我的视频", "Date de l'accord écrit": "书面同意的日期", "Où est conservé l'accord": "同意书保存位置",
+    "Filmez-vous 2 à 3 minutes : qui vous êtes, comment vous enseignez, avec quels élèves. MP4 (H.264) de préférence, 150 Mo au plus.":
+        "拍一段2–3分钟的视频：介绍你自己、你的教学方式、适合哪些学生。建议 MP4 (H.264)，最大150MB。",
+    "Pour publier, il manque :": "发布还缺少：", "Il manque :": "还缺少：", "l'accord écrit du professeur (date et référence)": "老师的书面同意（日期和编号）",
+    "une photo": "照片", "la présentation en chinois": "中文介绍", "la présentation en français": "法语介绍", "les diplômes": "学历",
+    "Suppression définitive de la fiche, de la photo et de la vidéo (par exemple si le professeur retire son accord).": "永久删除资料、照片和视频（例如老师撤回同意时）。",
+    "Master FLE, habilitation DELF…": "例如：对外法语硕士、DELF 考官资格……", "E-mail du 24/10/2026, contrat signé…": "例如：2026年10月24日的邮件、已签合同……",
+    "Visibles par l'équipe seulement. Donnez le numéro de suivi à la famille : elle voit le statut et votre « message à la famille » sur la page Suivi, rien d'autre.":
+        "仅团队可见。把查询编号告诉家长：他们在「查询」页面只能看到状态和你写的「给家长的留言」。",
+    "Ouvertes": "未结", "← Réclamations": "← 投诉", "Professeur concerné (facultatif)": "相关老师（选填）", "Auteur (sans nom complet)": "投诉人（不写全名）",
+    "Parent": "家长", "Reçue par": "接收渠道", "WeChat": "微信", "Repère de la conversation (interne)": "对话记录位置（内部）", "Description": "描述",
+    "Enregistrer et créer le numéro de suivi": "保存并生成查询编号", "Groupe WeCom A1, message du 22/10…": "例如：企业微信 A1 群，10月22日的消息……",
+    "Supports faits par l'équipe (§9). Pour tout élément venant d'un tiers (image, extrait, audio…), la source et l'autorisation sont obligatoires avant publication. Les ouvertures sont comptées par type de compte, sans identité.":
+        "团队自制的教材（第9条）。凡是来自第三方的内容（图片、摘录、音频……），发布前必须注明来源并取得授权。打开次数按账户类型统计，不记录身份。",
+    "Accès": "权限", "Par compte": "需登录", "tiers": "第三方", "Lien (site officiel)": "链接（官方网站）", "Public": "公开", "← Ressources": "← 教材资源",
+    "Nouvelle ressource": "新资源", "Contenu": "内容", "Titre en chinois": "中文标题", "Titre en français": "法语标题", "Description en chinois": "中文描述",
+    "Description en français": "法语描述", "Classement": "分类", "Tous niveaux": "所有级别", "Thème": "主题",
+    "Ou lien vers un site officiel (https://…) — rien n'est copié chez nous ; laissé vide si un fichier est envoyé": "或者官方网站链接（https://…）——不复制到我们的服务器；上传文件时留空",
+    "Fichier (PDF, MP3/M4A, PNG/JPEG, .docx, .pptx — 60 Mo au plus)": "文件（PDF、MP3/M4A、PNG/JPEG、.docx、.pptx，最大60MB）",
+    "Accès et droits": "权限和版权", "Qui peut l'ouvrir": "谁可以打开", "Tout le monde (partie publique, visible des élèves en essai)": "所有人（公开部分，试听学生也能看到）",
+    "Comptes connectés (élèves, parents, professeurs)": "登录用户（学生、家长、老师）", "Professeurs et équipe seulement": "仅老师和团队", "Origine": "来源",
+    "Fait par notre équipe": "团队自制", "Contient un élément tiers": "包含第三方内容", "Source de l'élément tiers": "第三方内容的来源", "Autorisation / licence": "授权/许可",
+    "La famille, les couleurs, se présenter…": "例如：家庭、颜色、自我介绍……", "Auteur, site, ouvrage…": "作者、网站、书名……", "CC BY 4.0, accord écrit du 12/10/2026…": "例如：CC BY 4.0、2026年10月12日的书面授权……",
+    "Prix en yuans, par séance et par élève (1 séance facturée = 45 min de cours + 15 min de devoirs). Le cahier des charges (§19) suggère 130 à 150 ¥ ; le prix final reste à décider. La page n'apparaît sur le site, avec un lien dans le menu, qu'une fois publiée.":
+        "价格单位为元，按每节课每个学生计算（1节课 = 45分钟上课 + 15分钟作业）。需求文档（第19条）建议130–150元；最终价格待定。发布后页面才会出现在网站上，菜单里也会有链接。",
+    "Séances par forfait (36 = environ 12 semaines à 3 cours par semaine)": "每个套餐的课时（36节 ≈ 12周，每周3节）",
+    "Cours particulier, par heure (¥, facultatif ; vide = non affiché)": "一对一课程，每小时（元，选填；留空则不显示）",
+    "Questions originales (pas d'extraits du DELF), mises à jour par": "原创题目（不摘录 DELF 真题），来源：", "(rédigées à la main) et": "（人工编写）和",
+    "(générées). Une question d'écoute n'est posée qu'une fois son audio envoyé : enregistrez la transcription lue clairement (MP3, M4A ou OGG). La bonne réponse est la première de la liste ; l'ordre est mélangé à l'affichage.":
+        "（自动生成）。听力题上传音频后才会使用：请清楚朗读文本并录音（MP3、M4A 或 OGG）。正确答案写在第一个，显示时顺序会打乱。",
+    "Questions posées par niveau (tirage de 20 par niveau) :": "每个级别使用中的题目（每级随机抽20题）：", "Les questions « générées » (": "「自动生成」的题目（",
+    ") sont à faire relire par un professeur FLE ; désactivez celles qui posent problème.": "）需要对外法语老师审核；有问题的请停用。",
+    "Désactiver": "停用", "générée": "自动生成", "Pages": "页",
+    "Élève, parent et professeur se choisissent à l'inscription. Modérateur (tout l'admin sauf Tarifs, Utilisateurs et suppression des fiches) et administrateur se donnent ici.":
+        "学生、家长和老师在注册时自选。审核员（除价格、用户和删除资料外的全部后台权限）和管理员在这里设置。",
+    "Nom": "姓名",
+})
+
+PATTERNS += [
+    (r"(\d{1,2}/\d{1,2}/\d{4}) · (\d{1,2}:\d{2}) à Paris", r"\1 · \2（巴黎时间）"),
+    (r"(\d{1,2}:\d{2}) à Pékin", r"北京时间 \1"), (r"(\d{1,2}:\d{2}) à Paris", r"巴黎时间 \1"), (r"(\d{1,2}:\d{2}) Pékin", r"北京时间 \1"),
+    (r"(\d+)–(\d+) ans\b", r"\1–\2岁"), (r"\b(\d+) ans\b", r"\1岁"),
+    (r"^Élèves \((\d+) / (\d+) places\)$", r"学生（\1 / \2 名额）"), (r"\((\d+)/(\d+) places\)", r"（\1/\2 名额）"),
+    (r"^Page (\d+) / (\d+)$", r"第 \1 / \2 页"),
+    (r"^visiteurs (\d+) · élèves (\d+) · parents (\d+) · profs (\d+)$", r"访客 \1 · 学生 \2 · 家长 \3 · 老师 \4"),
+    (r"^Soit (\d{1,2}:\d{2}) à Paris \(à la date de la première séance\)\.$", r"即巴黎时间 \1（按第一节课的日期计算）。"),
+    (r"\(parent, (zh|fr)\)", r"（家长，\1）"),
+    (r"^Fiche en double : fusionner « (.+) » dans$", r"重复资料：把「\1」合并到"),
+    (r" · brouillon$", " · 草稿"),
+]
+
+
+def _missing(m):
+    items = [ZH.get(x.strip(), x.strip()) for x in m.group(2).replace("&#39;", "'").split(", ")]
+    return ("发布还缺少：" if m.group(1).startswith("Pour") else "还缺少：") + "、".join(items) + "。"
+
+
+PATTERNS.insert(0, (r"^(Pour publier, il manque|Il manque) : (.+)\.$", _missing))
+
+ZH.update({"← Mon espace": "← 我的空间", "Profil": "资料"})
+PATTERNS += [
+    (r"\(Pékin (\d{1,2}:\d{2})\)", r"（北京时间 \1）"),
+    (r"^Cours (\S+) du (\d{1,2}/\d{1,2}/\d{4}) à (\d{1,2}:\d{2})$", r"\1 班 \2 \3 的课"),
+    (r" · Profil$", " · 资料"),
+    (r"^Classes : (.*?)( · compte élève (MF\d+))?$", lambda m: "班级：" + m.group(1) + (f" · 学生账户 {m.group(3)}" if m.group(3) else "")),
+]

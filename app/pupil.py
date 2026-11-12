@@ -142,7 +142,7 @@ def pupil_login():
                 session["student_sid"] = s["id"]
                 session["csrf"] = secrets.token_urlsafe(24)
                 session.permanent = True
-                return redirect(url_for("pupil_home"))
+                return redirect(url_for("pupil_home", lang=s["ui_lang"] or g.lang))
             else:
                 U._fail(c, "pupil", h)
                 error = T["err"]

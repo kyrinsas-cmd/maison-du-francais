@@ -105,10 +105,10 @@ def login_user(uid):
 
 def landing(u, lang):
     if u["role"] in STAFF:
-        return url_for("admin.applications")
+        return url_for("admin.index")
     if u["role"] == "professeur" and u["teacher_id"]:
         return url_for("espace.home")
-    return url_for("account_home", lang=lang)
+    return url_for("account_home", lang=u.get("ui_lang") or lang)
 
 
 @web.app.context_processor

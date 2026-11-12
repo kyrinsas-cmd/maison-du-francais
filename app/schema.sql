@@ -431,3 +431,7 @@ CREATE TABLE IF NOT EXISTS homework_submissions (
     graded_at    timestamptz,
     UNIQUE (homework_id, student_id)
 );
+
+-- Langue choisie pour l'espace connecté (2026-11-12) : NULL = défaut (français pour l'équipe et les professeurs, langue de l'adresse pour les familles)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS ui_lang text CHECK (ui_lang IN ('zh', 'fr'));
+ALTER TABLE students ADD COLUMN IF NOT EXISTS ui_lang text CHECK (ui_lang IN ('zh', 'fr'));

@@ -19,6 +19,7 @@ from flask import abort, redirect, render_template, request, send_from_directory
 
 import users as U
 import web
+import bo_i18n
 from accounts import bp as espace_bp, current as teacher_current
 from db import connect
 from liveclasses import BJ, PARIS
@@ -110,7 +111,7 @@ def class_start_now(cid):
         else:
             sid = c.execute("INSERT INTO class_sessions (class_id, starts_at, duration_min) VALUES (%s,%s,%s) RETURNING id",
                             (cid, now.replace(second=0, microsecond=0), classroom.SESSION_MIN)).fetchone()["id"]
-    return redirect(url_for("classroom", sid=sid, lang="fr"))
+    return redirect(url_for("classroom", sid=sid, lang=bo_i18n.bo_lang()))
 
 
 @espace_bp.route("/classes/<int:cid>/programme", methods=["POST"])
