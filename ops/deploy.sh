@@ -31,7 +31,7 @@ sudo -u $U sh -c "cd $DEST && ./venv/bin/python db.py init && ./venv/bin/python 
 if [ "${1:-}" != "--no-restart" ]; then
     sudo systemctl restart maisondufrancais-web
     sleep 2
-    code=$(curl -s -o /dev/null -w '%{http_code}' https://maisondufrancais.fr/healthz)
+    code=$(curl -s --resolve maisondufrancais.fr:443:127.0.0.1 -o /dev/null -w '%{http_code}' https://maisondufrancais.fr/healthz)   # teste CE serveur, quel que soit le DNS
     echo "healthz: $code"
     [ "$code" = "200" ] || { echo "ÉCHEC : le site ne répond pas correctement" >&2; exit 1; }
     ./ops/smoke.sh || { echo "ÉCHEC : le test de fumée a échoué — corriger tout de suite" >&2; exit 1; }

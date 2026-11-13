@@ -1,7 +1,7 @@
 # maisondufrancais.fr (法语之家) — notes pour toute personne ou tout agent qui travaille sur ce dépôt
 
 Vitrine France de Maison du français : école de français en ligne, classes en direct de 5 élèves au plus, professeurs FLE basés en France.
-Flask + psycopg3 + Jinja2, même VPS OVH que chine-france.fr et gofestival.fr (Ubuntu, nginx, gunicorn, PostgreSQL 16). Ne pas toucher aux deux autres sites.
+Flask + psycopg3 + Jinja2 (Ubuntu 24.04, nginx, gunicorn, PostgreSQL 16). Depuis le 2026-11-13 : serveur dédié « Ecole » 141.94.98.159 (multi-sites : les écoles seulement, inventaire dans `~/SITES.md`). chine-france.fr et gofestival.fr restent sur l'ancien VPS, sans aucun lien avec celui-ci.
 
 Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquette de l'accueil : https://claude.ai/artifact/C8ovCKXcAM5H1zJNBd4HQF
 
@@ -15,13 +15,17 @@ Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquet
 1. Ce dépôt est la source de vérité : modifier ici, commiter, puis `./ops/deploy.sh`. Ne jamais éditer `/var/www/maisondufrancais/app` directement.
 2. Jamais de secrets dans le dépôt. Le `.env` est dans `/var/www/maisondufrancais/.env` (600, propriétaire `maisondufrancais`). Ne jamais l'afficher en entier.
 3. Aucun compte, mot de passe ni clé API ne se saisit par un agent : c'est à l'utilisateur de le faire.
-4. Sauvegarde : `backup-sites` (chaque nuit) inclut automatiquement la base `maisondufrancais` et `/var/www/maisondufrancais`.
+4. Sauvegarde : `backup-sites` (chaque nuit) inclut la base `maisondufrancais` et `/var/www/maisondufrancais` (voir « Serveur »).
 
 ## Dépôt GitHub
 - Privé : `kyrinsas-cmd/maison-du-francais` (branche `main`). Deploy key dédiée `~/.ssh/github_maisondufrancais`, hôte SSH `github-maisondufrancais` (distincte de celle de chine-france).
 - Flux : `git pull` → modifier → `git commit` → `git push` → `./ops/deploy.sh`.
 
 ## Serveur
+- **Migration vers Ecole (141.94.98.159), installé le 2026-11-13** : paquets, utilisateur `maisondufrancais` (créé à la main : pas de `newsite` ici), base restaurée depuis le snapshot d'essai, `.env` et uploads, unités web/purge, nginx, LiveKit (config + `node_ip` 141.94.98.159, unité, hook certbot, ports ufw ouverts). **Provisoire jusqu'à la bascule DNS** : nginx utilise une copie du certificat de l'ancien serveur dans `/etc/ssl/maisondufrancais-temp/` ; après la bascule, `certbot certonly --nginx -d maisondufrancais.fr -d www.maisondufrancais.fr`, puis installer `ops/nginx/maisondufrancais.conf` tel quel et supprimer le dossier provisoire.
+- `deploy.sh` et `smoke.sh` testent **ce serveur** (`--resolve …:127.0.0.1`), quel que soit le DNS ; `SMOKE_REMOTE=1 ./ops/smoke.sh` pour passer par le DNS.
+- Sauvegardes : `/usr/local/sbin/backup-sites` (minuteur `backup-sites.timer`, 03:30) → restic chiffré sur OVH Object Storage, 30 jours. Sites listés dans `/etc/backup-sites.list`, identifiants dans `/etc/restic/env` (à remplir par l'utilisateur, modèle `env.exemple`). Jamais vers l'ancien VPS.
+- Historique (ancien VPS) :
 - Créé avec `sudo newsite maisondufrancais maisondufrancais.fr --python` (2026-10-24) : utilisateur système et rôle/base PostgreSQL `maisondufrancais`, venv dans `/var/www/maisondufrancais/app/venv` (non versionné).
 - Service : `maisondufrancais-web` (gunicorn sur `/run/maisondufrancais/gunicorn.sock`, app en lecture seule, seul `uploads/` est inscriptible). Copie de l'unité dans `ops/systemd/`.
 - nginx : `/etc/nginx/sites-available/maisondufrancais` (copie dans `ops/nginx/`). `www` et HTTP → 301 vers `https://maisondufrancais.fr`. Certificat Let's Encrypt (certbot, renouvellement automatique testé).
@@ -70,7 +74,7 @@ Cahier des charges : https://claude.ai/artifact/La25GRwcXGfBv5ZMV1duMB · maquet
   - Service `livekit` (systemd, utilisateur `livekit`), config `/etc/livekit/livekit.yaml` (clé API + secret, root:livekit 640), binaire `/usr/local/bin/livekit-server` (somme SHA-256 vérifiée).
   - Signalisation : `wss://maisondufrancais.fr/livekit` (nginx `location /livekit/` → 127.0.0.1:7880, voir `ops/nginx/`). Clés dans `.env` : `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`.
   - Média : UDP 50000–60000, repli TCP 7881, relais TURN UDP 3478 / TLS 5349 (relais 30000–40000) avec le certificat du site copié dans `/etc/livekit/certs` (hook certbot `/etc/letsencrypt/renewal-hooks/deploy/livekit.sh`).
-  - **⚠️ Ports à ouvrir dans ufw** (pas fait : refusé par la protection automatique de la session, à faire par l'utilisateur) :
+  - Ports ufw (ouverts sur Ecole le 2026-11-13) :
     `ufw allow 7881/tcp; ufw allow 50000:60000/udp; ufw allow 3478/udp; ufw allow 5349/tcp; ufw allow 30000:40000/udp`. Sans eux, la visio ne marche que depuis le serveur lui-même.
   - Client : `static/vendor/livekit-client.umd.js` 2.23.0 (Apache-2.0, servi par nous : pas de CDN, important pour la Chine).
 - Tables `class_members` (élève inscrit ou essai 试听, compte parent/élève), `class_sessions` (une séance = une salle `mdf-s<id>`, 60 min = 45 + 15), `session_attendance` (présence à chaque entrée).
