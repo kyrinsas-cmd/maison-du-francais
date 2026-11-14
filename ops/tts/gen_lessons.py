@@ -19,7 +19,7 @@ from piper.config import SynthesisConfig
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "app"))
 
-WHO = {"Madame Martin": "martin", "Les enfants": "lili", "Léo": "leo", "Xiaoming": "leo", "Lili": "lili", "Chloé": "lili"}
+WHO = {"Madame Martin": "martin", "Les enfants": "lili", "Léo": "leo", "Xiaoming": "leo", "Hugo": "leo", "Lili": "lili", "Chloé": "lili", "Amélie": "lili"}
 SAY = {"X - I - A - O - M - I - N - G.": "ixe, i, a, o, aime, i, ène, gé.", "C - H - L - O - E accent aigu.": "cé, ache, elle, o, e accent aigu."}
 SEGMENTS = {
     ("a1-u1-l1", "s1"): [("lili", "Bonsoir, madame !"), ("martin", "Bonsoir, Lili !")],
@@ -34,6 +34,20 @@ SEGMENTS = {
     ("a1-u1-l5", "p2"): [("lili", "Je suis française.")],
     ("a1-u1-l6", "r1"): [("leo", "Je m'appelle Hugo. J'ai douze ans.")],
     ("a1-u1-l6", "r2"): [("lili", "Je m'appelle Léa. J'habite à Lyon, en France.")],
+    ("a1-u1-politesse", "o1"): [("lili", "Madame, je ne comprends pas. Vous pouvez répéter, s'il vous plaît ?")],
+    ("a1-u1-politesse", "o2"): [("lili", "Merci beaucoup, Xiaoming !"), ("leo", "De rien !")],
+    ("a1-u1-langues", "g1"): [("lili", "Je m'appelle Chloé. Je parle français et anglais.")],
+    ("a1-u1-langues", "g2"): [("martin", "Hugo, tu parles chinois ?"), ("leo", "Oui, un peu !")],
+    ("a1-u1-quiestce", "q1"): [("martin", "Voici Xiaoming. Il a onze ans. Il habite à Shanghai.")],
+    ("a1-u1-quiestce", "q2"): [("lili", "C'est mon amie. Elle s'appelle Zoé. Elle est française.")],
+    ("a1-u1-jeux", "j1"): [("leo", "J'ai onze ans. Je suis chinois. J'habite à Shanghai. Qui suis-je ?")],
+    ("a1-u1-jeux", "j2"): [("lili", "Je m'appelle Chloé. J'ai dix ans. J'habite à Lyon.")],
+    ("a1-u1-sons", "v1"): [("martin", "tout.")], ("a1-u1-sons", "v2"): [("martin", "tu.")], ("a1-u1-sons", "v3"): [("martin", "Tu as dix ans ?")],
+    ("a1-u1-projet", "k1"): [("lili", "Je m'appelle Amélie. Je suis canadienne. J'habite à Montréal.")],
+    ("a1-u1-test", "t1"): [("leo", "Je m'appelle Hugo. J'ai sept ans.")],
+    ("a1-u1-test", "t2"): [("martin", "Tu habites où ?"), ("leo", "J'habite à Pékin.")],
+    ("a1-u1-test", "t3"): [("lili", "Bonsoir, madame !")],
+    ("a1-u1-test", "t4"): [("lili", "elle, e accent aigu, a. Léa.")],
 }
 FIX = [("Xiaoming", "Chiaomine"), ("habites où", "habite où")]   # sinon la voix lit « Xiaoming » à l'anglaise et ajoute un [z]
 SPEED = 1.2          # length_scale : > 1 = plus lent (A1)
