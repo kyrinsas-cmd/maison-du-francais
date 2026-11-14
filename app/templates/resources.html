@@ -31,8 +31,9 @@
           <a class="btn btn-navy btn-small" href="{{ url_for('resource_file', rid=r.id) }}" {% if r.file_kind != 'doc' %}target="_blank" rel="noopener"{% endif %}>{{ t.lib_download if r.file_kind == 'doc' else t.lib_open }}</a>
           {% endif %}
         {% else %}
-          <p class="lib-lock">{{ t.lib_locked_teachers if r.visibility == 'teachers' else t.lib_locked_members }}</p>
-          {% if not logged %}<a class="btn btn-line btn-small" href="{{ url_for('account_login', next=request.full_path) }}">{{ t.lib_login }}</a>{% endif %}
+          <p class="lib-lock">{{ t.lib_locked_teachers if r.visibility == 'teachers' else (t.lib_locked_students if r.visibility == 'students' else t.lib_locked_members) }}</p>
+          {% if not logged %}<a class="btn btn-line btn-small" href="{{ url_for('account_login', next=request.full_path) }}">{{ t.lib_login }}</a>
+          {% elif r.visibility == 'students' %}<a class="btn btn-line btn-small" href="{{ url_for('contact') }}">{{ t.lib_enrol }}</a>{% endif %}
         {% endif %}
       </article>
       {% endfor %}

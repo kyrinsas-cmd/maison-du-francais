@@ -38,7 +38,7 @@
   <fieldset>
     <legend>Accès et droits</legend>
     <label>Qui peut l'ouvrir
-      <select name="visibility">{% for k, label in [('public','Tout le monde (partie publique, visible des élèves en essai)'),('members','Comptes connectés (élèves, parents, professeurs)'),('teachers','Professeurs et équipe seulement')] %}<option value="{{ k }}" {% if v.visibility == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      <select name="visibility">{% for k, label in [('public','Tout le monde (partie publique, visible des élèves en essai)'),('members','Comptes connectés (élèves, parents, professeurs)'),('students','Élèves inscrits à un cours et leurs parents (payant)'),('teachers','Professeurs et équipe seulement')] %}<option value="{{ k }}" {% if v.visibility == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
     </label>
     <label>Origine
       <select name="origin"><option value="maison" {% if v.origin != 'tiers' %}selected{% endif %}>Fait par notre équipe</option><option value="tiers" {% if v.origin == 'tiers' %}selected{% endif %}>Contient un élément tiers</option></select>

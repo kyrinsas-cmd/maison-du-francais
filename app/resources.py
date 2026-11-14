@@ -22,7 +22,7 @@ from db import connect
 UPLOADS = os.path.join(os.environ.get("UPLOADS_DIR", "/var/www/maisondufrancais/uploads"), "resources")
 FILE_MAX = 60 * 1024 * 1024
 SKILLS = ("co", "eo", "ce", "ee", "mixte")
-VIS = ("public", "members", "teachers")
+VIS = ("public", "members", "students", "teachers")
 KINDS = {"pdf": "PDF", "audio": "Audio", "image": "Image", "doc": "Document", "link": "Lien (site officiel)"}
 
 
@@ -76,9 +76,39 @@ def _closed():
         abort(404)
 
 
+def enrolled():
+    """Inscrit à un cours (pas seulement en essai) : compte parent ou élève avec une inscription active,
+    ou enfant connecté avec son numéro dont l'inscription est active. Relu à chaque requête."""
+    if "enrolled" not in g:
+        import pupil
+        u, p, ok = U.current(), pupil.current_student(), None
+        q = """SELECT 1 FROM class_members m LEFT JOIN students s ON s.id = m.student_id
+               WHERE m.{col}=%s AND m.kind='student' AND m.status='active' AND (s.id IS NULL OR s.status='active') LIMIT 1"""
+        with connect() as c:
+            if u and u["role"] in ("parent", "eleve"):
+                ok = c.execute(q.format(col="user_id"), (u["id"],)).fetchone()
+            if not ok and p:
+                ok = c.execute(q.format(col="student_id"), (p["id"],)).fetchone()
+        g.enrolled = bool(ok)
+    return g.enrolled
+
+
+def logged_in():
+    import pupil
+    return U.role() is not None or pupil.current_student() is not None
+
+
 def can_see(vis):
+    """public : tout le monde ; members : tout compte connecté (inscription gratuite) ;
+    students : élèves inscrits à un cours et leurs parents (contenu payant) ; teachers : professeurs et équipe."""
     r = U.role()
-    return vis == "public" or (vis == "members" and r is not None) or (vis == "teachers" and r in ("professeur", "moderateur", "admin"))
+    if vis == "public" or r in ("professeur", "moderateur", "admin"):
+        return True
+    if vis == "members":
+        return logged_in()
+    if vis == "students":
+        return enrolled()
+    return False
 
 
 def size_label(n):
@@ -114,7 +144,7 @@ def resources_page():
         title = (r["title_fr"] if g.lang == "fr" and r["title_fr"] else r["title_zh"])
         desc = (r["desc_fr"] if g.lang == "fr" and r["desc_fr"] else r["desc_zh"])
         items.append(dict(r, title=title, desc=desc, allowed=can_see(r["visibility"]), size=size_label(r["file_size"])))
-    return render_template("resources.html", items=items, groups=groups, total=total, active=bool(lvs or sks or kinds), logged=U.current() is not None)
+    return render_template("resources.html", items=items, groups=groups, total=total, active=bool(lvs or sks or kinds), logged=logged_in())
 
 
 @web.route("/ressources/<int:rid>/fichier")

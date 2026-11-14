@@ -224,7 +224,7 @@ ZH.update({
     "Ou lien vers un site officiel (https://…) — rien n'est copié chez nous ; laissé vide si un fichier est envoyé": "或者官方网站链接（https://…）——不复制到我们的服务器；上传文件时留空",
     "Fichier (PDF, MP3/M4A, PNG/JPEG, .docx, .pptx — 60 Mo au plus)": "文件（PDF、MP3/M4A、PNG/JPEG、.docx、.pptx，最大60MB）",
     "Accès et droits": "权限和版权", "Qui peut l'ouvrir": "谁可以打开", "Tout le monde (partie publique, visible des élèves en essai)": "所有人（公开部分，试听学生也能看到）",
-    "Comptes connectés (élèves, parents, professeurs)": "登录用户（学生、家长、老师）", "Professeurs et équipe seulement": "仅老师和团队", "Origine": "来源",
+    "Comptes connectés (élèves, parents, professeurs)": "登录用户（学生、家长、老师）", "Professeurs et équipe seulement": "仅老师和团队", "Élèves inscrits à un cours et leurs parents (payant)": "已报名课程的学员及其家长（付费内容）", "Élèves inscrits": "在读学员", "Origine": "来源",
     "Fait par notre équipe": "团队自制", "Contient un élément tiers": "包含第三方内容", "Source de l'élément tiers": "第三方内容的来源", "Autorisation / licence": "授权/许可",
     "La famille, les couleurs, se présenter…": "例如：家庭、颜色、自我介绍……", "Auteur, site, ouvrage…": "作者、网站、书名……", "CC BY 4.0, accord écrit du 12/10/2026…": "例如：CC BY 4.0、2026年10月12日的书面授权……",
     "Prix en yuans, par séance et par élève (1 séance facturée = 45 min de cours + 15 min de devoirs). Le cahier des charges (§19) suggère 130 à 150 ¥ ; le prix final reste à décider. La page n'apparaît sur le site, avec un lien dans le menu, qu'une fois publiée.":

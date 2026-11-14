@@ -16,7 +16,7 @@
     <td><a href="{{ url_for('admin.resource', rid=r.id) }}">{{ r.title_zh }}</a>{% if r.origin == 'tiers' %} <span class="tag">tiers</span>{% endif %}</td>
     <td>{{ kinds.get(r.file_kind, '—') }}{% if r.file_size %} · {{ size_label(r.file_size) }}{% endif %}</td>
     <td>{{ r.level or 'Tous' }}</td>
-    <td>{{ {'public':'Public','members':'Comptes connectés','teachers':'Professeurs'}[r.visibility] }}</td>
+    <td>{{ {'public':'Public','members':'Comptes connectés','students':'Élèves inscrits','teachers':'Professeurs'}[r.visibility] }}</td>
     <td>{{ s.n if s else 0 }} ({{ s.n30 if s else 0 }})</td>
     <td class="note">{% if s %}visiteurs {{ s.visiteur }} · élèves {{ s.eleve }} · parents {{ s.parent }} · profs {{ s.professeur }}{% else %}—{% endif %}</td>
     <td>{{ 'Publiée' if r.published else 'Brouillon' }}</td>
