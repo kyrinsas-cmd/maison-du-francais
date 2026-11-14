@@ -1,0 +1,19 @@
+{% extends "espace/layout.html" %}
+{% block title %}Leçons {{ level }}{% endblock %}
+{% block content %}
+<h1>Leçons du programme</h1>
+<p class="note">Pour chaque leçon : le guide du cours (déroulé minuté, erreurs fréquentes), la fiche de l'élève et les exercices avec les réponses.
+  Les leçons « en relecture » attendent l'avis des professeurs : laissez vos remarques en bas de la leçon. Les élèves ne voient que les leçons publiées.</p>
+<nav class="tabs-admin" aria-label="Niveau">{% for lv in levels %}<a href="{{ url_for('espace.lessons_teacher', niveau=lv) }}" {% if lv == level %}aria-current="page"{% endif %}>{{ lv }}</a>{% endfor %}</nav>
+{% for u in units %}
+<section class="bank-unit">
+  <h2>{{ u.sort }}. {% if bo_lang() == 'zh' %}{{ u.title_zh }} <span class="note" lang="fr">{{ u.title_fr }}</span>{% else %}{{ u.title_fr }} <span class="note">{{ u.title_zh }}</span>{% endif %}</h2>
+  {% set ls = by_unit.get(u.id, []) %}
+  {% if ls %}<ul class="bank-list">{% for x in ls %}
+    <li><span><a href="{{ url_for('espace.lesson_teacher', lid=x.id) }}"><b>Leçon {{ x.sort }} · {{ x.title_zh if bo_lang() == 'zh' else x.title_fr }}</b></a>
+      <span class="status {{ 'status-accepted' if x.status == 'published' else 'status-contacted' }}">{{ statuses[x.status] }}</span>
+      {% if x.open_comments %}<span class="note">· {{ x.open_comments }} remarque(s)</span>{% endif %}</span></li>
+  {% endfor %}</ul>{% else %}<p class="note">Pas encore de leçon.</p>{% endif %}
+</section>
+{% endfor %}
+{% endblock %}

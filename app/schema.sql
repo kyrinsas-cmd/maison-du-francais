@@ -477,3 +477,44 @@ CREATE TABLE IF NOT EXISTS homework_bank (
 CREATE INDEX IF NOT EXISTS homework_bank_unit ON homework_bank (unit_id, sort);
 ALTER TABLE homeworks ADD COLUMN IF NOT EXISTS bank_id bigint REFERENCES homework_bank(id) ON DELETE SET NULL;
 ALTER TABLE homeworks ADD COLUMN IF NOT EXISTS unit_id bigint REFERENCES program_units(id) ON DELETE SET NULL;
+
+-- 课 : leçons du programme (lessons.py, lessons_seed.py), 2026-11-14
+CREATE TABLE IF NOT EXISTS lessons (
+    id           bigserial PRIMARY KEY,
+    key          text UNIQUE,                            -- leçons de la graine seulement
+    unit_id      bigint NOT NULL REFERENCES program_units(id) ON DELETE CASCADE,
+    sort         int NOT NULL,
+    title_fr     text NOT NULL,
+    title_zh     text NOT NULL,
+    content      jsonb NOT NULL,                         -- guide, fiche, exercices (voir lessons.validate)
+    audio_files  jsonb NOT NULL DEFAULT '{}',            -- {piste: fichier dans uploads/lessons/}
+    status       text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'review', 'published')),
+    edited       boolean NOT NULL DEFAULT false,         -- modifiée par l'équipe : la graine n'y touche plus
+    updated_at   timestamptz NOT NULL DEFAULT now(),
+    updated_by   bigint REFERENCES users(id) ON DELETE SET NULL,
+    published_at timestamptz,
+    published_by bigint REFERENCES users(id) ON DELETE SET NULL,
+    created_at   timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS lessons_unit ON lessons (unit_id, sort);
+CREATE TABLE IF NOT EXISTS lesson_comments (                -- remarques de relecture (professeurs, équipe)
+    id          bigserial PRIMARY KEY,
+    lesson_id   bigint NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    user_id     bigint REFERENCES users(id) ON DELETE SET NULL,
+    body        text NOT NULL,
+    resolved_at timestamptz,
+    created_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS lesson_attempts (                -- exercices en ligne d'une leçon, par élève
+    id          bigserial PRIMARY KEY,
+    lesson_id   bigint NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
+    student_id  bigint NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    perms       jsonb NOT NULL,                          -- ordre mélangé des choix {exercice: [index d'origine…]}
+    answers     jsonb,
+    score       int,
+    total       int NOT NULL DEFAULT 0,
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    finished_at timestamptz
+);
+CREATE INDEX IF NOT EXISTS lesson_attempts_student ON lesson_attempts (student_id, lesson_id, finished_at DESC);
+ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS lesson_id bigint REFERENCES lessons(id) ON DELETE SET NULL;  -- leçon faite en cours

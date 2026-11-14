@@ -1,0 +1,84 @@
+{# 课 : morceaux communs des leçons (lessons.py). L = libellés dans la langue du bloc ; c = contenu ; audio = pistes {id: {label, script, file}}. #}
+{% macro player(l, audio, slot, L, show_script=False) -%}
+  {% set a = audio.get(slot) %}
+  {% if a %}
+  <div class="ls-audio">
+    {% if a.file %}<audio controls preload="none" src="{{ url_for('lesson_audio', lid=l.id, slot=slot) }}"></audio>
+    {% else %}<span class="tag">{{ L.audio_missing }}</span>{% endif %}
+    {% if show_script %}<details><summary>{{ L.script }}{% if a.label %} · {{ a.label }}{% endif %}</summary><p class="pre">{{ a.script }}</p></details>{% endif %}
+  </div>
+  {% endif %}
+{%- endmacro %}
+
+{% macro line(x, target) -%}
+  <span class="ls-t" lang="{{ target }}">{{ x.t }}</span>{% if x.py %}<span class="ls-py">{{ x.py }}</span>{% endif %}{% if x.m %}<span class="ls-m">{{ x.m }}</span>{% endif %}
+{%- endmacro %}
+
+{# Fiche de l'élève : texte, vocabulaire, grammaire, culture. sheet = langue des explications. #}
+{% macro sheet(l, c, L, audio, target, sheet_lang, show_script=False) -%}
+<div class="ls-sheet" lang="{{ sheet_lang }}">
+  {% if c.can_do %}<div class="ls-cando"><b>{{ L.can_do }}</b><ul>{% for x in c.can_do %}<li>{{ x }}</li>{% endfor %}</ul></div>{% endif %}
+  {% if c.text and c.text.lines %}
+  <section class="ls-block"><h2>{{ L.text }}{% if c.text.title %} · <span lang="{{ target }}">{{ c.text.title }}</span>{% endif %}</h2>
+    {% if c.text.audio %}{{ player(l, audio, c.text.audio, L, show_script) }}{% endif %}
+    <div class="ls-dialogue">{% for x in c.text.lines %}<p>{% if x.who %}<b class="ls-who" lang="{{ target }}">{{ x.who }}</b>{% endif %}<span class="ls-line">{{ line(x, target) }}</span></p>{% endfor %}</div>
+  </section>{% endif %}
+  {% if c.vocab %}
+  <section class="ls-block"><h2>{{ L.vocab }}</h2>
+    {% set haspy = c.vocab|selectattr('py')|list|length > 0 %}
+    <table class="ls-vocab"><tbody>{% for v in c.vocab %}<tr><td class="ls-t" lang="{{ target }}">{{ v.w }}</td>{% if haspy %}<td class="ls-py">{{ v.py or '' }}</td>{% endif %}<td>{{ v.m }}</td></tr>{% endfor %}</tbody></table>
+  </section>{% endif %}
+  {% for gr in c.grammar or [] %}
+  <section class="ls-block"><h2>{{ L.grammar }} · {{ gr.title }}</h2>
+    {% if gr.explain %}<p class="pre">{{ gr.explain }}</p>{% endif %}
+    {% if gr.examples %}<ul class="ls-examples">{% for x in gr.examples %}<li>{{ line(x, target) }}</li>{% endfor %}</ul>{% endif %}
+  </section>{% endfor %}
+  {% if c.culture and c.culture.text %}
+  <section class="ls-block ls-culture"><h2>{{ L.culture }}{% if c.culture.title %} · {{ c.culture.title }}{% endif %}</h2><p class="pre">{{ c.culture.text }}</p></section>{% endif %}
+  {% if c.task and c.task.instr %}
+  <section class="ls-block"><h2>{{ L.task }} <span class="tag">{{ L[c.task.kind] }}</span></h2>{% if c.task.title %}<p><b>{{ c.task.title }}</b></p>{% endif %}<p class="pre">{{ c.task.instr }}</p></section>{% endif %}
+</div>
+{%- endmacro %}
+
+{# Guide du professeur (langue des professeurs). #}
+{% macro guide(l, c, L, audio, target, guide_lang) -%}
+<div class="ls-guide" lang="{{ guide_lang }}">
+  <div class="ls-meta">
+    {% if c.objectives %}<div><b>{{ L.objectives }}</b><ul>{% for x in c.objectives %}<li>{{ x }}</li>{% endfor %}</ul></div>{% endif %}
+    <div>
+      {% if c.skills %}<p><b>{{ L.skills }}</b> {% for s in c.skills %}<span class="tag">{{ L[s] }}</span> {% endfor %}</p>{% endif %}
+      {% if c.exam %}<p><b>{{ L.exam }}</b><br>{{ c.exam }}</p>{% endif %}
+      {% if c.materials %}<p><b>{{ L.materials }}</b><br>{{ c.materials|join(' · ') }}</p>{% endif %}
+    </div>
+  </div>
+  {% if c.steps %}
+  <section class="ls-block"><h2>{{ L.steps }} (45 {{ L.minutes }})</h2>
+    <ol class="ls-steps">{% set ns = namespace(t=0) %}{% for s in c.steps %}
+      <li><div class="ls-step-h"><span class="ls-time">{{ ns.t }}–{{ ns.t + s.min }} {{ L.minutes }}</span><span class="tag">{{ L[s.phase] }}</span> <b>{{ s.title }}</b></div>
+        <p class="pre">{{ s.do }}</p>
+        {% if s.say %}<p class="ls-say"><b>{{ L.say }}{{ L.colon }}</b> <span lang="{{ target }}">{{ s.say }}</span></p>{% endif %}
+        {% if s.tip %}<p class="ls-tip"><b>{{ L.tip }}{{ L.colon }}</b> {{ s.tip }}</p>{% endif %}
+      </li>{% set ns.t = ns.t + s.min %}{% endfor %}</ol>
+  </section>{% endif %}
+  {% if c.mistakes %}<section class="ls-block"><h2>{{ L.mistakes }}</h2><ul>{% for x in c.mistakes %}<li>{{ x }}</li>{% endfor %}</ul></section>{% endif %}
+  {% if c.diff and (c.diff.young or c.diff.teen) %}
+  <section class="ls-block"><h2>{{ L.diff }}</h2>
+    {% if c.diff.young %}<p><b>{{ L.young }}</b> · {{ c.diff.young }}</p>{% endif %}{% if c.diff.teen %}<p><b>{{ L.teen }}</b> · {{ c.diff.teen }}</p>{% endif %}
+  </section>{% endif %}
+  {% if c.task and c.task.instr_guide %}<section class="ls-block"><h2>{{ L.task }}</h2><p class="pre">{{ c.task.instr_guide }}</p></section>{% endif %}
+  {% if audio %}<section class="ls-block" id="audio-scripts"><h2>{{ L.audio }}</h2>
+    {% for k, a in audio.items() %}<div class="ls-audio-row"><p><b>{{ a.label or k }}</b> <code>{{ k }}</code></p>{{ player(l, audio, k, L) }}<p class="pre note" lang="{{ target }}">{{ a.script }}</p></div>{% endfor %}
+  </section>{% endif %}
+</div>
+{%- endmacro %}
+
+{# Exercices avec les réponses (aperçu professeur et équipe). #}
+{% macro answers(l, ex, L, audio, target) -%}
+<ol class="ls-ex ls-ex-key">{% for x in ex %}
+  <li><p class="ls-q">{% if x.audio %}{{ player(l, audio, x.audio, L) }}{% endif %}<span>{{ x.q or '' }}</span></p>
+    {% if x.type in ('qcm', 'fill') %}<ul class="ls-choices">{% for ch in x.choices %}<li {% if loop.index0 == x.answer %}class="ls-right"{% endif %} lang="{{ target }}">{{ ch }}</li>{% endfor %}</ul>
+    {% elif x.type == 'tf' %}<p class="ls-right">{{ L.true if x.answer else L.false }}</p>
+    {% elif x.type == 'match' %}<ul class="ls-choices">{% for p in x.pairs %}<li class="ls-right"><span lang="{{ target }}">{{ p[0] }}</span> → {{ p[1] }}</li>{% endfor %}</ul>{% endif %}
+    {% if x.explain %}<p class="note">{{ x.explain }}</p>{% endif %}
+  </li>{% endfor %}</ol>
+{%- endmacro %}

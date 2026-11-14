@@ -439,6 +439,12 @@ def _espace_routes():
                 if s["starts_at"] > datetime.now(timezone.utc):
                     abort(400)
                 unit = request.form.get("unit_id", type=int)
+                lesson = c.execute("""SELECT l.id, l.unit_id FROM lessons l JOIN program_units u ON u.id=l.unit_id
+                                      WHERE l.id=%s AND u.level=%s AND l.status IN ('review','published')""",
+                                   (request.form.get("lesson_id", type=int), cls["level"])).fetchone() if request.form.get("lesson_id") else None
+                if lesson:
+                    unit = lesson["unit_id"]
+                c.execute("UPDATE class_sessions SET lesson_id=%s WHERE id=%s", (lesson["id"] if lesson else None, sid))
                 c.execute("UPDATE class_sessions SET unit_id=%s, topic=%s WHERE id=%s",
                           (unit if unit and c.execute("SELECT 1 FROM program_units WHERE id=%s AND level=%s", (unit, cls["level"])).fetchone() else None,
                            (request.form.get("topic") or "").strip()[:1000] or None, sid))
@@ -458,7 +464,9 @@ def _espace_routes():
                 return redirect(url_for("espace.session_report", sid=sid, ok=1))
             rows = report_rows(c, s)
             units = c.execute("SELECT * FROM program_units WHERE level=%s ORDER BY sort", (cls["level"],)).fetchall()
-        return render_template("espace/session.html", s=s, cls=cls, rows=rows, units=units, statuses=REPORT_STATUSES, ok=request.args.get("ok"),
+            lessons_ = c.execute("""SELECT l.id, l.sort, l.title_fr, l.title_zh, u.sort AS unit_sort FROM lessons l JOIN program_units u ON u.id=l.unit_id
+                                    WHERE u.level=%s AND l.status IN ('review','published') ORDER BY u.sort, l.sort""", (cls["level"],)).fetchall()
+        return render_template("espace/session.html", s=s, cls=cls, rows=rows, units=units, lessons=lessons_, statuses=REPORT_STATUSES, ok=request.args.get("ok"),
                                paris=s["starts_at"].astimezone(PARIS), bj=s["starts_at"].astimezone(BJ),
                                future=s["starts_at"] > datetime.now(timezone.utc))
 
@@ -503,11 +511,15 @@ def _espace_routes():
             cur_unit = bank.current_unit(program)
             bank_items = bank.items_for_units(c, [cur_unit["id"]]).get(cur_unit["id"], []) if cur_unit else []
             tpl = bank.prefill(c, request.args.get("modele", type=int), cls["level"]) if request.args.get("modele") else None
+            import lessons as LS
+            if request.args.get("lecon"):
+                tpl = LS.lesson_prefill(c, request.args.get("lecon", type=int), cls["level"])
+            unit_lessons = LS.lessons_for_unit(c, cur_unit["id"]) if cur_unit else []
         now = datetime.now(timezone.utc)
         sessions = [dict(s, paris=s["starts_at"].astimezone(PARIS), bj=s["starts_at"].astimezone(BJ), past=s["starts_at"] < now,
                          open=is_open(s, "teacher", now)) for s in sessions]
         return render_template("espace/class.html", cls=cls, members=members, sessions=sessions, program=program, done=done, pct=pct,
-                               homeworks=homeworks, cur_unit=cur_unit, bank_items=bank_items, tpl=tpl, open_now=next((s for s in sessions if s["open"]), None),
+                               homeworks=homeworks, cur_unit=cur_unit, bank_items=bank_items, tpl=tpl, unit_lessons=unit_lessons, open_now=next((s for s in sessions if s["open"]), None),
                                next_due=(next_at.astimezone(PARIS).strftime("%Y-%m-%dT%H:%M") if next_at else ""),
                                ok=request.args.get("ok"), err=request.args.get("err"))
 

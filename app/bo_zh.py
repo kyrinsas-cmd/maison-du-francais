@@ -303,3 +303,26 @@ PATTERNS += [
     (r"^Utiliser \((.+)\)$", r"使用（\1）"),
 ]
 PATTERNS += [(r"n° (\d+)\)$", r"\1号班）")]
+ZH.update({   # 课 : leçons (2026-11-14)
+    "Leçons": "课程内容", "Leçons (课)": "课程内容（课）", "Leçons du programme": "课程内容", "Guide du cours": "教案", "Fiche de l'élève": "学生讲义",
+    "Exercices et réponses": "练习和答案", "Exercices": "练习", "Audios": "录音", "Imprimer": "打印", "En relecture": "审核中", "Publiée": "已发布", "Brouillon": "草稿",
+    "Remarques de relecture": "审核意见", "Envoyer à l'équipe": "发给团队", "Remarque envoyée à l'équipe. Merci !": "意见已发给团队，谢谢！",
+    "Votre remarque (ce qui est faux, à changer, ce qui a marché en classe)": "你的意见（哪里有错、需要修改的地方、课堂上效果好的地方）",
+    "Pas encore de leçon.": "还没有课。", "Pas encore de leçon pour cette unité.": "这个单元还没有课。", "Donner le devoir": "布置作业", "Leçon faite": "本节课上的课",
+    "Rempli d'après la leçon : modifiez si besoin, puis donnez le devoir.": "已根据这一课的课后任务填写：需要时修改，然后布置作业。",
+    "Pour chaque leçon : le guide du cours (déroulé minuté, erreurs fréquentes), la fiche de l'élève et les exercices avec les réponses. Les leçons « en relecture » attendent l'avis des professeurs : laissez vos remarques en bas de la leçon. Les élèves ne voient que les leçons publiées.":
+        "每一课都有：教案（分时教学步骤、常见错误）、学生讲义和带答案的练习。“审核中”的课等待老师们的意见：请在页面下方留言。学生只能看到已发布的课。",
+    "Leçon en relecture : les élèves ne la voient pas encore. Vos remarques (erreurs, ce qui marche ou non en classe) sont les bienvenues,": "这一课正在审核，学生还看不到。欢迎提出意见（错误、课堂上好用或不好用的地方），",
+    "en bas de page": "写在页面下方", "· traitée": "· 已处理", "traitée": "已处理", "Marquer comme traitée": "标为已处理", "Rouvrir": "重新打开",
+    "Ajouter une remarque": "添加意见", "Ajouter": "添加", "+ Ajouter une leçon": "+ 添加一课", "Changer l'état": "更改状态", "Modifier la leçon": "修改这一课",
+    "Contenu (JSON)": "内容（JSON）", "Enregistrer": "保存", "Supprimer la leçon": "删除这一课", "envoyé": "已上传", "à envoyer": "待上传", "Envoyer": "上传", "Retirer": "移除",
+    "Titre en français": "法语标题", "Titre en chinois": "中文标题", "Numéro de la leçon dans l'unité": "单元内课号", "Unité": "单元",
+})
+PATTERNS += [
+    (r"^Leçons (\S+)$", r"\1 课程内容"), (r"^← Leçons (\S+)$", r"← \1 课程内容"), (r"^Toutes les leçons (\S+) →$", r"\1 全部课程内容 →"),
+    (r"^Leçon (\d+) · (.+)$", r"第\1课 · \2"), (r"^Leçons · unité (\d+)$", r"课程内容 · 第 \1 单元"),
+    (r"^Unité (\d+) · leçon (\d+) : (.+)$", r"第\1单元 · 第\2课：\3"),
+    (r"^(\S+) · Unité (\d+) \((.+)\) · Leçon (\d+)$", r"\1 · 第\2单元（\3）· 第\4课"),
+    (r"^Donner le devoir de la leçon à ma classe (\S+)$", r"把这一课的作业布置给我的 \1 班"),
+    (r"^· (\d+) remarque\(s\)$", r"· \1 条意见"), (r"^(\d+) remarque\(s\) à traiter$", r"\1 条意见待处理"),
+]

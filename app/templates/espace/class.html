@@ -55,6 +55,14 @@
   </tr>{% endfor %}</tbody>
 </table></div>
 {% endif %}
+<div class="card bank-box" id="lecons">
+  <p style="margin:0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>Leçons{% if cur_unit %} · unité {{ cur_unit.sort }}{% endif %}</b>
+    <a href="{{ url_for('espace.lessons_teacher', niveau=cls.level) }}">Toutes les leçons {{ cls.level }} →</a></p>
+  {% if unit_lessons %}<ul class="bank-list">{% for x in unit_lessons %}
+    <li><span><a href="{{ url_for('espace.lesson_teacher', lid=x.id) }}"><b>Leçon {{ x.sort }} · {{ x.title_zh if bo_lang() == 'zh' else x.title_fr }}</b></a>{% if x.status == 'review' %} <span class="status status-contacted">En relecture</span>{% endif %}</span>
+      <a class="btn btn-line btn-small" href="{{ url_for('espace.my_class', cid=cls.id, lecon=x.id) }}#donner">Donner le devoir</a></li>
+  {% endfor %}</ul>{% else %}<p class="note" style="margin:6px 0 0">Pas encore de leçon pour cette unité.</p>{% endif %}
+</div>
 <div class="card bank-box" id="banque">
   <p style="margin:0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>Banque de devoirs{% if cur_unit %} · unité {{ cur_unit.sort }} : {% if bo_lang() == 'zh' %}{{ cur_unit.title_zh }}{% else %}{{ cur_unit.title_fr }}{% endif %}{% endif %}</b>
     <a href="{{ url_for('espace.bank_teacher', niveau=cls.level[:2]) }}">Toute la banque {{ cls.level }} →</a></p>
@@ -68,9 +76,9 @@
 </div>
 <form class="form" method="post" action="{{ url_for('espace.class_homework_new', cid=cls.id) }}" enctype="multipart/form-data" style="max-width:760px;margin-top:12px" id="donner">
   <input type="hidden" name="csrf" value="{{ csrf() }}">
-  {% if tpl %}<input type="hidden" name="bank_id" value="{{ tpl.id }}">{% endif %}
+  {% if tpl and tpl.id %}<input type="hidden" name="bank_id" value="{{ tpl.id }}">{% endif %}
   <fieldset><legend>Donner un devoir à la classe</legend>
-    {% if tpl %}<p class="flash" style="margin:0">Rempli d'après la banque de devoirs : modifiez si besoin, puis donnez le devoir. <a href="{{ url_for('espace.my_class', cid=cls.id) }}#devoirs">Vider</a></p>{% endif %}
+    {% if tpl %}<p class="flash" style="margin:0">Rempli d'après {{ 'la banque de devoirs' if tpl.id else 'la leçon' }} : modifiez si besoin, puis donnez le devoir. <a href="{{ url_for('espace.my_class', cid=cls.id) }}#devoirs">Vider</a></p>{% endif %}
     <label>Unité du programme<select name="unit_id"><option value="">—</option>{% set uid = tpl.unit_id if tpl else (cur_unit.id if cur_unit else none) %}{% for u in program %}<option value="{{ u.id }}" {% if u.id == uid %}selected{% endif %}>{{ u.sort }}. {{ u.title_zh if bo_lang() == 'zh' else u.title_fr }}</option>{% endfor %}</select></label>
     <label>Titre<input type="text" name="title" maxlength="200" required placeholder="Ex. : Exercices p. 12, se présenter en 5 phrases" value="{{ tpl.title if tpl else '' }}"></label>
     <label>Consigne<textarea name="instructions" rows="{{ 6 if tpl else 4 }}" maxlength="4000" placeholder="Ce que l'élève doit faire, et comment le rendre (texte, photo du cahier, enregistrement audio).">{{ tpl.instructions if tpl else '' }}</textarea></label>

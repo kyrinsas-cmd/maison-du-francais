@@ -1,0 +1,21 @@
+{% extends "space/layout.html" %}
+{% block title %}{{ lsx.nav }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<h1>{{ lsx.nav }}</h1>
+{% if not enrolled %}<p class="empty">{{ lsx.not_enrolled }}</p>
+{% elif rows %}
+<p class="note">{{ lsx.lead }}</p>
+{% set ns = namespace(u=None) %}
+<div class="card account-tests">
+  {% for r in rows %}
+  {% if ns.u != (r.level, r.unit_sort) %}{% set ns.u = (r.level, r.unit_sort) %}
+  <p class="ls-unit-h"><b>{{ r.level }} · {{ L.unit.format(n=r.unit_sort) }}</b> {{ r.unit_zh if g.lang == 'zh' else r.unit_fr }}</p>{% endif %}
+  <div class="acct-test">
+    <p style="margin:0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <a href="{{ url_for('pupil_lesson', lid=r.id) }}"><b>{{ L.lesson.format(n=r.sort) }} · {{ r.title_zh if g.lang == 'zh' else r.title_fr }}</b></a>
+      {% if r.best is not none %}<span class="status status-accepted">{{ L.best }} {{ r.best }} %</span>{% else %}<span class="status status-contacted">{{ lsx.not_done }}</span>{% endif %}</p>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<p class="empty">{{ lsx.none }}</p>{% endif %}
+{% endblock %}

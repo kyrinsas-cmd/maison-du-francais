@@ -137,8 +137,10 @@ def family_kid(sid):
                     return redirect(url_for("family_kid", sid=sid, ok="saved"))
         tests = c.execute("""SELECT t.*, (SELECT count(*) FROM placement_recordings r WHERE r.test_id=t.id) AS n_rec FROM placement_tests t
                              WHERE t.student_id=%s ORDER BY t.created_at DESC""", (sid,)).fetchall()
+        import lessons as LS
+        kid_lessons = LS.kid_lessons(c, s)
     import classroom
     kid = next((k for k in kids_of(u) if k["id"] == sid), s)
     import placement
-    return _nostore(render_template("family/kid.html", u=u, s=s, kid=kid, p=placement.pt(g.lang), tests=tests, used=used, errors=errors, ok=request.args.get("ok"),
+    return _nostore(render_template("family/kid.html", u=u, s=s, kid=kid, p=placement.pt(g.lang), tests=tests, used=used, errors=errors, ok=request.args.get("ok"), kid_lessons=kid_lessons,
                                         sessions=classroom.my_sessions(u, limit=60, student_id=sid), reports=classroom.my_reports(u, limit=60, student_id=sid)))

@@ -220,4 +220,69 @@ fieldset[disabled] .pt-choice { cursor: default; }
 .bank-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; flex: none; max-width: 45%; }
 .bank-actions form { margin: 0; }
 .bank-unit h2 { font-size: 18px; }
+/* 课 : leçons (lessons.py, templates/_lesson.html) */
+.ls-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.ls-title small { font-size: 16px; color: var(--muted); font-weight: 400; }
+.eyebrow-s { margin: 0 0 4px; font-size: 13px; color: var(--muted); }
+.ls-tabs { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0; padding: 8px 12px; background: var(--soft); border-radius: var(--radius); }
+.ls-part { margin-top: 30px; padding-top: 12px; border-top: 2px solid var(--ink); }
+.ls-block { margin: 18px 0; }
+.ls-block h2 { font-size: 18px; margin: 0 0 8px; }
+.ls-cando { padding: 12px 16px; border-left: 4px solid var(--accent); background: var(--soft); border-radius: var(--radius); }
+.ls-cando ul { margin: 6px 0 0; }
+.ls-t { font-size: 1.25em; }
+.ls-py { color: var(--muted); font-style: italic; }
+.ls-dialogue p { margin: 6px 0; display: flex; gap: 10px; align-items: baseline; }
+.ls-who { min-width: 3.5em; flex-shrink: 0; color: var(--accent); }
+.ls-line, .ls-examples li { display: flex; flex-wrap: wrap; gap: 2px 12px; align-items: baseline; }
+.ls-m { color: var(--ink-soft); }
+.ls-m::before { content: "— "; color: var(--muted); }
+.ls-vocab { border-collapse: collapse; width: 100%; max-width: 680px; }
+.ls-vocab td { padding: 6px 10px; border-bottom: 1px solid var(--line); }
+.ls-vocab td.ls-t { font-size: 22px; }
+.ls-vocab td.ls-t[lang="zh"] { white-space: nowrap; }
+.ls-vocab td.ls-t[lang="fr"], .ls-t[lang="fr"] { font-size: 1.1em; font-weight: 600; }
+.ls-vocab td.ls-py { white-space: nowrap; }
+.ls-examples { padding-left: 18px; }
+.ls-block.ls-culture { padding: 12px 18px; background: var(--gold-tint); border-radius: var(--radius); }
+.ls-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); }
+.ls-meta ul { margin: 6px 0 0; padding-left: 18px; }
+.ls-meta p { margin: 0 0 8px; }
+.ls-steps { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.ls-steps li { padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius); }
+.ls-step-h { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ls-time { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.ls-steps p { margin: 6px 0 0; }
+.ls-say { color: var(--ink-soft); }
+.ls-tip { font-size: 14px; color: var(--muted); }
+.ls-audio { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 6px 0; }
+.ls-audio audio { height: 36px; max-width: 100%; }
+.ls-audio-row { margin: 10px 0; }
+.ls-ex { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.ls-n { color: var(--muted); margin-right: 6px; }
+.ls-ex-key { padding-left: 22px; list-style: decimal; }
+.ls-ex fieldset { border: 0; padding: 0; margin: 0; }
+.ls-q { margin: 0 0 6px; font-weight: 600; }
+.ls-opts { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.ls-opts label { display: flex; gap: 6px; align-items: center; font-size: 1.1em; }
+.ls-match { display: flex; flex-direction: column; gap: 6px; }
+.ls-match label { display: flex; gap: 12px; align-items: center; }
+.ls-match label > span { min-width: 6em; font-size: 1.15em; }
+.ls-choices { padding-left: 18px; margin: 0; }
+.ls-right { color: var(--ok); font-weight: 600; }
+.ls-ok > p:first-of-type ~ p:first-of-type { color: var(--ok); }
+.ls-ko { border-left: 3px solid var(--danger); padding-left: 10px; }
+.ls-ok { border-left: 3px solid var(--ok); padding-left: 10px; }
+.ls-unit-h { margin: 14px 0 4px; }
+.ls-unit-h:first-child { margin-top: 0; }
+.ls-comment { margin: 8px 0; }
+.ls-json { font-family: var(--mono); font-size: 13px; line-height: 1.45; }
+@media print {
+  .bo-side, .no-print, .bo-alert, .ls-tabs, form, #remarques { display: none !important; }
+  .bo-shell { display: block; }
+  .bo-main { padding: 0; }
+  .ls-part { break-before: page; }
+  .ls-block, .ls-steps li { break-inside: avoid; }
+  audio { display: none; }
+}
 @media (max-width: 640px) { .bank-list li { flex-direction: column; } .bank-actions { max-width: none; justify-content: flex-start; } }

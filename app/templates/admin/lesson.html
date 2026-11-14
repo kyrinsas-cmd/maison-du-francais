@@ -1,0 +1,66 @@
+{% extends "admin/layout.html" %}
+{% import "_lesson.html" as ls %}
+{% block title %}{{ l.level }} · Leçon {{ l.sort }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('admin.lessons_admin', niveau=l.level) }}">← Leçons {{ l.level }}</a></p>
+<h1 class="ls-title">{{ l.level }} · Unité {{ l.unit_sort }} · Leçon {{ l.sort }} : {{ l.title_fr }} <small>{{ l.title_zh }}</small></h1>
+{% if ok %}<p class="flash">{{ ok }}</p>{% endif %}
+{% if errors %}<ul class="errors" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<div class="card" style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between">
+  <p style="margin:0">État : <span class="status {{ 'status-accepted' if l.status == 'published' else ('status-contacted' if l.status == 'review' else 'status-new') }}">{{ statuses[l.status] }}</span>
+    {% if l.published_at %}<span class="note">· publiée le {{ l.published_at.astimezone(PARIS_TZ).strftime('%d/%m/%Y') }}</span>{% endif %}
+    {% if l.key %}<span class="note">· leçon de la graine{{ ' (modifiée par l’équipe : la graine n’y touche plus)' if l.edited }}</span>{% endif %}</p>
+  <form method="post" style="display:flex;gap:8px;align-items:center"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="status">
+    <select name="status" aria-label="Nouvel état">{% for k, v in statuses.items() %}<option value="{{ k }}" {% if k == l.status %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+    <button class="btn btn-navy btn-small" type="submit">Changer l'état</button></form>
+</div>
+{% if problems %}<ul class="errors">{% for e in problems %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+<div class="ls-tabs"><a href="#guide">Guide du cours</a><a href="#fiche">Fiche de l'élève</a><a href="#corrige">Exercices</a><a href="#audio">Audios</a><a href="#remarques">Remarques ({{ comments|rejectattr('resolved_at')|list|length }})</a><a href="#modifier">Modifier</a></div>
+<h2 id="guide" class="ls-part">Guide du cours</h2>
+{{ ls.guide(l, c, L, audio, LESSON_SITE.target, LESSON_SITE.guide) }}
+<h2 id="fiche" class="ls-part">Fiche de l'élève</h2>
+{{ ls.sheet(l, c, S, audio, LESSON_SITE.target, LESSON_SITE.sheet) }}
+<h2 id="corrige" class="ls-part">Exercices et réponses</h2>
+<div lang="{{ LESSON_SITE.sheet }}">{{ ls.answers(l, ex, S, audio, LESSON_SITE.target) }}</div>
+<h2 id="audio">Audios</h2>
+<p class="note">Une question d'écoute n'est posée aux élèves que si son audio est envoyé. MP3 ou M4A, 15 Mo au plus. Enregistrement par un professeur natif de préférence.</p>
+{% for k, a in audio.items() %}
+<div class="card ls-audio-row"><p style="margin:0"><b>{{ a.label or k }}</b> <code>{{ k }}</code> {% if a.file %}<span class="status status-accepted">envoyé</span>{% else %}<span class="status status-new">à envoyer</span>{% endif %}</p>
+  {{ ls.player(l, audio, k, L) }}
+  <p class="pre note" lang="{{ LESSON_SITE.target }}">{{ a.script }}</p>
+  <form method="post" enctype="multipart/form-data" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="slot" value="{{ k }}">
+    <input type="file" name="file" accept=".mp3,.m4a,audio/mpeg,audio/mp4"><button class="btn btn-line btn-small" type="submit" name="action" value="audio">Envoyer</button>
+    {% if a.file %}<button class="btn btn-line btn-small" type="submit" name="action" value="audio_remove" onclick="return confirm('Retirer cet audio ?')">Retirer</button>{% endif %}</form>
+</div>
+{% else %}<p class="empty">Pas de piste audio dans le contenu.</p>{% endfor %}
+<h2 id="remarques">Remarques de relecture</h2>
+{% for k in comments %}<div class="card ls-comment {{ 'low' if k.resolved_at }}"><p class="note" style="margin:0">{{ k.name or '—' }} · {{ k.created_at.astimezone(PARIS_TZ).strftime('%d/%m/%Y %H:%M') }}{% if k.resolved_at %} · traitée{% endif %}</p>
+  <p class="pre" style="margin:4px 0">{{ k.body }}</p>
+  <form method="post"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="resolve"><input type="hidden" name="cid" value="{{ k.id }}"><button class="btn btn-line btn-small" type="submit">{{ 'Rouvrir' if k.resolved_at else 'Marquer comme traitée' }}</button></form></div>
+{% else %}<p class="empty">Pas encore de remarque.</p>{% endfor %}
+<form method="post" class="form" style="max-width:760px"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="comment">
+  <label>Ajouter une remarque<textarea name="body" rows="3" maxlength="4000" required></textarea></label>
+  <button class="btn btn-line btn-small" type="submit" style="align-self:flex-start">Ajouter</button></form>
+<h2 id="modifier">Modifier la leçon</h2>
+<form method="post" class="form"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="save">
+  <div class="row2">
+    <label>Titre en français<input type="text" name="title_fr" maxlength="200" required value="{{ request.form.title_fr or l.title_fr }}"></label>
+    <label>Titre en chinois<input type="text" name="title_zh" maxlength="200" required value="{{ request.form.title_zh or l.title_zh }}"></label>
+  </div>
+  <div class="row2">
+    <label>Unité<select name="unit_id">{% for u in units %}<option value="{{ u.id }}" {% if u.id == l.unit_id %}selected{% endif %}>{{ u.level }} · {{ u.sort }}. {{ u.title_fr }}</option>{% endfor %}</select></label>
+    <label>Numéro de la leçon dans l'unité<input type="number" name="sort" min="1" max="99" value="{{ l.sort }}"></label>
+  </div>
+  <label>Contenu (JSON)<textarea name="content" rows="30" spellcheck="false" class="ls-json">{{ raw }}</textarea></label>
+  <details class="note"><summary>Aide : les champs du contenu</summary><p class="pre">objectives, can_do, materials, mistakes : listes de textes · skills : co, eo, ce, ee
+vocab : [{"w": mot, "py": pinyin, "m": sens}] · grammar : [{"title", "explain", "examples": [{"t", "py", "m"}]}]
+text : {"title", "audio": piste, "lines": [{"who", "t", "py", "m"}]}
+steps : [{"min", "phase" (warmup, present, practice, produce, wrapup), "title", "do", "say", "tip"}] — 45 min au total
+diff : {"young", "teen"} · culture : {"title", "text"} · task : {"kind" (oral, ecrit), "title", "instr" (élève), "instr_guide" (professeur)}
+exercises : qcm / fill {"q", "choices", "answer": index à partir de 0, "explain", "audio"} · tf {"q", "answer": true/false} · match {"q", "pairs": [[gauche, droite]…]}
+audio : [{"id", "label", "script"}]</p></details>
+  <button class="btn btn-red btn-small" type="submit" style="align-self:flex-start">Enregistrer</button>
+</form>
+{% if is_admin() %}<form method="post" onsubmit="return confirm('Supprimer définitivement cette leçon (et ses audios, remarques, résultats des élèves) ?')" style="margin-top:20px">
+  <input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="delete"><button class="btn btn-line btn-small" type="submit">Supprimer la leçon</button></form>{% endif %}
+{% endblock %}

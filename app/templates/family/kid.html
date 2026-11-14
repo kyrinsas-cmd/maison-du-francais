@@ -40,6 +40,20 @@
 </div>
 {% else %}<p class="empty">—</p>{% endif %}
 
+{% if kid_lessons %}
+<h2>{{ lsx.kid_h }}</h2>
+<p class="note">{{ lsx.kid_lead }}</p>
+<div class="card account-tests">
+  {% for r in kid_lessons %}
+  <div class="acct-test">
+    <p style="margin:0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      {% if u.role == 'parent' %}<a href="{{ url_for('family_lesson', sid=s.id, lid=r.id) }}">{% else %}<a href="{{ url_for('pupil_lesson', lid=r.id) }}">{% endif %}<b>{{ r.level }} · {{ r.unit_sort }}.{{ r.sort }} {{ r.title_zh if g.lang == 'zh' else r.title_fr }}</b></a>
+      {% if r.best is not none %}<span class="status status-accepted">{{ lsx.ex }} {{ r.best }} %</span>{% else %}<span class="status status-contacted">{{ lsx.ex }} : {{ lsx.not_done }}</span>{% endif %}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
 <h2>{{ fam.tests }}</h2>
 {% if tests %}
 <div class="card account-tests">

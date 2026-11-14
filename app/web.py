@@ -264,6 +264,7 @@ import pupil  # noqa: E402,F401  (comptes élèves : numéro + mot de passe)
 import homework  # noqa: E402,F401  (devoirs, programme, profil élève côté professeur)
 import bank  # noqa: E402,F401  (作业库 : banque de devoirs par unité du programme)
 import practice  # noqa: E402,F401  (espace élève : exercices et examen blanc)
+import lessons  # noqa: E402,F401  (课 : leçons du programme, guide du professeur, fiche et exercices de l'élève)
 import bo_i18n  # noqa: E402,F401  (langue des espaces : choix enregistré, administration et espace professeur traduits)
 
 admin.init_app(app)

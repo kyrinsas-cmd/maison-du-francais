@@ -1,0 +1,51 @@
+{% extends "space/layout.html" %}
+{% import "_lesson.html" as ls %}
+{% block title %}{{ l.title_zh if g.lang == 'zh' else l.title_fr }} · {{ t.brand_main }}{% endblock %}
+{% block content %}
+<p class="no-print">{% if mode == 'parent' %}<a href="{{ url_for('family_kid', sid=s.id) }}">← {{ s.first_name }}</a>{% else %}<a href="{{ url_for('pupil_lessons') }}">← {{ lsx.back }}</a>{% endif %}
+  · <a href="#" onclick="window.print();return false">{{ L.print }}</a></p>
+<p class="eyebrow-s">{{ l.level }} · {{ L.unit.format(n=l.unit_sort) }} · {{ L.lesson.format(n=l.sort) }}</p>
+<h1 class="ls-title"><span lang="{{ LESSON_SITE.target }}">{{ l.title_zh if LESSON_SITE.target == 'zh' else l.title_fr }}</span>
+  <small>{{ l.title_fr if LESSON_SITE.target == 'zh' else l.title_zh }}</small></h1>
+{{ ls.sheet(l, c, L, audio, LESSON_SITE.target, LESSON_SITE.sheet) }}
+
+{% if mode == 'pupil' %}
+<section class="ls-block no-print" id="exercices"><h2>{{ L.exercises }}</h2>
+{% if not ex %}<p class="note">{{ L.no_ex }}</p>
+{% elif result %}
+  <p class="flash">{{ L.saved }}</p>
+  <div class="bo-figures"><div><b>{{ result.score }} / {{ result.total }}</b><span>{{ L.score }}</span></div></div>
+  <ol class="ls-ex">{% for x in ex %}
+    <li class="{{ 'ls-ok' if (x.ok if x.type != 'match' else (x.rows|selectattr('ok')|list|length == x.rows|length)) else 'ls-ko' }}">
+      <p class="ls-q">{% if x.audio %}{{ ls.player(l, audio, x.audio, L) }}{% endif %}<span class="ls-n">{{ loop.index }}.</span>{{ x.q or '' }}</p>
+      {% if x.type in ('qcm', 'fill') %}
+        <p>{{ '✔' if x.ok else '✘' }} {{ L.your }} : <span lang="{{ LESSON_SITE.target }}">{{ x.picked if x.picked is not none else L.unanswered }}</span>{% if not x.ok %} · {{ L.correct }} : <b lang="{{ LESSON_SITE.target }}">{{ x.right }}</b>{% endif %}</p>
+      {% elif x.type == 'tf' %}
+        <p>{{ '✔' if x.ok else '✘' }} {{ L.your }} : {{ (L.true if x.picked else L.false) if x.picked is not none else L.unanswered }}{% if not x.ok %} · {{ L.correct }} : <b>{{ L.true if x.answer else L.false }}</b>{% endif %}</p>
+      {% else %}
+        <ul class="ls-choices">{% for r in x.rows %}<li>{{ '✔' if r.ok else '✘' }} <span lang="{{ LESSON_SITE.target }}">{{ r.left }}</span> → {{ r.picked if r.picked is not none else L.unanswered }}{% if not r.ok %} · <b>{{ r.right }}</b>{% endif %}</li>{% endfor %}</ul>
+      {% endif %}
+      {% if x.explain %}<p class="note">{{ x.explain }}</p>{% endif %}
+    </li>{% endfor %}</ol>
+  <form method="post"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="action" value="again"><button class="btn btn-navy btn-small" type="submit">{{ L.again }}</button></form>
+{% else %}
+  <form method="post" class="ls-form">
+    <input type="hidden" name="csrf" value="{{ csrf() }}">
+    <ol class="ls-ex">{% for x in ex %}
+      <li><fieldset><legend class="ls-q">{% if x.audio %}{{ ls.player(l, audio, x.audio, L) }}{% endif %}<span class="ls-n">{{ loop.index }}.</span>{{ x.q or '' }}</legend>
+        {% if x.type in ('qcm', 'fill') %}
+          <div class="ls-opts">{% for ch in x.shown %}<label><input type="radio" name="e{{ x.idx }}" value="{{ loop.index0 }}"> <span lang="{{ LESSON_SITE.target }}">{{ ch }}</span></label>{% endfor %}</div>
+        {% elif x.type == 'tf' %}
+          <div class="ls-opts"><label><input type="radio" name="e{{ x.idx }}" value="1"> {{ L.true }}</label><label><input type="radio" name="e{{ x.idx }}" value="0"> {{ L.false }}</label></div>
+        {% else %}
+          <div class="ls-match">{% set xi = x.idx %}{% for p in x.pairs %}<label><span lang="{{ LESSON_SITE.target }}">{{ p[0] }}</span>
+            <select name="e{{ xi }}_{{ loop.index0 }}"><option value="">{{ L.choose }}</option>{% for r in x.rights %}<option value="{{ loop.index0 }}">{{ r }}</option>{% endfor %}</select></label>{% endfor %}</div>
+        {% endif %}
+      </fieldset></li>{% endfor %}</ol>
+    <button class="btn btn-red btn-small" type="submit">{{ L.check }}</button>
+  </form>
+{% endif %}
+</section>
+{% endif %}
+{% if history %}<section class="ls-block no-print"><h2>{{ L.score }}</h2><ul>{% for h in history %}<li>{{ h.finished_at.astimezone(PARIS_TZ).strftime('%d/%m %H:%M') }} · {{ h.score }} / {{ h.total }}</li>{% endfor %}</ul></section>{% endif %}
+{% endblock %}

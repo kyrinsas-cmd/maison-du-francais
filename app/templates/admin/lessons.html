@@ -1,0 +1,22 @@
+{% extends "admin/layout.html" %}
+{% block title %}Leçons{% endblock %}
+{% block content %}
+<h1>Leçons (课)</h1>
+{% if ok %}<p class="flash">{{ ok }}</p>{% endif %}
+<p class="note">Une leçon = un cours de 45 min : guide du professeur, fiche de l'élève, exercices corrigés automatiquement, tâche à faire après le cours, audios.
+  Circuit : brouillon → en relecture (les professeurs lisent et laissent leurs remarques) → publiée (visible des élèves inscrits et de leurs parents).</p>
+<nav class="tabs-admin" aria-label="Niveau">{% for lv in levels %}<a href="{{ url_for('admin.lessons_admin', niveau=lv) }}" {% if lv == level %}aria-current="page"{% endif %}>{{ lv }}
+  {% set n = counts.get((lv, 'published'), 0) %}{% set r = counts.get((lv, 'review'), 0) %}{% if n or r %}<small>({{ n }} publiée{{ 's' if n > 1 }}{% if r %}, {{ r }} en relecture{% endif %})</small>{% endif %}</a>{% endfor %}</nav>
+{% for u in units %}
+<section class="bank-unit">
+  <h2>{{ u.sort }}. {{ u.title_fr }} <span class="note">{{ u.title_zh }}</span></h2>
+  {% set ls = by_unit.get(u.id, []) %}
+  {% if ls %}<ul class="bank-list">{% for x in ls %}
+    <li><span><a href="{{ url_for('admin.lesson_admin', lid=x.id) }}"><b>Leçon {{ x.sort }} · {{ x.title_fr }}</b></a> <span class="note">{{ x.title_zh }}</span>
+      <span class="status {{ 'status-accepted' if x.status == 'published' else ('status-contacted' if x.status == 'review' else 'status-new') }}">{{ statuses[x.status] }}</span>
+      {% if x.open_comments %}<b class="note">· {{ x.open_comments }} remarque(s) à traiter</b>{% endif %}</span></li>
+  {% endfor %}</ul>{% endif %}
+  <form method="post" action="{{ url_for('admin.lesson_new') }}"><input type="hidden" name="csrf" value="{{ csrf() }}"><input type="hidden" name="unit_id" value="{{ u.id }}"><button class="btn btn-line btn-small" type="submit">+ Ajouter une leçon</button></form>
+</section>
+{% endfor %}
+{% endblock %}

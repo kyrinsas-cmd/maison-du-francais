@@ -7,7 +7,7 @@
 <title>{% block title %}Administration{% endblock %} · Maison du français</title>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}?v=25">
-<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}?v=11">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}?v=12">
 </head>
 <body class="admin bo">
 {% set ep = request.endpoint or '' %}
@@ -39,6 +39,7 @@
       {{ item('admin.complaints_admin', 'Réclamations', ('admin.complaint', 'admin.complaint_new')) }}
       <p class="bo-group">Contenus</p>
       {{ item('admin.resources_admin', 'Ressources', ('admin.resource', 'admin.resource_new')) }}
+      {{ item('admin.lessons_admin', 'Leçons', ('admin.lesson_admin',)) }}
       {{ item('admin.bank_admin', 'Banque de devoirs', ('admin.bank_item', 'admin.bank_new')) }}
       {{ item('admin.centres_admin', "Centres d'examen", ('admin.centre_edit', 'admin.session_edit')) }}
       {% if is_admin() %}

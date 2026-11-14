@@ -1,0 +1,27 @@
+{% extends "espace/layout.html" %}
+{% import "_lesson.html" as ls %}
+{% block title %}{{ l.level }} · Leçon {{ l.sort }}{% endblock %}
+{% block content %}
+<p class="no-print"><a href="{{ url_for('espace.lessons_teacher', niveau=l.level) }}">← Leçons {{ l.level }}</a> · <a href="#" onclick="window.print();return false">Imprimer</a></p>
+<p class="eyebrow-s">{{ l.level }} · Unité {{ l.unit_sort }} ({{ l.unit_zh if bo_lang() == 'zh' else l.unit_fr }}) · Leçon {{ l.sort }}
+  <span class="status {{ 'status-accepted' if l.status == 'published' else 'status-contacted' }}">{{ statuses[l.status] }}</span></p>
+<h1 class="ls-title"><span lang="{{ LESSON_SITE.target }}">{{ l.title_zh if LESSON_SITE.target == 'zh' else l.title_fr }}</span> <small>{{ l.title_fr if LESSON_SITE.target == 'zh' else l.title_zh }}</small></h1>
+{% if l.status == 'review' %}<p class="flash">Leçon en relecture : les élèves ne la voient pas encore. Vos remarques (erreurs, ce qui marche ou non en classe) sont les bienvenues, <a href="#remarques">en bas de page</a>.</p>{% endif %}
+{% if ok %}<p class="flash">Remarque envoyée à l'équipe. Merci !</p>{% endif %}
+{% for k in classes %}<p class="no-print"><a class="btn btn-line btn-small" href="{{ url_for('espace.my_class', cid=k.id, lecon=l.id) }}#donner">Donner le devoir de la leçon à ma classe {{ k.level }}{% if classes|length > 1 %} (n° {{ k.id }}){% endif %}</a></p>{% endfor %}
+<div class="ls-tabs no-print"><a href="#guide">Guide du cours</a><a href="#fiche">Fiche de l'élève</a><a href="#corrige">Exercices et réponses</a></div>
+<h2 id="guide" class="ls-part">Guide du cours</h2>
+{{ ls.guide(l, c, L, audio, LESSON_SITE.target, LESSON_SITE.guide) }}
+<h2 id="fiche" class="ls-part">Fiche de l'élève</h2>
+{{ ls.sheet(l, c, S, audio, LESSON_SITE.target, LESSON_SITE.sheet) }}
+<h2 id="corrige" class="ls-part">Exercices et réponses</h2>
+<div lang="{{ LESSON_SITE.sheet }}">{{ ls.answers(l, ex, S, audio, LESSON_SITE.target) }}</div>
+<h2 id="remarques" class="no-print">Remarques de relecture</h2>
+<div class="no-print">
+{% for k in comments %}<div class="card ls-comment {{ 'low' if k.resolved_at }}"><p class="note" style="margin:0">{{ k.name or '—' }} · {{ k.created_at.astimezone(PARIS_TZ).strftime('%d/%m/%Y %H:%M') }}{% if k.resolved_at %} · traitée{% endif %}</p><p class="pre" style="margin:4px 0 0">{{ k.body }}</p></div>{% endfor %}
+<form method="post" class="form" style="max-width:760px"><input type="hidden" name="csrf" value="{{ csrf() }}">
+  <label>Votre remarque (ce qui est faux, à changer, ce qui a marché en classe)<textarea name="body" rows="4" maxlength="4000" required></textarea></label>
+  <button class="btn btn-navy btn-small" type="submit" style="align-self:flex-start">Envoyer à l'équipe</button>
+</form>
+</div>
+{% endblock %}
