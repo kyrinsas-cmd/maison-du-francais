@@ -122,6 +122,9 @@
         render(); controls(); if (m.up && cfg.role === "teacher") banner(p.name + " " + x.raised, 4000);
       }
       else if (m.t === "hands-clear" && roleOf(p) === "teacher") { hands = {}; render(); controls(); }
+      else if (m.t === "share-stop" && roleOf(p) === "teacher" && room && m.for === room.localParticipant.identity) {
+        room.localParticipant.setScreenShareEnabled(false).catch(function () {}).then(function () { banner(x.share_stopped); controls(); render(); });
+      }
       else if (m.t === "chat" && typeof m.text === "string") addMsg(p.name, m.text.slice(0, 300), roleOf(p));
       else if (typeof m.t === "string" && m.t.indexOf("b-") === 0) board.recv(m, p);
     });
@@ -153,6 +156,8 @@
       if (p.isLocal) t.querySelector("video").muted = true;
       t.appendChild(el("div", "cr-avatar"));
       t.appendChild(el("div", "cr-name"));
+      var fs = el("button", "cr-fs", "⛶"); fs.type = "button"; fs.title = fs.ariaLabel = x.tile_full; fs.onclick = function () { tileFull(t); }; t.appendChild(fs);
+      t.addEventListener("dblclick", function () { tileFull(t); });
     }
     var r = roleOf(p), share = big && videoOf(p, Track.Source.ScreenShare), track = share || videoOf(p, Track.Source.Camera);
     var v = t.querySelector("video");
@@ -163,7 +168,7 @@
     t.querySelector(".cr-avatar").hidden = !!track;
     var mic = pub(p, Track.Source.Microphone), muted = !mic || mic.isMuted;
     var q = { excellent: "▮▮▮", good: "▮▮▯", poor: "▮▯▯", lost: "▯▯▯" }[p.connectionQuality] || "";
-    t.querySelector(".cr-name").textContent = (hands[p.identity] ? "✋ " : "") + (muted ? "🔇 " : "") + p.name + (p.isLocal ? " (" + x.you + ")" : "") +
+    t.querySelector(".cr-name").textContent = (share ? "🖥 " : "") + (hands[p.identity] ? "✋ " : "") + (muted ? "🔇 " : "") + p.name + (p.isLocal ? " (" + x.you + ")" : "") +
       (r === "teacher" ? " · " + x.teacher : "") + (q ? "  " + q : "");
     t.title = x.quality[p.connectionQuality] || "";
     return t;
@@ -204,11 +209,13 @@
     var ul = $("cr-people"); ul.textContent = "";
     $("cr-count").textContent = "(" + all.length + ")";
     all.forEach(function (p) {
-      var r = roleOf(p), li = el("li"), name = el("span", "cr-pname", (hands[p.identity] ? "✋ " : "") + p.name + (p.isLocal ? " (" + x.you + ")" : ""));
+      var r = roleOf(p), li = el("li"), name = el("span", "cr-pname", (videoOf(p, Track.Source.ScreenShare) ? "🖥 " : "") + (hands[p.identity] ? "✋ " : "") + p.name + (p.isLocal ? " (" + x.you + ")" : ""));
       li.appendChild(name); li.appendChild(el("span", "cr-prole", x[r] || r));
       if (cfg.role === "teacher" && !p.isLocal && r !== "teacher") {
         var acts = el("span", "cr-acts"), mic = pub(p, Track.Source.Microphone);
         if (mic && !mic.isMuted) acts.appendChild(actBtn(x.mute, function () { act("mute", p, mic.trackSid); }));
+        var scr = pub(p, Track.Source.ScreenShare);
+        if (scr && !scr.isMuted) acts.appendChild(actBtn(x.stop_share, function () { send({ t: "share-stop", for: p.identity }); act("mute", p, scr.trackSid); }));
         if (r === "trial") {
           var on = p.permissions && p.permissions.canPublish;
           acts.appendChild(actBtn(on ? x.revoke : x.allow, function () { act(on ? "revoke" : "allow", p); }));
@@ -236,7 +243,9 @@
     $("b-cam").textContent = (camOn ? "📷 " : "🚫 ") + (camOn ? x.cam_on : x.cam_off); $("b-cam").classList.toggle("off", !camOn);
     $("b-hand").hidden = !(cfg.role === "student" || cfg.role === "trial");
     $("b-hand").textContent = "✋ " + (hands[lp.identity] ? x.hand_down : x.hand_up); $("b-hand").classList.toggle("on", !!hands[lp.identity]);
-    $("b-share").hidden = cfg.role !== "teacher" || !navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia;
+    $("b-share").hidden = !(cfg.role === "teacher" || cfg.role === "student") || !navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia;
+    $("b-full").hidden = !fsSupported();
+    $("b-full").textContent = "⛶ " + (fsElement() ? x.fullscreen_exit : x.fullscreen);
     $("b-share").textContent = "🖥 " + (lp.isScreenShareEnabled ? x.share_stop : x.share);
   }
   $("cr-join") && ($("cr-join").onclick = join);
@@ -249,7 +258,21 @@
     if (up) hands[room.localParticipant.identity] = Date.now(); else delete hands[room.localParticipant.identity];
     send({ t: "hand", up: up }); controls(); render();
   });
-  $("b-leave") && ($("b-leave").onclick = function () { room && room.disconnect(); });
+  $("b-leave") && ($("b-leave").onclick = function () { if (room && confirm(x.leave_confirm)) room.disconnect(); });
+  $("b-full") && ($("b-full").onclick = function () { if (fsElement()) fsExit(); else fsEnter(document.documentElement); });
+
+  // ---------- plein écran (toute la salle, ou une vidéo seule : bouton ⛶ ou double-clic sur la vignette) ----------
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function fsSupported() { return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled); }
+  function fsEnter(node) { var f = node.requestFullscreen || node.webkitRequestFullscreen; if (f) { var r = f.call(node); if (r && r.catch) r.catch(function () {}); } }
+  function fsExit() { var f = document.exitFullscreen || document.webkitExitFullscreen; if (f) { var r = f.call(document); if (r && r.catch) r.catch(function () {}); } }
+  function tileFull(t) {
+    if (fsElement() === t) return fsExit();
+    if (fsSupported()) return fsEnter(t);
+    var v = t.querySelector("video");                                   // iPhone : seule la vidéo peut passer en plein écran
+    if (v && !v.hidden && v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+  }
+  ["fullscreenchange", "webkitfullscreenchange"].forEach(function (ev) { document.addEventListener(ev, function () { controls(); }); });
   $("b-end") && ($("b-end").onclick = function () { if (confirm(x.end_confirm)) act("end"); });
   $("b-side") && ($("b-side").onclick = function () { $("cr-side").classList.toggle("open"); });
   $("cr-audio") && ($("cr-audio").onclick = function () { room.startAudio().then(function () { $("cr-audio").hidden = true; }); });
@@ -366,5 +389,8 @@
   }, 1000);
 
   if ($("cr-preview")) startPreview();
-  window.addEventListener("beforeunload", function () { if (room) room.disconnect(); });
+  window.addEventListener("beforeunload", function (e) {               // fermer l'onglet, revenir en arrière, cliquer sur le logo : le navigateur demande confirmation
+    if (room && room.state === "connected") { e.preventDefault(); e.returnValue = ""; }
+  });
+  window.addEventListener("pagehide", function () { if (room) room.disconnect(); });
 })();

@@ -61,7 +61,9 @@ CR = {
            "starts_in": "{m} 分钟后开始上课", "quality": {"excellent": "网络很好", "good": "网络一般", "poor": "网络较差", "lost": "网络中断"},
            "back": "返回我的账户", "listen_only": "旁听模式：你可以看和听，但不能发言。", "trial_note": "试听模式：老师请你发言后，才能打开麦克风和摄像头。",
            "safety": "课堂内不能私聊，聊天内容不会保存。", "board": "白板", "board_close": "关闭白板", "pen": "笔", "eraser": "橡皮", "clear_all": "清空",
-           "board_allow": "允许学生写", "board_forbid": "禁止学生写", "board_can": "老师允许你在白板上写字了。", "board_cannot": "现在只有老师可以写。"},
+           "board_allow": "允许学生写", "board_forbid": "禁止学生写", "board_can": "老师允许你在白板上写字了。", "board_cannot": "现在只有老师可以写。",
+           "fullscreen": "全屏", "fullscreen_exit": "退出全屏", "tile_full": "全屏查看", "leave_confirm": "确定要离开教室吗？下课前可以重新进入。",
+           "stop_share": "停止TA的共享", "share_stopped": "老师停止了你的屏幕共享。", "sharing": "正在共享屏幕"},
     "fr": {"title": "Salle de classe", "enter": "Entrer en classe", "enter_parent": "Assister en tant que parent", "enter_child": "Mon enfant suit le cours",
            "not_open": "La salle ouvre à {t} (heure de Paris), 30 minutes avant le cours.", "closed": "Ce cours est terminé.", "cancelled": "Ce cours est annulé.",
            "check": "Vérifiez votre caméra et votre micro avant d'entrer.", "mic": "Micro", "cam": "Caméra",
@@ -81,7 +83,10 @@ CR = {
            "trial_note": "Cours d'essai : micro et caméra s'activent quand le professeur vous donne la parole.",
            "safety": "Pas de message privé dans la salle ; la discussion n'est pas conservée.", "board": "Tableau", "board_close": "Fermer le tableau",
            "pen": "Stylo", "eraser": "Gomme", "clear_all": "Effacer tout", "board_allow": "Les élèves peuvent écrire", "board_forbid": "Seul le professeur écrit",
-           "board_can": "Le professeur vous laisse écrire au tableau.", "board_cannot": "Seul le professeur écrit au tableau."},
+           "board_can": "Le professeur vous laisse écrire au tableau.", "board_cannot": "Seul le professeur écrit au tableau.",
+           "fullscreen": "Plein écran", "fullscreen_exit": "Quitter le plein écran", "tile_full": "Voir en plein écran",
+           "leave_confirm": "Quitter la salle de classe ? Vous pourrez revenir tant que le cours n'est pas terminé.",
+           "stop_share": "Arrêter son partage", "share_stopped": "Le professeur a arrêté votre partage d'écran.", "sharing": "partage son écran"},
 }
 
 
@@ -122,7 +127,7 @@ def grants_for(role, room):
     if role == "teacher":
         g_.update(canPublish=True, canPublishSources=["camera", "microphone", "screen_share", "screen_share_audio"])
     elif role == "student":
-        g_.update(canPublish=True, canPublishSources=["camera", "microphone"])
+        g_.update(canPublish=True, canPublishSources=["camera", "microphone", "screen_share", "screen_share_audio"])  # partage d'écran : demandé le 2026-11-14
     else:                       # essai (invité à parler par le professeur), parent, équipe
         g_.update(canPublish=False)
     return g_

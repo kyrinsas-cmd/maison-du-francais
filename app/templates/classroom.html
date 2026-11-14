@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0b1830">
 <title>{{ x.title }} · {{ cls.level }}{% if cls.first_name %} · {{ cls.first_name }}{% endif %} · {{ t.brand_main }}</title>
 <link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="stylesheet" href="{{ url_for('static', filename='classroom.css') }}?v=3">
+<link rel="stylesheet" href="{{ url_for('static', filename='classroom.css') }}?v=4">
 </head>
 <body class="cr lang-{{ lang }}" data-role="{{ role }}">
 {% set back_url = url_for('pupil_home') if (current_student() and not current_user()) else url_for('account_home') %}
@@ -83,6 +83,7 @@
     <button type="button" id="b-hand" hidden>✋ {{ x.hand_up }}</button>
     <button type="button" id="b-share" hidden>🖥 {{ x.share }}</button>
     {% if role == 'teacher' %}<button type="button" id="b-board">📝 {{ x.board }}</button>{% endif %}
+    <button type="button" id="b-full" hidden>⛶ {{ x.fullscreen }}</button>
     <button type="button" id="b-side" class="cr-only-small">💬</button>
     <button type="button" id="b-leave" class="cr-leave">{{ x.leave }}</button>
     {% if role == 'teacher' %}<button type="button" id="b-end" class="cr-end">{{ x.end }}</button>{% endif %}
@@ -99,7 +100,7 @@
   "starts": s.starts_at.isoformat(), "teaching_min": 45, "total_min": s.duration_min
 }|tojson }}</script>
 <script src="{{ url_for('static', filename='vendor/livekit-client.umd.js') }}?v=2.23.0"></script>
-<script src="{{ url_for('static', filename='classroom.js') }}?v=2"></script>
+<script src="{{ url_for('static', filename='classroom.js') }}?v=3"></script>
 {% endif %}
 </body>
 </html>
